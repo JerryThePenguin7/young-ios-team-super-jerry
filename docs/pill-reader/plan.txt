@@ -1,0 +1,1186 @@
+=== ยาใจ (YaJai): The Thai Pill Envelope Reader
+   Complete plan: idea, facts, AI, software, timeline, pitch, Q&A
+
+Team Super Jerry · YIDH26 · written 2026-10-17 (Day 1) · branch `feature/pill-reader`
+
+  | Team copy of the full plan, on the docs-only branch `docs/pill-reader-plan`. The app code lives on `feature/pill-reader`.
+  | New to all this? Read [ai-explained.md](ai-explained.md) first: it explains the AI parts in simple words.
+
+---
+
+== Table of contents
+
+0. [TL;DR: read this if you read nothing else](#0-tldr)
+1. [The idea in one sentence](#1-the-idea-in-one-sentence)
+2. [The problem, with real facts](#2-the-problem-with-real-facts)
+3. [Check that the problem is real: the interview](#3-check-that-the-problem-is-real-the-interview)
+4. [The solution: what the app does](#4-the-solution-what-the-app-does)
+5. [Scope: must / should / nice / won't](#5-scope)
+6. [The AI design (the most important technical section)](#6-the-ai-design)
+7. [Software architecture: files, data, code](#7-software-architecture)
+8. [Timeline: hour by hour, person by person](#8-timeline)
+9. [Step-by-step build instructions + agent prompts](#9-step-by-step-build-instructions)
+10. [Test plan + the fake envelopes](#10-test-plan)
+11. [Design guide (HIG for older people)](#11-design-guide)
+12. [The pitch: 5-minute script + slides](#12-the-pitch)
+13. [Judge Q&A: 15 questions with answers](#13-judge-qa)
+14. [Pros, cons, risks, and what to do about them](#14-pros-cons-risks)
+15. [How we hit each judging criterion](#15-judging-criteria-map)
+16. [Real knowledge to know](#16-real-knowledge-to-know)
+17. [Final checklists](#17-final-checklists)
+18. [Sources](#18-sources)
+
+---
+
+== 0. TL;DR
+
+- What: point the iPad at a Thai medicine envelope (ซองยา). The app shows huge, simple text (what the medicine is, how many, and when),
+  reads it aloud in Thai, and adds it to today's medicine schedule.
+- Who: older people (ผู้สูงอายุ) who take several medicines and can't read the tiny print, and the grandchildren who worry about them.
+- AI: Apple's Vision reads the text on the iPad (a neural network on the Neural Engine). A Thai label reader turns that text into
+  "1 tablet, morning + evening, after meals". An LLM (on-device Foundation Models if it supports Thai, otherwise the event's AI cluster) double-checks messy labels.
+- ⚠️ The #1 thing to do tonight: a 30-minute test on the iPad (section 6.2). As of iOS 26.1, Apple's on-device model does not list Thai
+  as a supported language. iPadOS 27 might be different, but nobody knows yet. That test decides Plan A or Plan B.
+- Demo: airplane mode on → scan a fake envelope → big card + Thai voice → add to today → tick "taken". 2 minutes, no internet.
+- Feature freeze: Day 2, 17:00. After that, only fix bugs, rehearse, and make the deck.
+
+   🧪 Spike test results so far (iPad Pro 11" simulator, iOS 27.0, 2026-10-17 16:35)
+| Test | Result | What it means |
+|---|---|---|
+| 1. Vision reads Thai | ✅ `th` is supported | The camera → text part works on-device |
+| 2. On-device AI available | ✅ (simulator on the M-chip Mac) | Check again on the real iPad |
+| 3. On-device AI supports Thai | ❌ `supportsLocale(th_TH) = false`. Languages: da, de, en, es, fr, it, ja, ko, nb, nl, pt, sv, tr, vi, zh | Thai still isn't supported in iOS 27.0 |
+| 4. On-device AI reads a Thai label | ❌ error "May contain sensitive content" (0.8 s) | Apple's safety guardrails blocked the medicine text. Possible fix to try: `SystemLanguageModel(guardrails: .permissiveContentTransformations)` (iOS 26 API) |
+| 5. Thai voice | ✅ Kanya (th-TH) | Read-aloud works offline |
+| 6. Thai rules | ✅ 5/5 labels correct | The on-device core works |
+| 8. Private Cloud Compute | ⚠️ available, but needs the `com.apple.developer.private-cloud-compute` entitlement. Without it the app crashes (fatal error, not catchable) | It's a project-settings change, so it needs team approval and may not work with a free Personal Team |
+
+➡️ So far it's Plan B: Vision + Thai rules on-device, and the AI cluster for the LLM double-check. Confirm on the real iPad.
+
+⚠️ Gotcha found: `AVSpeechSynthesisVoice.speechVoices()` freezes the app if called on the main thread. Call it from `Task.detached { … }`.
+(`AVSpeechSynthesizer.speak` with `AVSpeechSynthesisVoice(language: "th-TH")` was fine on the main thread.)
+
+---
+
+== 1. The idea in one sentence
+
+  | "ยาใจ reads grandma's medicine envelopes out loud, in big clear Thai, so she takes the right pill at the right time, even with no internet."
+
+Name idea: ยาใจ (YaJai). ยา = medicine, ใจ = heart, and ยาใจ is also a Thai word for a beloved person ("sweetheart / the apple of my eye").
+Pitch line: *"It's like having your grandchild next to you, reading your medicine for you."* (Other names: อ่านยา, PillPal, ซองยาพูดได้.)
+
+---
+
+== 2. The problem, with real facts
+
+   2.1 The story (fill in with YOUR real person)
+  | "My grandma takes [N] medicines every day. Each one comes in a small plastic envelope from the hospital with a tiny printed sticker.
+  | The drug name is in English. The instructions are small Thai text. They all look the same.
+  | Last month she [took the evening pill in the morning / forgot one / took two]."
+
+Replace the brackets with what your real person says in the interview (section 3). A real story beats any statistic.
+
+   2.2 Facts you can say (each is checked, with a source in section 18)
+
+| Fact | How sure | Say it like this |
+|---|---|---|
+| About 1 in 5 Thai people is 60 or older. Thailand is an "aged society". | ✅ Sources range from ~18% (13.6 M people, GISTDA) to ~20% (~15 M, Labour Ministry 2026; 20.17% in 2023 per NESDC/Statista) | "About one in five Thais is over 60. That's around 13–15 million people." |
+| WHO estimates medication errors cost about US$42 billion a year worldwide (~1% of global health spending). | ✅ WHO "Medication Without Harm" (2017), repeated in 2022 | "The WHO says medicine mistakes cost the world about 42 billion dollars a year." |
+| WHO's goal: cut severe, avoidable medication harm by 50%. | ✅ Same campaign | Good for the "why it matters" slide |
+| Polypharmacy means taking 5 or more medicines at once. It's common in older people. | ✅ Standard definition | "Many older people take 5 or more medicines. Doctors call this polypharmacy." |
+| Almost everyone over ~40–45 gets presbyopia (ภาวะสายตายาวตามอายุ): small print up close gets blurry. | ✅ General medical knowledge | "After 40, almost everyone finds small print harder to read." |
+| Thai health data is "sensitive data" under the PDPA (พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562, fully in force since 1 June 2022). | ✅ | "Medicine info is sensitive data under the PDPA, so we keep it on the device." |
+
+  | ❌ Don't invent numbers like "30% of grandmas take the wrong pill." Judges can tell.
+  | Use the facts above plus your own test numbers (section 3.3). Those are the strongest of all.
+
+   2.3 Why it happens (the root causes)
+1. Tiny text on a sticker, and older eyes (presbyopia).
+2. The drug name is English or Latin (e.g. *Amlodipine*). Many older Thais can't read or remember it.
+3. Every envelope looks the same.
+4. Many medicines with different times (morning / noon / evening / bedtime, before or after meals).
+5. Family isn't home during the day to help.
+
+---
+
+== 3. Check that the problem is real: the interview
+
+Do this tonight by phone or video call with a grandparent, an older neighbor, or a parent who looks after one. 15 minutes.
+
+   3.1 Questions (Thai first, English below)
+1. ตอนนี้ทานยากี่ชนิดคะ/ครับ? *(How many medicines do you take?)*
+2. รู้ได้ยังไงว่ายาไหนต้องกินตอนไหน? *(How do you know which one to take when?)*
+3. อ่านตัวหนังสือบนซองยาได้ชัดไหม? *(Can you read the envelope text clearly?)*
+4. เคยกินยาผิด ลืมกิน หรือกินซ้ำไหม? เล่าให้ฟังหน่อย *(Have you ever taken the wrong one, forgotten, or taken one twice? Tell me about it.)*
+5. ใครช่วยดูเรื่องยาให้? *(Who helps you with your medicines?)*
+6. ถ้ามีแอปที่ส่องซองยาแล้วอ่านออกเสียงให้ฟัง จะใช้ไหม? *(If an app read the envelope aloud, would you use it?)*
+
+Ask the helper (son, daughter, or grandchild) too: "How often do you worry about their medicines?"
+
+   3.2 Rules
+- Ask permission to quote them. Use no real names or real photos of their envelopes in the app or deck (PDPA).
+  You can *describe* them: "a 72-year-old grandmother in Nonthaburi".
+- Write down exact words. One real quote goes on slide 2.
+
+   3.3 Your impact test (gives you REAL numbers for the pitch)
+On Day 2 evening, with 2–5 people (older relatives, teachers, or even classmates wearing blurry reading glasses as a rough stand-in):
+1. Give them 3 fake envelopes. Time how long until they can say *"what, how many, and when"* for all 3. Count the mistakes.
+2. Then do the same with the app.
+3. Put it on a slide: *"Without the app: 2 min 10 s and 2 mistakes. With ยาใจ: 40 s and 0 mistakes (5 testers)."*
+
+Use your real numbers, even if they're small. "We tested with 5 people" is worth more than any claim.
+
+---
+
+== 4. The solution: what the app does
+
+   4.1 Core flow (the one thing that must work perfectly)
+```
+[Open app] → big button "📷 สแกนซองยา" → take photo of envelope
+     → Vision reads the text (on-device)
+     → label reader turns it into: drug, amount, times, meal timing, warnings
+     → BIG result card  +  🔊 reads it aloud in Thai
+     → "เพิ่มในยาของฉัน" (Add to my medicines)
+     → Today screen: ☀️ เช้า / 🌤 กลางวัน / 🌆 เย็น / 🌙 ก่อนนอน, tick ✓ when taken
+```
+
+   4.2 Screens (4 total)
+
+Screen 1 · Home / Today (ContentView)
+- Top: today's date in Thai, plus "ถึงเวลาทานยา: เช้า" ("time for your morning medicines") based on the clock.
+- Middle: medicines grouped by time slot, each a big row with a ✓ button.
+- Bottom: a giant "📷 สแกนซองยา" button (minimum 60 pt tall).
+- Empty state: "ยังไม่มียา: กดปุ่มด้านล่างเพื่อสแกนซองยา" ("no medicines yet: tap the button below to scan an envelope") with an arrow.
+
+Screen 2 · Scan (ScanView)
+- Camera on the iPad. A PhotosPicker fallback (for the simulator, or if the camera is unavailable).
+- While reading: "กำลังอ่านซองยา…" ("reading the envelope…") with a progress spinner.
+
+Screen 3 · Result card (ResultCardView)
+- 💊 Amlodipine 5 mg, with a friendly name underneath: *ยาลดความดันโลหิต* (blood pressure medicine)
+- ครั้งละ 1 เม็ด (1 tablet each time) in very big text
+- Time chips: ☀️ เช้า ✅ · 🌆 เย็น ✅ (morning, evening)
+- 🍚 หลังอาหาร (after meals)
+- ⚠️ warnings, if any
+- Buttons: 🔊 อ่านออกเสียง (read aloud) · ✏️ แก้ไข (edit) · ✅ เพิ่มในยาของฉัน (add to my medicines)
+- Small, always visible: *"ตรวจกับฉลากจริงทุกครั้ง · ไม่ใช่คำแนะนำทางการแพทย์"* ("always check the real label · not medical advice")
+- A small badge showing who read it: "อ่านในเครื่อง (On-device)" or "AI cluster" (required by your AGENTS.md)
+- "ดูข้อความที่อ่านได้" (show the scanned text): expands the raw text, so a family member can compare it with the label
+
+Screen 4 · Medicine detail (MedicineDetailView)
+- Same as the card, plus delete, plus the "read aloud" button.
+
+   4.3 What's special (say this in the pitch)
+1. Works with no internet. Rural areas, a hospital basement, or at home with no Wi-Fi.
+2. Private. Medicine info never leaves the iPad.
+3. Voice + huge text. Made for older eyes, not for programmers.
+4. Zero setup. No login, no typing. Open, scan, done.
+
+---
+
+== 5. Scope
+
+| Priority | Feature | Why |
+|---|---|---|
+| 🔴 MUST (Day 2 noon) | Photo → Thai/English text (Vision) | Everything depends on it |
+| 🔴 MUST | Label reader (rules) → PillInfo | Works offline, so the demo is safe |
+| 🔴 MUST | Big result card + "not medical advice" + raw text | The "wow" screen |
+| 🔴 MUST | 🔊 Read aloud in Thai (AVSpeechSynthesizer) | Easy, high impact, offline |
+| 🟠 SHOULD (Day 2 17:00) | Save to "my medicines" (SwiftData) + Today screen with ✓ | Turns a scanner into an app |
+| 🟠 SHOULD | LLM double-check (Plan A: on-device / Plan B: cluster) with an "answered by" badge | The "Use of AI" score |
+| 🟠 SHOULD | Edit screen (fix a wrong field) | A safety answer for judges |
+| 🟢 NICE | Reminder notifications at 08:00 / 12:00 / 18:00 / 21:00 | Only if everything else is done |
+| 🟢 NICE | Friendly drug names from a small built-in list (20 common drugs) | Nice touch |
+| 🟢 NICE | App Intent: "Hey Siri, ตอนนี้ต้องกินยาอะไร" ("what medicine do I take now?") | Workshop 4; only if bored |
+| ⚫ WON'T | Login, cloud sync, pharmacy lookup, drug interaction checker, real patient data | Out of time and/or medical/PDPA risk |
+
+  | Rule: don't start a 🟠 item until all 🔴 items work on the iPad. Don't start 🟢 until all 🟠 are done.
+
+---
+
+== 6. The AI design
+
+   6.1 The honest truth about Thai (real knowledge, very important)
+- Apple's on-device model (Foundation Models / AFM): as of iOS 26.1 it supports 16 languages: English, Danish, Dutch, French, German,
+  Italian, Norwegian, Portuguese, Spanish, Swedish, Turkish, Chinese (Simplified and Traditional), Japanese, Korean, and Vietnamese. Thai is not on the list.
+  Your iPad runs iPadOS 27, which may add more, but no source confirms Thai yet.
+  Developers also report that Foundation Models can be unavailable if the device's system language isn't supported, and Apple's API has an error called
+  `unsupportedLanguageOrLocale`.
+- Vision text recognition (OCR): the handbook says to pass `"th-TH"`, but I couldn't find an Apple page that confirms Thai is supported.
+  The handbook's own `TextReader.swift` quietly drops languages the device doesn't support. So check on the iPad.
+- The AI cluster: `.ocr` = Typhoon OCR (made by SCB 10X, built for Thai + English). `.chat` = Gemma / Qwen, which handle Thai well. But it needs event Wi-Fi.
+
+➡️ That's why the design has layers. Each layer has a real job, and the app never depends on just one.
+
+   6.2 🧪 The 30-minute spike test (do it FIRST, tonight, on the iPad)
+Make a temporary `SpikeTestView.swift` (code in 7.9) that shows on screen:
+1. Does Vision's `supportedRecognitionLanguages` include th?
+2. `SystemLanguageModel.default.availability`: is it available?
+3. Does `supportsLocale(Locale(identifier: "th_TH"))` return true?
+4. Give the model a Thai label text with `@Generable PillInfo`: does it return a correct result, or throw an error?
+5. Is there a Thai voice (`AVSpeechSynthesisVoice(language: "th-TH")` not nil)?
+
+   6.3 Decide your plan from the results
+
+| Result | Plan | The pipeline |
+|---|---|---|
+| Vision Thai ✅, AFM Thai ✅ | Plan A (best story) | Vision → rules + on-device Foundation Models (`@Generable`) → card. 100% on-device |
+| Vision Thai ✅, AFM Thai ❌ | Plan B (most likely) | Vision → rules (offline, instant) → AI cluster `.chat` double-checks when on Wi-Fi |
+| Vision Thai ❌ | Plan C | AI cluster `.ocr` (Typhoon) reads the text when online. Offline: Vision still reads the English drug name + Latin codes (bid, pc, hs) |
+| No Thai voice | — | Download it: iPad Settings ▸ Accessibility ▸ Spoken Content ▸ Voices ▸ Thai. Or use cluster `.tts` |
+
+   6.4 The pipeline (Plan A/B)
+```
+ 📷 Photo
+   │
+   ▼
+ [Vision RecognizeTextRequest]  ← on-device neural network (Neural Engine), th + en
+   │   lines of text
+   ▼
+ [LabelParser: Thai rules]      ← on-device, instant, never fails
+   │   PillInfo (from rules)
+   ▼
+ [LLM double-check]             ← Plan A: Foundation Models (on-device)
+   │                              Plan B: AI cluster .chat (Wi-Fi only)
+   │   PillInfo (from the AI) → merged with the rules result
+   ▼
+ [Result card] + [🔊 AVSpeechSynthesizer th-TH] + badge "who answered"
+```
+
+   6.5 Why each tool (say this to judges, about 2 sentences each)
+- Vision (on-device): "Reading text is a small job, so it runs on the iPad. It's free, instant, works offline, and the photo never leaves the device."
+- Rules for Thai labels: "Thai hospital labels use the same standard phrases: ครั้งละ… วันละ… หลังอาหาร. Simple rules read them perfectly, offline, every time.
+  We didn't use a big AI where a small, reliable tool works better."
+- LLM double-check: "Real labels can be messy, wrinkled, or worded differently. The language model handles those cases. We [tested Apple's on-device model with Thai: it works / Thai isn't supported yet],
+  so we use [on-device Foundation Models / the event cluster], and the app still works without it."
+- Voice (on-device): "Many older people find listening easier than reading. iOS has a Thai voice built in, so this works offline too."
+
+  | 🏆 This matches what the kickoff said: *do small jobs on-device, use the cluster only when you must, and a bigger model doesn't mean more points.*
+
+   6.6 Safety design (medicine = be careful)
+- The LLM is told: copy only what's printed. Never guess a drug, dose, or time.
+- Always show the raw scanned text, so a human can compare.
+- If the rules and the AI disagree, show the field in orange with "โปรดตรวจสอบ" ("please check").
+- If times were guessed from "วันละ 2 ครั้ง" (twice a day) without saying which times, mark them "เดาจากวันละ 2 ครั้ง" ("guessed from twice a day").
+- "ไม่ใช่คำแนะนำทางการแพทย์ · ถามเภสัชกรเมื่อไม่แน่ใจ" ("not medical advice · ask a pharmacist if unsure") appears on every result.
+- No medical advice features: no "is this safe to mix?" and no dose changes.
+
+---
+
+== 7. Software architecture
+
+   7.1 Ground rules (from AGENTS.md; break these and 2 of your 3 Macs can't build)
+- Deployment target iOS 26.0. Don't change project settings. Don't hand-edit `project.pbxproj`.
+- New files go inside `SuperJerry/` (synchronized folder: Xcode picks them up automatically, including subfolders).
+- No iOS 27-only APIs without `#if compiler(>=6.4)` + `if #available(iOS 27, *)`.
+- Every new view gets a `#Preview`. Use SF Symbols, system colors, and Dynamic Type.
+- Never commit `AICluster.swift` (it's already in .gitignore).
+- Build check: `xcodebuild -project SuperJerry.xcodeproj -scheme SuperJerry -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`
+
+   7.2 File map (who owns what, so nobody edits the same file)
+
+```
+SuperJerry/
+├── MyApp.swift                      (B) add .modelContainer(for: Medicine.self)
+├── ContentView.swift                (C) Home / Today screen
+├── Models/
+│   ├── PillInfo.swift               (B) @Generable struct + MealTiming enum
+│   ├── Medicine.swift               (C) SwiftData @Model
+│   └── TimeSlot.swift               (C) morning/noon/evening/bedtime + Thai names + SF Symbols
+├── Reading/
+│   ├── TextReader.swift             (A) copy from handbook workshop-5 VisionParts
+│   └── CameraPicker.swift           (A) UIImagePickerController wrapper
+├── Understanding/
+│   ├── LabelParser.swift            (B) Thai rules ← the heart of the app
+│   ├── PillExtractor.swift          (B) rules + LLM + "who answered"
+│   └── DrugDictionary.swift         (B) 20 common drugs → friendly Thai name
+├── Speaking/
+│   └── SpeechReader.swift           (A) AVSpeechSynthesizer th-TH
+├── Views/
+│   ├── ScanView.swift               (A) camera / PhotosPicker → reading → result
+│   ├── ResultCardView.swift         (A) the big card
+│   ├── TodayRow.swift               (C) one medicine row with ✓
+│   └── MedicineDetailView.swift     (C)
+├── Reminders/
+│   └── ReminderScheduler.swift      (C) 🟢 nice-to-have
+├── Debug/
+│   └── SpikeTestView.swift          (anyone) delete before submitting
+└── AICluster.swift                  (Plan B only, gitignored, each person creates locally)
+```
+
+Person A = camera, reading, card, voice · B = understanding (parser + AI) · C = data, Today screen, reminders, and pitch lead.
+
+   7.3 Data model: `PillInfo` (shared by rules, AI, and UI)
+```swift
+// Models/PillInfo.swift
+import FoundationModels
+
+@Generable
+enum MealTiming {
+    case before, after, with, anytime
+}
+
+@Generable
+struct PillInfo {
+    @Guide(description: "Drug name in English exactly as printed, e.g. Amlodipine. Empty if not printed.")
+    var drugName: String
+    @Guide(description: "Strength exactly as printed, e.g. 5 mg. Empty if not printed.")
+    var strength: String
+    @Guide(description: "How many units each time, e.g. 1 or 0.5. Use 1 if not printed.")
+    var amountPerDose: Double
+    @Guide(description: "Unit in Thai as printed: เม็ด, แคปซูล, ช้อนชา, ช้อนโต๊ะ, or ซอง")
+    var unit: String
+    var morning: Bool
+    var noon: Bool
+    var evening: Bool
+    var bedtime: Bool
+    var mealTiming: MealTiming
+    @Guide(description: "True only if the label says to take it when needed, e.g. เมื่อมีอาการ")
+    var asNeeded: Bool
+    @Guide(description: "Warnings printed on the label, copied in Thai, short")
+    var warnings: [String]
+}
+
+extension PillInfo {
+    static let empty = PillInfo(drugName: "", strength: "", amountPerDose: 1, unit: "เม็ด",
+                                morning: false, noon: false, evening: false, bedtime: false,
+                                mealTiming: .anytime, asNeeded: false, warnings: [])
+    var hasAnyTime: Bool { morning || noon || evening || bedtime }
+}
+
+extension MealTiming {
+    var thai: String {
+        switch self {
+        case .before: "ก่อนอาหาร"
+        case .after: "หลังอาหาร"
+        case .with: "พร้อมอาหาร"
+        case .anytime: ""
+        }
+    }
+}
+```
+  | `import FoundationModels` is fine on iOS 26 and builds in both Xcode 26 and 27. On a device without Apple Intelligence, the *type* still works.
+  | Only calling the model needs an availability check.
+
+   7.4 Reading the text (copy from the handbook)
+Copy `starter/workshop-5/Workshop5Starter/VisionParts/TextReader.swift` from
+https://github.com/swiftcodingclubth/yidh26-swift-handbook into `SuperJerry/Reading/`. It gives you:
+```swift
+func readText(from image: UIImage) async throws -> [String]   // one String per line
+```
+It already sets `.accurate`, asks for `["th", "en"]`, keeps only the languages the device supports, and fixes photo rotation.
+(Uses the Swift `RecognizeTextRequest` API, which needs iOS 18+. Your target is 26, so that's fine.)
+
+   7.5 The camera
+```swift
+// Reading/CameraPicker.swift
+import SwiftUI
+import UIKit
+
+/// Opens the iPad camera and returns one photo. Check
+/// `UIImagePickerController.isSourceTypeAvailable(.camera)` before showing it.
+struct CameraPicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ picker: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraPicker
+        init(_ parent: CameraPicker) { self.parent = parent }
+
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            parent.image = info[.originalImage] as? UIImage
+            parent.dismiss()
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
+    }
+}
+```
+- Required: target ▸ Info ▸ add `Privacy - Camera Usage Description` = `ใช้กล้องเพื่ออ่านฉลากซองยา` ("used to read medicine envelope labels"). Without it, the app crashes when the camera opens.
+- Also add a `PhotosPicker` button ("เลือกรูปจากคลังภาพ", choose from photo library). It needs no permission key, works in the simulator (drag a photo onto it),
+  and is your backup if the camera misbehaves on stage.
+- Photo tips: good light, fill the frame with the sticker, avoid glare on the plastic (tilt slightly).
+
+   7.6 The label reader: `LabelParser` (the heart, Person B)
+Thai hospital labels follow a pattern. Real knowledge about the text you'll see:
+
+| On the label | Means | Rule |
+|---|---|---|
+| `Amlodipine 5 mg` | drug + strength | English word + number + mg/mcg/g/ml |
+| `ครั้งละ 1 เม็ด` / `ครั้งละ ½ เม็ด` / `ครั้งละ ครึ่ง เม็ด` | amount each time (1 tablet, half a tablet) | number or ครึ่ง/½ after ครั้งละ |
+| `วันละ 2 ครั้ง` | 2 times a day | number between วันละ and ครั้ง |
+| `เช้า` `กลางวัน`/`เที่ยง` `เย็น` `ก่อนนอน` | morning, noon, evening, bedtime | keyword |
+| `ก่อนอาหาร` (often `30 นาที`) / `หลังอาหาร` / `หลังอาหารทันที` / `พร้อมอาหาร` | before / after / right after / with meals | keyword |
+| `เมื่อมีอาการ` `เวลามีอาการ` `เมื่อปวด` `เมื่อมีไข้` `ทุก 4-6 ชั่วโมง` | when needed (when symptoms appear, when in pain, when feverish, every 4–6 hours) | → asNeeded |
+| `ac` `pc` `hs` `od` `bid` `tid` `qid` `prn` | Latin: before meals, after meals, bedtime, once a day, 2×, 3×, 4× a day, when needed | Latin codes (doctors' shorthand) |
+| `อาจทำให้ง่วงซึม` `ห้าม…` `ควร…` `ทานจนหมด` `ดื่มน้ำมากๆ` | may cause drowsiness, do not…, should…, finish the whole course, drink lots of water | → warnings |
+| `๑ ๒ ๓` | Thai digits | convert to 1 2 3 |
+
+Thai OCR gotchas (real):
+- Thai digits ๐–๙ → convert to 0–9.
+- สระอำ (ำ) sometimes comes out as two characters, nikhahit (ํ) + sara aa (า). Join them back.
+- OCR sometimes adds spaces between Thai letters. Search in a copy with all spaces removed.
+- Thai tone marks (่ ้ ๊ ๋) combine with the letter before them into one Swift `Character`.
+  If you ever need to strip them, work on `unicodeScalars`, not Characters.
+
+```swift
+// Understanding/LabelParser.swift
+import Foundation
+
+/// Reads a Thai medicine label with fixed rules. Offline, instant, and the same answer every time.
+enum LabelParser {
+
+    static func parse(_ lines: [String]) -> PillInfo {
+        let text = normalize(lines.joined(separator: "\n"))
+        let compact = text.replacingOccurrences(of: " ", with: "")      // OCR adds random spaces in Thai
+        let latin = text.lowercased().replacingOccurrences(of: ".", with: "") // "b.i.d." → "bid"
+        var info = PillInfo.empty
+
+        // 1. Drug + strength: "Amlodipine 5 mg"
+        if let m = text.firstMatch(of: /([A-Za-z][A-Za-z\-]{3,})\s*(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml)\b/.ignoresCase()) {
+            info.drugName = String(m.1).capitalized
+            info.strength = "\(m.2) \(m.3.lowercased())"
+        }
+
+        // 2. Amount each time: "ครั้งละ1เม็ด", "ครั้งละครึ่งเม็ด", "ครั้งละ½เม็ด"
+        if let m = compact.firstMatch(of: /ครั้งละ(\d+(?:\.\d+)?|ครึ่ง|½)(เม็ด|แคปซูล|ช้อนชา|ช้อนโต๊ะ|ซอง)?/) {
+            info.amountPerDose = (m.1 == "ครึ่ง" || m.1 == "½") ? 0.5 : (Double(m.1) ?? 1)
+            if let unit = m.2 { info.unit = String(unit) }
+        }
+
+        // 3. Times of day
+        info.morning = compact.contains("เช้า")
+        info.noon    = compact.contains("กลางวัน") || compact.contains("เที่ยง")
+        info.evening = compact.contains("เย็น")
+        info.bedtime = compact.contains("ก่อนนอน") || latin.contains(/\bhs\b/)
+
+        // 4. When needed
+        let asNeededWords = ["เมื่อมีอาการ", "เวลามีอาการ", "เมื่อปวด", "เมื่อมีไข้", "ทุก4-6ชั่วโมง"]
+        info.asNeeded = asNeededWords.contains { compact.contains($0) } || latin.contains(/\bprn\b/)
+
+        // 5. Times per day → fill in times only if the label didn't name them
+        var timesPerDay = 0
+        if let m = compact.firstMatch(of: /วันละ(\d)ครั้ง/) { timesPerDay = Int(m.1) ?? 0 }
+        if latin.contains(/\bod\b/)  { timesPerDay = 1 }
+        if latin.contains(/\bbid\b/) { timesPerDay = 2 }
+        if latin.contains(/\btid\b/) { timesPerDay = 3 }
+        if latin.contains(/\bqid\b/) { timesPerDay = 4 }
+        if !info.hasAnyTime && !info.asNeeded {
+            // These are a GUESS. The card must say "please check".
+            switch timesPerDay {
+            case 1: info.morning = true
+            case 2: info.morning = true; info.evening = true
+            case 3: info.morning = true; info.noon = true; info.evening = true
+            case 4: info.morning = true; info.noon = true; info.evening = true; info.bedtime = true
+            default: break
+            }
+        }
+
+        // 6. Meals
+        if compact.contains("ก่อนอาหาร") || latin.contains(/\bac\b/) {
+            info.mealTiming = .before
+        } else if compact.contains("หลังอาหาร") || latin.contains(/\bpc\b/) {
+            info.mealTiming = .after
+        } else if compact.contains("พร้อมอาหาร") {
+            info.mealTiming = .with
+        }
+
+        // 7. Warnings: keep the whole line so nothing gets lost
+        let warningWords = ["ง่วง", "ห้าม", "ระวัง", "ไม่ควร", "จนหมด", "ดื่มน้ำ"]
+        info.warnings = lines.filter { line in warningWords.contains { line.contains($0) } }
+                             .map { $0.trimmingCharacters(in: .whitespaces) }
+        return info
+    }
+
+    /// Thai digits → 0-9 and fix สระอำ written as two characters.
+    static func normalize(_ s: String) -> String {
+        var out = String.UnicodeScalarView()
+        for u in s.unicodeScalars {
+            if (0x0E50...0x0E59).contains(u.value), let digit = Unicode.Scalar(u.value - 0x0E50 + 0x30) {
+                out.append(digit)
+            } else {
+                out.append(u)
+            }
+        }
+        return String(out).replacingOccurrences(of: "\u{0E4D}\u{0E32}", with: "\u{0E33}")
+    }
+}
+```
+  | Check it without the iPad: write the 5 fake label texts (section 10.1) as strings and look at the result in a `#Playground` or `#Preview`.
+  | If a test fails, add the missing word to the rule. That's the whole job.
+
+   7.7 The extractor: rules + LLM + "who answered" (Person B)
+```swift
+// Understanding/PillExtractor.swift
+import FoundationModels
+
+enum AnswerSource: String {
+    case rules    = "อ่านในเครื่อง"       // On-device rules
+    case onDevice = "AI ในเครื่อง"        // On-device Foundation Models
+    case cluster  = "AI cluster"
+}
+
+enum PillExtractor {
+    static let instructions = """
+    You read Thai medicine envelope labels. Copy facts exactly as printed.
+    Never guess a drug, dose, or time that is not printed. If something is missing, leave it empty or false.
+    """
+
+    /// Rules always run. An LLM improves the result when one is available.
+    static func extract(from lines: [String]) async -> (PillInfo, AnswerSource) {
+        let fromRules = LabelParser.parse(lines)
+        let text = lines.joined(separator: "\n")
+
+        // Plan A: on-device Foundation Models (only if the spike test said Thai works)
+        if let ai = try? await askOnDevice(text) {
+            return (merge(ai: ai, rules: fromRules), .onDevice)
+        }
+        // Plan B: the AI cluster (uncomment after adding the HackathonAI package + AICluster.swift)
+        // if let ai = try? await askCluster(text) {
+        //     return (merge(ai: ai, rules: fromRules), .cluster)
+        // }
+        return (fromRules, .rules)
+    }
+
+    static func askOnDevice(_ text: String) async throws -> PillInfo? {
+        let model = SystemLanguageModel.default
+        guard case .available = model.availability,
+              model.supportsLocale(Locale(identifier: "th_TH")) else { return nil }
+        let session = LanguageModelSession(instructions: instructions)
+        return try await session.respond(to: text, generating: PillInfo.self).content
+    }
+
+    /// Prefer the AI's answer, but keep anything the AI left empty from the rules.
+    static func merge(ai: PillInfo, rules: PillInfo) -> PillInfo {
+        var result = ai
+        if result.drugName.isEmpty { result.drugName = rules.drugName }
+        if result.strength.isEmpty { result.strength = rules.strength }
+        if !result.hasAnyTime && !result.asNeeded {
+            result.morning = rules.morning; result.noon = rules.noon
+            result.evening = rules.evening; result.bedtime = rules.bedtime
+        }
+        if result.warnings.isEmpty { result.warnings = rules.warnings }
+        return result
+    }
+}
+```
+Plan B, `askCluster` (after one person adds the package; see `ai/prompts/05-add-ai-cluster.md`):
+```swift
+// import HackathonAI  (top of file)
+static func askCluster(_ text: String) async throws -> PillInfo {
+    try await aiCluster.respond(to: text, generating: PillInfo.self)   // ⚠️ check the exact signature in the yidh26-ai README
+}
+```
+- Package: `https://github.com/swiftcodingclubth/yidh26-ai`, exact version 0.0.2, library `HackathonAI`. One person adds it, pushes, and then everyone pulls.
+- `AICluster.swift` (gitignored): `let aiCluster = HackathonAI(baseURL: "http://[from staff]", apiKey: "team-XX-xxxx")`.
+  ⚠️ Every teammate must create this file locally, or the project won't build on their Mac.
+- Info: `NSLocalNetworkUsageDescription` + `NSAppTransportSecurity › NSAllowsArbitraryLoads = YES` (and not `NSAllowsLocalNetworking`).
+- Call it only when the user taps "scan", never in a loop. Set `maximumResponseTokens` (~300).
+  If the cluster takes more than ~5 seconds, show the rules result and don't wait.
+
+   7.8 Voice (Person A)
+```swift
+// Speaking/SpeechReader.swift
+import AVFoundation
+
+/// Reads Thai text aloud using the iPad's built-in Thai voice. Works offline.
+@MainActor
+final class SpeechReader {
+    private let synthesizer = AVSpeechSynthesizer()   // must be kept alive, or speech stops instantly
+
+    func speak(_ text: String) {
+        try? AVAudioSession.sharedInstance().setCategory(.playback)   // play even if the iPhone is on silent
+        synthesizer.stopSpeaking(at: .immediate)
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "th-TH")
+        utterance.rate = 0.42          // a little slower than normal (0.5) for older listeners
+        synthesizer.speak(utterance)
+    }
+}
+
+extension PillInfo {
+    /// e.g. "ยา Amlodipine. ยาลดความดันโลหิต. กินครั้งละ 1 เม็ด. ตอนเช้า และตอนเย็น. หลังอาหาร."
+    var spokenThai: String {
+        var times: [String] = []
+        if morning { times.append("ตอนเช้า") }
+        if noon { times.append("ตอนกลางวัน") }
+        if evening { times.append("ตอนเย็น") }
+        if bedtime { times.append("ก่อนนอน") }
+        let amount = amountPerDose == 0.5 ? "ครึ่ง" : String(format: "%g", amountPerDose)
+        var parts = ["ยา \(drugName)"]
+        if let friendly = DrugDictionary.friendlyName(for: drugName) { parts.append(friendly) }
+        parts.append("กินครั้งละ \(amount) \(unit)")
+        parts.append(asNeeded ? "เมื่อมีอาการ" : times.joined(separator: " และ"))
+        if !mealTiming.thai.isEmpty { parts.append(mealTiming.thai) }
+        parts += warnings
+        return parts.joined(separator: ". ")
+    }
+}
+```
+  | Tip: an English drug name read by the Thai voice may sound odd ("แอมโลดิปีน" is fine, "Amlodipine" may be spelled out).
+  | The friendly Thai name helps. You could also add a `thaiSpelling` field in the dictionary.
+
+   7.9 Small friendly-name list (Person B, 🟢 nice-to-have)
+```swift
+// Understanding/DrugDictionary.swift
+/// General category names only. Not advice. Shown with "ถามเภสัชกร" (ask a pharmacist).
+enum DrugDictionary {
+    static let names: [String: String] = [
+        "amlodipine": "ยาลดความดันโลหิต",
+        "losartan": "ยาลดความดันโลหิต",
+        "enalapril": "ยาลดความดันโลหิต",
+        "hydrochlorothiazide": "ยาขับปัสสาวะ / ลดความดัน",
+        "metformin": "ยาเบาหวาน",
+        "glipizide": "ยาเบาหวาน",
+        "simvastatin": "ยาลดไขมันในเลือด",
+        "atorvastatin": "ยาลดไขมันในเลือด",
+        "aspirin": "ยาต้านเกล็ดเลือด",
+        "omeprazole": "ยาลดกรดในกระเพาะ",
+        "paracetamol": "ยาแก้ปวด ลดไข้",
+        "calcium carbonate": "แคลเซียมเสริม",
+        "folic acid": "วิตามินโฟลิก",
+    ]
+    static func friendlyName(for drug: String) -> String? { names[drug.lowercased()] }
+}
+```
+
+   7.10 Saving medicines: SwiftData (Person C)
+```swift
+// Models/Medicine.swift
+import Foundation
+import SwiftData
+
+@Model
+final class Medicine {
+    var drugName: String
+    var strength: String
+    var amountPerDose: Double
+    var unit: String
+    var morning: Bool
+    var noon: Bool
+    var evening: Bool
+    var bedtime: Bool
+    var mealTimingThai: String      // store simple types; SwiftData is happier than with custom enums
+    var asNeeded: Bool
+    var warnings: [String]
+    var rawText: String             // what the camera read, so a human can compare
+    var takenKeys: [String] = []    // e.g. "2026-10-18-morning" when ticked ✓
+    var addedAt: Date = Date()
+
+    init(from info: PillInfo, rawText: String) {
+        drugName = info.drugName; strength = info.strength
+        amountPerDose = info.amountPerDose; unit = info.unit
+        morning = info.morning; noon = info.noon; evening = info.evening; bedtime = info.bedtime
+        mealTimingThai = info.mealTiming.thai; asNeeded = info.asNeeded
+        warnings = info.warnings; self.rawText = rawText
+    }
+}
+```
+In `MyApp.swift`: `WindowGroup { ContentView() }.modelContainer(for: Medicine.self)`.
+In views: `@Query(sort: \Medicine.addedAt) var medicines: [Medicine]` and `@Environment(\.modelContext) var context`, then `context.insert(Medicine(from: info, rawText: raw))`.
+
+`TimeSlot` enum (C): `morning/noon/evening/bedtime` with `thai` ("เช้า", "กลางวัน", "เย็น", "ก่อนนอน"),
+`symbol` (`sun.max.fill`, `sun.min.fill`, `sunset.fill`, `moon.stars.fill`), `hour` (8, 12, 18, 21), and `current` (the slot for the current time).
+
+   7.11 Reminders (Person C, 🟢 only if there's time)
+```swift
+import UserNotifications
+// Ask once: try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+// For each slot that has medicines:
+let content = UNMutableNotificationContent()
+content.title = "ถึงเวลาทานยา ☀️ เช้า"
+content.body = "Amlodipine 1 เม็ด หลังอาหาร"
+content.sound = .default
+let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: 8, minute: 0), repeats: true)
+try await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "slot-morning", content: content, trigger: trigger))
+```
+No Info.plist key is needed for notifications. For the demo, add a hidden "test in 10 seconds" button using `UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)`.
+
+   7.12 Spike test view (delete before submitting)
+```swift
+// Debug/SpikeTestView.swift
+import SwiftUI
+import Vision
+import FoundationModels
+import AVFoundation
+
+struct SpikeTestView: View {
+    @State private var report = "Tap Run"
+    let sample = "Amlodipine 5 mg\nรับประทานครั้งละ 1 เม็ด วันละ 1 ครั้ง\nหลังอาหารเช้า"
+
+    var body: some View {
+        ScrollView {
+            Button("Run spike test") { Task { await run() } }.buttonStyle(.borderedProminent)
+            Text(report).font(.body.monospaced()).padding()
+        }
+    }
+
+    func run() async {
+        var r = ""
+        let vision = RecognizeTextRequest().supportedRecognitionLanguages.map { $0.maxIdentifier }
+        r += "1. Vision languages: \(vision)\n   Thai? \(vision.contains { $0.hasPrefix("th") })\n"
+        let model = SystemLanguageModel.default
+        r += "2. AFM availability: \(model.availability)\n"
+        r += "3. AFM supports th_TH: \(model.supportsLocale(Locale(identifier: "th_TH")))\n"
+        do {
+            let session = LanguageModelSession(instructions: PillExtractor.instructions)
+            let out = try await session.respond(to: sample, generating: PillInfo.self).content
+            r += "4. AFM result: \(out)\n"
+        } catch {
+            r += "4. AFM error: \(error)\n"
+        }
+        r += "5. Thai voice: \(AVSpeechSynthesisVoice(language: "th-TH")?.name ?? "NONE")\n"
+        r += "6. Rules result: \(LabelParser.parse(sample.components(separatedBy: "\n")))\n"
+        report = r
+    }
+}
+
+#Preview { SpikeTestView() }
+```
+Temporarily show it from `ContentView`, run it on the iPad, take a screenshot of the results, and decide Plan A/B/C (section 6.3).
+
+   7.13 Info.plist keys (target ▸ Info; there's no Info.plist file, Xcode makes one)
+| Key | Value | When |
+|---|---|---|
+| `NSCameraUsageDescription` | ใช้กล้องเพื่ออ่านฉลากซองยา | Always (camera) |
+| `NSLocalNetworkUsageDescription` | ใช้เชื่อมต่อ AI ของงาน (to connect to the event's AI) | Plan B/C only |
+| `NSAppTransportSecurity › NSAllowsArbitraryLoads` | YES | Plan B/C only |
+
+  | One person adds these and pushes. The project file changes, so tell the group chat first.
+
+---
+
+== 8. Timeline
+
+  | Times assume pitching on Day 3 morning. If you pitch on Day 2 evening: skip everything 🟢,
+  | do the LLM layer only if it took < 1 hour, and move "freeze" to Day 2 14:00.
+  | Ask staff the exact pitch time TODAY.
+
+   Day 1 (tonight) · goal: know your plan + raw text on screen
+
+| Time | A (camera/voice) | B (understanding) | C (data/pitch) |
+|---|---|---|---|
+| 0:00–0:20 | Everyone: read this plan, pick the name, agree on roles. Ask staff: pitch time? Do judges touch the app? Cluster address? Is our iPad a Pro? |||
+| 0:20–1:00 | Add SpikeTestView, run on the iPad | Write the 5 sample label strings (10.1) | Make + print the 5 fake envelopes (10.1) |
+| 1:00 | 🚦 CHECKPOINT: Plan A / B / C decided (screenshot the spike results) |||
+| 1:00–3:30 | CameraPicker + PhotosPicker + TextReader → show raw lines on screen | LabelParser, passes all 5 samples | Interview a real person (section 3). Draft slides 1–3. Sketch the 4 screens on paper |
+| 3:30–4:00 | Everyone: merge to the feature branch, build on the iPad, commit, push |||
+| ✅ End of night | Photo → raw text visible on the iPad | Parser correct on 5/5 samples | Interview done, quote written, envelopes printed |
+
+   Day 2 · goal: the full app works on the iPad by 17:00
+
+| Time | A | B | C |
+|---|---|---|---|
+| 08:30–10:30 | ScanView → ResultCardView (big card UI) | PillExtractor (rules first) wired to ScanView | Medicine model + MyApp container + Today screen |
+| 10:30–12:00 | SpeechReader + 🔊 button | Plan A: on-device LLM / Plan B: cluster package + askCluster | "Add to my medicines" + ✓ ticks |
+| 12:00 | 🚦 CHECKPOINT: the full core flow works on the iPad 3 times in a row. If not, everyone helps fix it. No new features. |||
+| 12:00–13:00 | Lunch + UX mentor clinic (spend points to skip the queue). Show them the iPad |||
+| 13:00–15:00 | Design polish (section 11), empty/loading/error states | Edit screen, "please check" orange fields, merge logic | DrugDictionary + MedicineDetailView; 🟢 reminders if ahead |
+| 15:00–17:00 | Airplane-mode test, permission-denied test | Test with wrinkled / angled / glare photos | Deck slides 4–8 |
+| 17:00 | 🧊 FEATURE FREEZE. Only bug fixes after this. |||
+| 17:00–18:30 | Run `ai/prompts/06-pre-demo-check.md`. Delete SpikeTestView. Fresh clone builds on an Intel Mac (Xcode 26) AND the M-chip Mac (Xcode 27). |||
+| 18:30–19:30 | Record the backup demo video (screen recording on the iPad) | Zip + submit the project to staff, ask them to check it runs | Impact test with 2–5 people (3.3) → numbers on a slide |
+| 19:30–21:00 | Everyone: export the deck to PDF. Full rehearsal ×2 with a timer. Practice Q&A (section 13) |||
+
+   Day 3 (pitch day)
+- 2× full rehearsals, with a different person asking Q&A each time.
+- Pack: iPad charged (100%), the 5 printed envelopes, the backup video on a laptop + iPad, the deck PDF on USB + laptop.
+- 10 min before: open the app, go to an empty Today screen (or 1 medicine already added), set brightness to max, and turn on Do Not Disturb.
+
+   Git workflow for the team
+- Branch per person off `feature/pill-reader`: `feature/scan` (A), `feature/parser` (B), `feature/today` (C).
+- Only edit the files you own (section 7.2). Merge into `feature/pill-reader` at each checkpoint, then into `main` at the end.
+- Commit before letting an AI agent edit. Pull before you start. One person handles package and Info changes.
+- Before final submission, push to the official team repo from the Team card (and ask staff about the process).
+
+---
+
+== 9. Step-by-step build instructions
+
+Each step uses the team template from `ai/prompts/03-new-feature.md`. Commit first, read the agent's plan, then approve.
+Build after every step and run on the iPad.
+
+   Step 1 · Spike test (anyone, 30 min)
+```text
+GOAL:        Add Debug/SpikeTestView.swift that, on a button tap, shows: Vision supported recognition languages,
+             SystemLanguageModel.default.availability, supportsLocale(th_TH), the result or error of asking the
+             on-device model to fill a @Generable PillInfo from a Thai label sample, whether a th-TH speech voice
+             exists, and LabelParser.parse on the same sample. Temporarily show it from ContentView.
+CONTEXT:     docs/pill-reader/plan.md sections 6.2 and 7.12; Models/PillInfo.swift; Understanding/LabelParser.swift
+CONSTRAINTS: SwiftUI, iOS 26 target, no iOS 27-only APIs, no new packages, don't touch project settings.
+DONE WHEN:   It builds with xcodebuild and shows all 6 results on the iPad.
+PROCESS:     Show me a plan first. Wait for my approval before editing.
+```
+(Create `PillInfo.swift` and `LabelParser.swift` from sections 7.3 and 7.6 first. The spike test uses them.)
+
+   Step 2 · Camera + read text (A)
+```text
+GOAL:        ScanView: a big "สแกนซองยา" button opens the camera (CameraPicker, only if
+             UIImagePickerController.isSourceTypeAvailable(.camera)), plus a PhotosPicker "เลือกรูป" button.
+             After a photo, run readText(from:) and show the lines in a list with a "กำลังอ่าน…" spinner meanwhile.
+CONTEXT:     Reading/TextReader.swift (copied from the handbook), Reading/CameraPicker.swift (plan section 7.5)
+CONSTRAINTS: As step 1. Handle errors with a friendly Thai message, never crash. NSCameraUsageDescription is already added.
+DONE WHEN:   On the iPad, photographing a fake envelope shows its Thai + English lines.
+PROCESS:     Plan first, wait for approval.
+```
+
+   Step 3 · Parser (B), no iPad needed
+```text
+GOAL:        Make LabelParser.parse pass all 5 sample labels in docs/pill-reader/plan.md section 10.1.
+             Add a #Playground (or a Preview) that prints the result for each sample.
+CONTEXT:     Understanding/LabelParser.swift, Models/PillInfo.swift
+CONSTRAINTS: Pure Swift, no network. Don't change PillInfo's fields without telling the team.
+DONE WHEN:   Every sample's drug, amount, unit, times, meal timing, asNeeded and warnings match the expected table.
+PROCESS:     Plan first, wait for approval.
+```
+
+   Step 4 · Result card + voice (A)
+```text
+GOAL:        ResultCardView(info: PillInfo, source: AnswerSource, rawText: String): huge drug name, friendly name,
+             "ครั้งละ N <unit>" very large, time chips with SF Symbols, meal timing, warnings in orange,
+             "ไม่ใช่คำแนะนำทางการแพทย์" footer, "who answered" badge, a disclosure "ดูข้อความที่อ่านได้" with raw text,
+             and buttons อ่านออกเสียง (SpeechReader), แก้ไข, เพิ่มในยาของฉัน (closure).
+CONTEXT:     Views/ResultCardView.swift, Speaking/SpeechReader.swift, plan sections 4.2, 7.8, 11
+CONSTRAINTS: Dynamic Type, dark mode, system colors, minimum 60pt buttons. #Preview with a sample PillInfo.
+DONE WHEN:   The Preview looks right in light + dark + the largest text size; the voice works on the iPad.
+PROCESS:     Plan first, wait for approval.
+```
+
+   Step 5 · Wire it together (A + B)
+```text
+GOAL:        After readText, call PillExtractor.extract(from:) and show ResultCardView with the result and source.
+CONTEXT:     Views/ScanView.swift, Understanding/PillExtractor.swift
+CONSTRAINTS: Show the spinner while extracting. If the LLM takes more than 5 seconds, use the rules result.
+DONE WHEN:   Photo → card on the iPad in under ~5 seconds, in airplane mode too.
+PROCESS:     Plan first, wait for approval.
+```
+
+   Step 6 · Save + Today screen (C)
+```text
+GOAL:        Medicine SwiftData model (plan 7.10), modelContainer in MyApp, "เพิ่มในยาของฉัน" inserts it.
+             ContentView becomes the Today screen: sections เช้า/กลางวัน/เย็น/ก่อนนอน (+ "เมื่อมีอาการ"),
+             each medicine row has a big ✓ toggle stored in takenKeys for today's date, the current slot is highlighted,
+             empty state when there are no medicines, the scan button pinned at the bottom.
+CONTEXT:     MyApp.swift, ContentView.swift, Models/Medicine.swift, Models/TimeSlot.swift, Views/TodayRow.swift
+CONSTRAINTS: As before. #Preview with an in-memory container and 3 sample medicines.
+DONE WHEN:   Scan → add → it appears in the right slots → tick ✓ → it survives an app restart.
+PROCESS:     Plan first, wait for approval.
+```
+
+   Step 7 · LLM layer (B)
+- Plan A: `askOnDevice` is already in 7.7, so just make sure the availability guard works and the badge shows "AI ในเครื่อง" (on-device AI).
+- Plan B: use `ai/prompts/05-add-ai-cluster.md` (one person adds the package, `AICluster.swift`, and Info keys), then uncomment `askCluster`.
+- Test both ways: event Wi-Fi ON (badge says AI cluster) and airplane mode (badge says อ่านในเครื่อง, "read on-device", and it still works).
+
+   Step 8 · Edit screen (B or C)
+A simple `Form`: drug name, amount (Stepper 0.5 steps), unit Picker, 4 time Toggles, meal Picker, asNeeded Toggle.
+Opened from "แก้ไข" (edit) on the card and from the medicine detail.
+
+   Step 9 · Polish + safety (everyone)
+Orange "โปรดตรวจสอบ" ("please check") when times were guessed or the rules and AI disagree. Loading, empty, and error states.
+VoiceOver labels on icon-only buttons. Delete SpikeTestView.
+
+---
+
+== 10. Test plan
+
+   10.1 The 5 fake envelopes (synthetic data only, PDPA)
+Make these in Pages or Keynote, about the size of a business card. Print, then tape onto small zip bags. Also save each as a photo for the simulator and Previews.
+Use a made-up hospital: "โรงพยาบาลซูเปอร์เจอร์รี่ (สมมติ)" ("Super Jerry Hospital (fictional)"), and patient "นางทดสอบ ใจดี (ข้อมูลสมมติ)" (a made-up name, marked as fake data).
+
+| # | Label text | Expected result |
+|---|---|---|
+| 1 | `Amlodipine 5 mg` / `รับประทานครั้งละ 1 เม็ด วันละ 1 ครั้ง` / `หลังอาหารเช้า` | Amlodipine · 5 mg · 1 เม็ด · morning · after |
+| 2 | `Metformin 500 mg` / `รับประทานครั้งละ 1 เม็ด วันละ 2 ครั้ง` / `หลังอาหารทันที เช้า-เย็น` | Metformin · 500 mg · 1 เม็ด · morning + evening · after |
+| 3 | `Simvastatin 20 mg` / `รับประทานครั้งละ 1 เม็ด` / `ก่อนนอน` | Simvastatin · 20 mg · 1 เม็ด · bedtime · anytime |
+| 4 | `Omeprazole 20 mg` / `รับประทานครั้งละ 1 แคปซูล วันละ 1 ครั้ง` / `ก่อนอาหารเช้า 30 นาที` | Omeprazole · 20 mg · 1 แคปซูล · morning · before |
+| 5 | `Paracetamol 500 mg` / `รับประทานครั้งละ 1-2 เม็ด ทุก 4-6 ชั่วโมง` / `เวลามีอาการปวดหรือมีไข้` / `ไม่ควรเกิน 8 เม็ดต่อวัน` | Paracetamol · 500 mg · 1 เม็ด (first number) · asNeeded · warning "ไม่ควรเกิน 8 เม็ดต่อวัน" |
+
+Optional hard ones: #6 with Thai digits (`ครั้งละ ๑ เม็ด วันละ ๒ ครั้ง`), #7 with Latin codes (`1 tab bid pc`), and #8 with a wrinkled photo.
+
+   10.2 Test matrix (tick each one before the freeze)
+| Test | Simulator | iPad |
+|---|:---:|:---:|
+| Parser on 5 samples (strings) | ✓ | ✓ |
+| PhotosPicker photo → card | ✓ | ✓ |
+| Camera → card | — | ✓ |
+| Airplane mode: full flow | — | ✓ |
+| Camera permission denied → friendly message, no crash | — | ✓ |
+| Apple Intelligence off → still works (rules) | — | ✓ |
+| Largest Dynamic Type: nothing cut off | ✓ | ✓ |
+| Dark mode | ✓ | ✓ |
+| Kill the app, reopen → medicines still there | ✓ | ✓ |
+| Builds on Intel Mac / Xcode 26 from a fresh clone | ✓ | |
+| Demo flow 3× in a row, no restart | — | ✓ |
+
+---
+
+== 11. Design guide
+
+Made for older eyes and shaky hands, following Apple's Human Interface Guidelines.
+- Text: use Dynamic Type styles (`.largeTitle`, `.title`, `.title2`), never fixed sizes. Make "ครั้งละ 1 เม็ด" (1 tablet each time) the biggest thing on the card.
+  Test at the largest accessibility size.
+- Buttons: at least 60 pt tall (Apple's minimum is 44 pt; go bigger for older users). Full-width. `.borderedProminent` for the main action.
+- Colors: system colors only (`.primary`, `.secondary`, `.orange` for warnings, `.green` for taken ✓, `.accentColor`). They work in dark mode automatically.
+  Never use color as the only signal: add an icon and words.
+- SF Symbols: `pills.fill`, `camera.fill`, `speaker.wave.2.fill`, `sun.max.fill`, `sun.min.fill`, `sunset.fill`, `moon.stars.fill`,
+  `fork.knife`, `exclamationmark.triangle.fill`, `checkmark.circle.fill`, `pencil`.
+- Language: Thai UI. Short, friendly words: "กินยา" or "ทานยา" (take medicine), not technical terms.
+- One thing per screen. No tabs needed: Today → Scan → Card.
+- Feedback: a light haptic when ✓ is tapped (`.sensoryFeedback(.success, trigger:)`).
+- Accessibility: `.accessibilityLabel("อ่านออกเสียง")` ("read aloud") on icon buttons. Test once with VoiceOver.
+- Mentor clinic: bring the iPad with the real flow and ask: *"Would my grandma understand this screen in 3 seconds?"*
+
+---
+
+== 12. The pitch
+
+5:00 pitch + ~2:00 Q&A. Everyone speaks (that's the "Ownership" score). Deck = PDF, no animations, no unauthorized logos.
+(Don't put the Apple logo or real hospital logos on slides. Writing the words "iPad" and "Apple Vision" is fine.)
+
+   12.1 Slides (8 + 1 backup)
+| # | Slide | On screen (few words, big) | Who |
+|---|---|---|---|
+| 1 | Title | ยาใจ: อ่านซองยาให้ทุกคนเข้าใจ ("reads medicine envelopes so everyone understands") · Team Super Jerry | A |
+| 2 | The person | Photo of a pile of envelopes (fake ones!) + your interview quote | A |
+| 3 | The problem | "1 in 5 Thais is 60+" · "5+ medicines" · "tiny print, English names" · "WHO: US$42 B/year in medication errors" | B |
+| 4 | Our solution | One screenshot of the result card + 3 words: Scan. Hear. Remember. | B |
+| 5 | LIVE DEMO | Just the words "Live demo" (switch to the iPad) | C demos, A narrates |
+| 6 | How it works | Pipeline diagram (6.4) + "100% works offline" + "who answered" | C |
+| 7 | Impact | Your test numbers (3.3) + "medicine data never leaves the device (PDPA)" | B |
+| 8 | What's next | Reminders for the whole family · Siri · support for more hospital label formats · thank you | A |
+| B | Backup | The demo video (in case the iPad fails) | — |
+
+   12.2 Script with timing (adapt the words; say it in Thai if the judges are Thai)
+
+0:00–0:30 · Hook (A)
+  | "ยายของผม/หนูทานยาวันละ 6 ชนิด…" *(My grandma takes 6 kinds of medicine a day…)*
+  | "Every one comes in an envelope like this [hold one up]. The text is this small. The drug name is in English.
+  | Last month she [real story]. That's why we built ยาใจ."
+
+0:30–1:00 · Problem (B)
+  | "About one in five Thais is over 60, that's around 13 to 15 million people, and many take five or more medicines.
+  | After 40, almost everyone finds small print hard to read. The WHO estimates medication errors cost the world about 42 billion dollars a year."
+
+1:00–1:20 · Solution (B)
+  | "ยาใจ does one thing really well: point the iPad at a medicine envelope, and it shows and *says* what to take, how many, and when."
+
+1:20–3:20 · LIVE DEMO (C does it, A narrates), the most important 2 minutes
+1. "First, I'm turning on airplane mode: no internet at all." (Show Control Center.)
+2. Tap สแกนซองยา → photograph envelope #2 (Metformin, morning + evening).
+3. The card appears. "Big text: 1 tablet, morning and evening, after meals."
+4. Tap 🔊, and the Thai voice reads it. Pause and let the judges hear it.
+5. Point at the badge: "This was read on the iPad itself." Expand the raw text: "Family can always check what the camera read."
+6. Tap เพิ่มในยาของฉัน (add to my medicines) → the Today screen: "It's morning now, so here's what to take." Tap ✓.
+7. (If time) Scan envelope #5 (Paracetamol): "This one is *only when needed*, and it shows the warning."
+  | If anything fails: stay calm, say "let me show you the recording", and switch to slide B. Practice this switch.
+
+3:20–4:05 · How it works + why this AI (C)
+  | "Apple's Vision reads the text on the iPad's Neural Engine. Thai hospital labels use standard phrases, so a fast on-device reader understands them, with no internet needed.
+  | For messy labels, [Plan A: Apple's on-device language model / Plan B: the event's AI cluster] double-checks.
+  | We tested Apple's on-device model with Thai and found [result], so we chose [X]. We picked the right tool, not the biggest one.
+  | And because it's health data, it never leaves the device."
+
+4:05–4:40 · Impact (B)
+  | "We tested with [N] people. Without the app, reading 3 envelopes took [X] seconds with [Y] mistakes. With ยาใจ: [X'] seconds, [Y'] mistakes."
+
+4:40–5:00 · Close (A)
+  | "Next: reminders, and letting a grandchild check from far away. ยาใจ: like having your grandchild read your medicine for you. Thank you!"
+
+   12.3 Rehearsal rules
+- Use a timer. If you're over 5:00, cut words from slides 3 and 6, never from the demo.
+- Rehearse the demo with the real iPad and real printed envelopes, under bright light (stage lights cause glare, so tilt the envelope).
+- Decide who answers which kind of question (section 13). Others can add one sentence, but don't talk over each other.
+
+---
+
+== 13. Judge Q&A
+
+| # | Question | Short answer | Who |
+|---|---|---|---|
+| 1 | What if the AI reads it wrong and grandma takes the wrong dose? | We show the original text next to it, mark unsure fields in orange, family can edit, and every screen says "check the real label, not medical advice". The app *helps* read; it doesn't replace the pharmacist. | B |
+| 2 | Why not just use ChatGPT / Google Lens? | Those need internet, send health data to a server, and aren't built for older users: no big text, no Thai voice, no schedule. Ours is offline, private, and one tap. | C |
+| 3 | Why on-device? | Health data is sensitive under the PDPA, older people often have weak internet, and it's free per scan, so it can scale to millions of users at no cost. | C |
+| 4 | Where's the AI? Isn't it just rules? | Vision's text recognition is a neural network running on the Neural Engine. The rules handle standard phrases because that's more reliable. The LLM handles messy labels. We used each tool where it's best. | B |
+| 5 | Does Apple's model understand Thai? | We tested it on our iPad: [your result]. That's why we [chose X]. | B |
+| 6 | Did you talk to real users? | Yes: [who], [what they said]. And we tested with [N] people: [numbers]. | A |
+| 7 | Different hospitals use different labels. Does it work for all? | Most use the same standard phrases (ครั้งละ, วันละ, หลังอาหาร). For unusual ones, the LLM helps, and family can edit. Next step: collect more label formats. | B |
+| 8 | Can older people even use an iPad/phone? | That's why it's one big button, big text, and voice. A grandchild can set it up once. [Interview quote if you have one.] | A |
+| 9 | What about privacy of the photos? | Photos are processed on the device and not stored. Only the text the user saves is kept, on the device. Our demo uses only fake labels. | C |
+| 10 | What happens with no internet? | Everything in the demo you just saw was in airplane mode. | C |
+| 11 | How would you make money / sustain it? | Free for families. Hospitals or pharmacies could print a QR or format that reads perfectly, or bundle it for patients. (Keep it short; impact matters more here.) | A |
+| 12 | What was the hardest part? | Thai OCR quirks: Thai digits, broken vowels like สระอำ, random spaces. We wrote normalization rules. (Be honest, tell your real story.) | B |
+| 13 | What would you add with more time? | Reminders, family sharing, more label formats, and reading pill bottle labels too. | A |
+| 14 | How accurate is it? | On our [N] test envelopes: [X/N] fully correct. Say the real number. | B |
+| 15 | Who did what? | Each person says their part in one sentence. | All |
+
+---
+
+== 14. Pros, cons, risks
+
+   14.1 Pros
+- ✅ Real, emotional, easy-to-understand problem. Every judge has parents or grandparents.
+- ✅ Thai-specific. Not a copy of a US app. It fits a Thai event.
+- ✅ Fully offline demo. Wi-Fi on stage can't hurt you.
+- ✅ A clear "right tool" AI story. That matches the judging and the kickoff's advice.
+- ✅ Small, finishable scope. One core flow, 4 screens.
+- ✅ Measurable impact you can test yourselves in 1 hour.
+
+   14.2 Cons
+- ⚠️ Medical topic, so judges will ask about safety. (Section 6.6 and Q1 cover it.)
+- ⚠️ Thai language support on-device is uncertain. (The spike test + layered design cover it.)
+- ⚠️ The rules part might look "not AI enough". (Q4 answer: Vision is AI, rules are the reliable choice.)
+- ⚠️ Real label formats vary, and you only have fake ones. (Be honest; say "next step".)
+
+   14.3 Risks and what to do
+
+| Risk | Chance | Impact | Do this |
+|---|:---:|:---:|---|
+| Vision doesn't support Thai on the iPad | Low–Med | High | Plan C: cluster Typhoon OCR; offline, read the English name + Latin codes |
+| AFM doesn't support Thai | High | Med | Plan B: rules + cluster. Turn it into a pitch point ("we tested") |
+| Event Wi-Fi / cluster down on stage | Med | Low | Demo in airplane mode anyway; rules work offline |
+| Camera glare on plastic envelopes | Med | Med | Print on matte paper, tilt, and test under bright light; PhotosPicker backup photo |
+| Project doesn't build on Xcode 26 | Med | High | Fresh-clone test on an Intel Mac before the freeze; no iOS 27 APIs |
+| A teammate's Mac lacks `AICluster.swift` → build fails | High (Plan B) | Med | Everyone creates it locally; or keep cluster code behind `#if canImport(HackathonAI)` |
+| Thai voice missing on the demo iPad | Low | Med | Check the event iPad; download the Thai voice in Settings |
+| Merge conflicts in `project.pbxproj` | Med | Med | Own your files; one person handles package/Info changes |
+| Running out of time | Med | High | Respect the 12:00 checkpoint and the 17:00 freeze; cut 🟢 first |
+| Personal Team signing / 7-day expiry / bundle ID taken | Low | High | Follow the Team card; ask a TA early on Day 2 |
+
+---
+
+== 15. Judging criteria map
+
+| Criterion | How ยาใจ scores | Proof in the pitch |
+|---|---|---|
+| 1. Real-world impact (weighs the most) | A real person's problem, Thai aging society, WHO numbers | Interview quote + your test numbers |
+| 2. Use of AI / tech | Vision on-device + Thai rules + LLM double-check, each with a reason; voice; offline | The "why this tool" slide + the badge in the demo |
+| 3. Technical execution | One flow, no crashes, works offline, permission handling | Live demo in airplane mode, 3× rehearsed |
+| 4. Design (HIG) | Huge Dynamic Type, SF Symbols, dark mode, voice, accessibility | Show the card; mention it was "designed for older eyes" |
+| 5. Pitch + Q&A + ownership | Everyone presents a part and owns a Q&A topic | Section 12 roles + section 13 owners |
+
+---
+
+== 16. Real knowledge to know
+
+   16.1 Words everyone on the team must be able to explain
+- OCR (Optical Character Recognition): turning a photo of text into real text. Apple's Vision framework does it with a neural network on the device.
+- Neural Engine: the AI chip inside the iPad's M-series processor. It runs models fast and privately.
+- LLM (Large Language Model): an AI that understands and writes language, like ChatGPT. Apple Foundation Models (AFM) is a small one that runs *on* the iPad.
+- `@Generable`: a Swift feature that makes the LLM answer in *your* struct's exact shape (e.g. `PillInfo`), instead of loose text. More reliable than asking for JSON.
+- Rules / parser: normal code that looks for patterns like "ครั้งละ 1 เม็ด". Fast, predictable, offline.
+- On-device vs cloud vs cluster: on-device = on the iPad (private, offline, free). Cloud = a company's servers (needs internet, data leaves).
+  The cluster = the organizers' Macs at the event (more powerful, event Wi-Fi only).
+- Fallback: a backup path when the first choice fails (e.g. no Wi-Fi → use on-device).
+- PDPA: Thailand's Personal Data Protection Act (B.E. 2562, enforced 2022). Health information is *sensitive data*. That's why we only use fake data.
+- Polypharmacy: taking 5+ medicines. Common in older people, and it raises the risk of mistakes.
+- Presbyopia (สายตายาวตามอายุ): age-related difficulty seeing small things up close, starting around 40–45.
+
+   16.2 How a Thai medicine envelope is laid out (usually)
+1. Hospital or clinic name + phone number
+2. Patient name + HN (hospital number) + date
+3. Drug name (English generic name) + strength (e.g. Metformin 500 mg)
+4. Sometimes the Thai purpose: "ยาเบาหวาน" (diabetes medicine)
+5. How to take it: รับประทานครั้งละ… วันละ… ครั้ง… ก่อน/หลังอาหาร… เช้า/กลางวัน/เย็น/ก่อนนอน (take … each time, … times a day, before/after meals, morning/noon/evening/bedtime)
+6. Warnings (คำเตือน): drowsiness, finish the course, avoid alcohol, etc.
+7. Quantity + expiry / date dispensed
+
+Labels differ between hospitals, so look at a few real ones at home (don't photograph patient names for the app or deck).
+
+   16.3 Latin dosing abbreviations (you'll see them on some labels)
+| Code | Latin | Meaning |
+|---|---|---|
+| od / qd | omne in die / quaque die | once a day |
+| bid | bis in die | twice a day |
+| tid | ter in die | 3 times a day |
+| qid | quater in die | 4 times a day |
+| ac | ante cibum | before meals |
+| pc | post cibum | after meals |
+| hs | hora somni | at bedtime |
+| prn | pro re nata | when needed |
+
+   16.4 Apple tech facts to get right
+- Foundation Models needs: an Apple Intelligence-capable device with Apple Intelligence turned on. Check `SystemLanguageModel.default.availability`
+  (`.available` or `.unavailable(reason)`: device not eligible, Apple Intelligence not enabled, model not ready). The Intel Mac simulator can't run it.
+- On-device model languages (iOS 26.1): 16 languages, no Thai. iPadOS 27 is unknown, so test it.
+- Vision `RecognizeTextRequest` (the Swift API, iOS 18+): `.accurate` level, set `recognitionLanguages`, read `observation.transcript`.
+- AVSpeechSynthesizer has a built-in Thai voice (`th-TH`). It works offline. More voices: Settings ▸ Accessibility ▸ Spoken Content.
+- SwiftData (`@Model`, `@Query`, `.modelContainer`) saves data on the device. It's iOS 17+, so fine for you.
+- Camera = real iPad only. The simulator has no camera, so use PhotosPicker there.
+
+   16.5 Why "a smaller tool can score higher"
+The kickoff literally said a team using Foundation Models *could score higher* than one using MLX, depending on the use.
+Judges reward "you understood the problem and chose sensibly", not "you used the biggest model". Your rules + on-device + optional LLM design is exactly that.
+
+---
+
+== 17. Final checklists
+
+   Before the feature freeze (Day 2, 17:00)
+- [ ] Core flow works on the iPad 3× in a row
+- [ ] Airplane mode: everything still works
+- [ ] Camera permission denied → friendly message
+- [ ] "Not medical advice" on every result
+- [ ] "Who answered" badge shows correctly
+- [ ] No real patient data anywhere (only the 5 fake envelopes)
+
+   Before submitting (Day 2 evening)
+- [ ] SpikeTestView deleted
+- [ ] Ran `ai/prompts/06-pre-demo-check.md`
+- [ ] Fresh clone builds on Intel Mac (Xcode 26) and M-chip Mac (Xcode 27)
+- [ ] `AICluster.swift` is NOT in git (`git ls-files | grep AICluster` prints nothing)
+- [ ] Project zipped and sent to staff, and staff confirmed it runs on their iPad
+- [ ] Code pushed to the official team repo
+- [ ] Backup demo video recorded
+- [ ] Deck exported as PDF, no animations, no logos
+- [ ] README "The idea" section filled in (who / problem / solution / AI + why / impact numbers)
+
+   Pitch morning
+- [ ] iPad at 100%, brightness max, Do Not Disturb on
+- [ ] 5 printed envelopes in a bag
+- [ ] Deck PDF on 2 devices + USB
+- [ ] Everyone knows their slides and their Q&A topics
+- [ ] One last full run with a timer
+
+---
+
+== 18. Sources
+
+Project + event
+- Team docs: `ai/what-we-are-building.md`, `ai/context/competition-brief.md`, `AGENTS.md`, `ai/prompts/*`
+- YIDH26 handbook: https://swiftcodingclubth.github.io/yidh26-swift-handbook/ · repo https://github.com/swiftcodingclubth/yidh26-swift-handbook
+  (Workshop 2 Foundation Models + AI cluster pages; Workshop 5 `VisionParts/TextReader.swift`)
+- AI cluster package: https://github.com/swiftcodingclubth/yidh26-ai (exact 0.0.2)
+- Apple Human Interface Guidelines: https://developer.apple.com/design/human-interface-guidelines
+
+Language support (checked 2026-10-17)
+- Apple Intelligence languages in iOS 26.1 (16 languages, no Thai): https://9to5mac.com/2025/11/11/ios-26-1-brings-apple-intelligence-to-these-eight-new-languages/
+- Foundation Models unavailable when the device language is unsupported: https://developer.apple.com/forums/thread/805378
+- Apple's multilingual model news: https://multilingual.com/apple-ai-multilingual-access/
+- Vision recognition languages vary by version (check on device): https://developer.apple.com/forums/thread/121048 · https://developer.apple.com/documentation/vision/recognizetextrequest
+
+Aging in Thailand
+- Thailand demographics: https://en.wikipedia.org/wiki/Demographics_of_Thailand
+- Statista/NESDC (60+ share 20.17% in 2023): https://statista.com/statistics/713667/thailand-forecast-aging-population
+- "Thailand is now a nation of grandparents" (GISTDA: 13.6 M aged 60+): https://www.timeout.com/bangkok/news/thailand-is-now-a-nation-of-grandparents-090225
+- Population 65.8 M, aging society: https://aseannow.com/thailand-news/thailand-population-declines-to-658m-as-society-ages-r868/
+
+Medication safety
+- WHO Medication Without Harm (US$42 B/year; 50% harm reduction goal): https://www.globalfamilydoctor.com/News/WHOcallsforurgentactionbycountriesforachievingMedicationWit.aspx
+- WHO World Patient Safety Day 2022, "Medication Without Harm": https://healthpolicy-watch.news/world-patient-safety-day-2022/
+
+  | ⚠️ Before putting any number on a slide, open the source and check it yourself. Judges may ask "where is that from?"
