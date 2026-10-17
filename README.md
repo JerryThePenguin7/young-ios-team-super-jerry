@@ -30,6 +30,7 @@ The theme is AI that runs on Apple devices.
 ## Getting started
 
 Requirements: **Xcode 26 or 27**. The deployment target is iOS 26, so it works on the event's Intel Macs too.
+Test on the **team iPad**: the camera, sensors, and Apple Intelligence don't work in the Intel Macs' simulator.
 If Xcode 27 asks to "update to recommended settings / project format," click **No**, or teammates on Xcode 26 can't open the project.
 
 > The organizers also give us an official team repo on the Team card. This repo is our own copy for sharing.
@@ -61,12 +62,12 @@ The AI-cluster API key from the Team card goes in `SuperJerry/AICluster.swift`. 
 ```swift
 import HackathonAI
 
-let aiCluster = HackathonAI(baseURL: "http://10.1.117.186:3949", apiKey: "team-XX-xxxx")
-
-extension HackathonAI {
-    static let smartRoute: ModelID = "@route/sccth-gq"
-}
+// Address: from staff / Team card (the handbook says TBC). Key: from the Team card.
+let aiCluster = HackathonAI(baseURL: "http://[address from staff]", apiKey: "team-XX-xxxx")
 ```
+
+Then call it with `try await aiCluster.respond(to: "...")` (model `.chat` by default).
+See [ai/context/competition-brief.md](ai/context/competition-brief.md#ai-cluster-hackathonai-package) for the models and the Info.plist settings.
 
 ## Submission checklist
 

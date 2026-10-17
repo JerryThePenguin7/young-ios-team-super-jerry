@@ -34,10 +34,19 @@ It solves one real problem for one real kind of person, using AI that runs on Ap
 
 ## AI in this app
 The 3 options are a **menu, not a checklist**. Use the one that fits the problem, and say why:
-- **Foundation Models** (`LanguageModelSession`, on-device): short text tasks. Check `SystemLanguageModel.default.availability` and hide or fall back when it's unavailable.
-- **Core ML / Create ML** (+ Vision, Sound Analysis, Core Motion, ARKit/LiDAR): recognizing images, sounds, and motion.
+- **Foundation Models** (`LanguageModelSession`, on-device AFM 3): short text tasks. Check `SystemLanguageModel.default.availability`
+  and hide or fall back when it's unavailable. The Intel Macs' simulator has no Apple Intelligence, so test on the iPad.
+- **Core ML / Create ML** (+ Vision, Sound Analysis, Core Motion, ARKit/LiDAR): recognizing images, sounds, text, and motion.
+  **Core AI** (open-source models on device) is iOS 27 only: guard it with `#if compiler(>=6.4)` + `#if canImport(CoreAILanguageModels)`.
 - **AI cluster** via `HackathonAI` (MLX on the organizers' Macs): heavy tasks, better Thai, OCR, speech. Event Wi-Fi only.
-  **Always include an on-device fallback** and show in the UI who answered.
+  - Use `aiCluster.respond(...)` / `streamResponse(...)` with model `.chat` (default), `.reasoning`, `.ocr`, `.medical`, `.tts`, or `.asr`.
+    It works on iOS 26 and returns `String`.
+  - `LanguageModelSession(model: aiCluster.languageModel(.chat))` needs Xcode 27 **and** iOS 27 at runtime. Only use it inside the iOS 27 guard,
+    with the `respond(...)` path as the fallback.
+  - **Always include an on-device fallback** and show in the UI who answered ("AI cluster" / "On-device").
+- Thai text recognition (Vision/VisionKit) must include `"th-TH"` in the recognition languages.
+- Camera, LiDAR, and motion don't work in the simulator: check availability and permissions before using them, and never crash.
+- This project has no Info.plist file (it's generated). Add privacy keys (`NSCameraUsageDescription`, etc.) in target ▸ Info, not as a hand-written plist.
 
 ## How to work
 - **Plan first.** Show a short plan and the files you will change. Wait for approval before editing.
