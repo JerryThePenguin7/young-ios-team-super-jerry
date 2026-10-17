@@ -3,8 +3,7 @@ import Playgrounds
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        SpikeTestView()   // TEMPORARY: put Text("Hello, world!") back after the spike test
     }
 }
 
