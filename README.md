@@ -38,7 +38,7 @@ If Xcode 27 asks to "update to recommended settings / project format," click **N
 
 ```bash
 git clone <this repo url>
-cd SuperJerry
+cd young-ios-team-super-jerry
 open SuperJerry.xcodeproj
 ```
 
