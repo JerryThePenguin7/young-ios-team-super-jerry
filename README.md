@@ -9,15 +9,25 @@ The theme is AI that runs on Apple devices.
 - Rules every AI coding agent follows: [AGENTS.md](AGENTS.md)
 - Copy-paste prompts for the team: [ai/prompts/](ai/prompts/)
 
-## The idea
+## The idea: Jenny 💊
 
-> _TODO: fill in once we pick it (first task on Day 1)._
+> Jenny is a medicine reminder that "nags" you (kindly) until you've taken your pills.
 
-- **Who has the problem:**
-- **The problem:**
-- **Our solution (one core feature):**
-- **AI we use and why:** pick what fits: Foundation Models / Core ML + sensors / AI cluster (not all 3 required)
-- **Impact (numbers!):**
+- **Who has the problem:** older people (e.g. our grandparents) who take several medicines every day.
+- **The problem:** they forget whether they've already taken a pill, or miss a dose completely.
+- **Our solution (one core feature):** open the app and see today's pills right away. Tap a big button when you take one.
+  Jenny reminds you at each pill time and points out anything missed.
+  To add medicines, paste the prescription instructions and Jenny sets up the times.
+- **AI we use and why:** **Foundation Models** (on-device) reads the prescription text into a schedule (`@Generable`).
+  It's a short text task, it works offline, and health information never leaves the device.
+  When Apple Intelligence isn't available, a basic offline reader takes over, and the app always shows which one answered.
+- **Impact (numbers!):** _TODO: ask a real person how many doses they miss per week, then measure with the History tab._
+
+### How to try it
+1. **Today:** sample (made-up) medicines load on first launch. Tap **Mark as taken** on a card. Missed doses turn red.
+2. **Medicines ▸ Add with Jenny:** tap **Use an example**, then **Let Jenny read it**, then **Add**.
+3. **History:** this week's percent of doses taken.
+4. **Settings (gear on Today):** turn on reminders, or **Send a test reminder in 5 seconds** for the demo.
 
 ## Team
 
