@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/xcuserdata/
+
+# Editors
+.vscode/
+.idea/
+
+# Hackathon secrets (AI cluster API key from the Team card) — never commit
+AICluster.swift
+*.secret.swift
+
+# Finder aliases
+* alias
