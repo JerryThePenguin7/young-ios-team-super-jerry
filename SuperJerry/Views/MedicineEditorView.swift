@@ -7,6 +7,7 @@ struct MedicineEditorView: View {
 
     private let original: Medicine
     private let isNew: Bool
+    private let onSaved: () -> Void
     @State private var name: String
     @State private var dose: String
     @State private var note: String
@@ -18,9 +19,10 @@ struct MedicineEditorView: View {
         var date: Date
     }
 
-    init(medicine: Medicine, isNew: Bool) {
+    init(medicine: Medicine, isNew: Bool, onSaved: @escaping () -> Void = {}) {
         original = medicine
         self.isNew = isNew
+        self.onSaved = onSaved
         _name = State(initialValue: medicine.name)
         _dose = State(initialValue: medicine.dose)
         _note = State(initialValue: medicine.note)
@@ -51,7 +53,7 @@ struct MedicineEditorView: View {
                 } header: {
                     Text("When to take it")
                 } footer: {
-                    Text("Swipe left on a time to remove it.")
+                    Text("Swipe left on a time to remove it. No times means \"only when needed\": Jenny won't remind you.")
                 }
 
                 if !isNew {
@@ -77,7 +79,7 @@ struct MedicineEditorView: View {
     }
 
     private var canSave: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && !times.isEmpty
+        !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
     private func save() {
@@ -96,6 +98,7 @@ struct MedicineEditorView: View {
         } else {
             store.update(medicine)
         }
+        onSaved()
         dismiss()
     }
 }

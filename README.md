@@ -15,19 +15,29 @@ The theme is AI that runs on Apple devices.
 
 - **Who has the problem:** older people (e.g. our grandparents) who take several medicines every day.
 - **The problem:** they forget whether they've already taken a pill, or miss a dose completely.
-- **Our solution (one core feature):** open the app and see today's pills right away. Tap a big button when you take one.
+- **Our solution (one core feature):** point the iPad at a Thai medicine envelope (ซองยา). Jenny shows **huge text**
+  (what, how many, when), **reads it aloud in Thai**, and adds it to **today's list**. Tap a big button when you take one.
   Jenny reminds you at each pill time and points out anything missed.
-  To add medicines, paste the prescription instructions and Jenny sets up the times.
-- **AI we use and why:** **Foundation Models** (on-device) reads the prescription text into a schedule (`@Generable`).
-  It's a short text task, it works offline, and health information never leaves the device.
-  When Apple Intelligence isn't available, a basic offline reader takes over, and the app always shows which one answered.
-- **Impact (numbers!):** _TODO: ask a real person how many doses they miss per week, then measure with the History tab._
+- **AI we use and why:** Apple's **Vision** reads the envelope text on the device (a neural network on the Neural Engine),
+  then our **Thai label rules** understand it ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"). Everything works offline, and health data never leaves the device.
+  We tested Apple's on-device language model (Foundation Models): it doesn't support Thai and it blocked medicine text as
+  "sensitive content", so the rules do the understanding. See [docs/pill-reader/ai-explained.md](docs/pill-reader/ai-explained.md).
+  Typed English instructions can still try Foundation Models first ("Add with Jenny"), with an offline reader as the backup.
+  The app always shows who read it.
+- **Impact (numbers!):** _TODO: run the impact test in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 3.3 and put the numbers here._
+
+The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is now named Jenny.
 
 ### How to try it
-1. **Today:** sample (made-up) medicines load on first launch. Tap **Mark as taken** on a card. Missed doses turn red.
-2. **Medicines ▸ Add with Jenny:** tap **Use an example**, then **Let Jenny read it**, then **Add**.
-3. **History:** this week's percent of doses taken.
-4. **Settings (gear on Today):** turn on reminders, or **Send a test reminder in 5 seconds** for the demo.
+1. **Today ▸ สแกนซองยา · Scan a medicine envelope:** take a photo (iPad), choose a photo, or **Try a sample** (works in the simulator).
+   On the big card, tap **อ่านออกเสียง · Read aloud**, then **เพิ่มในยาของฉัน · Add to my medicines**.
+2. **Today:** tap **Mark as taken** on a card. Missed doses turn red. Sample (made-up) medicines load on first launch.
+3. **Medicines:** scan, **Add with Jenny** (type or paste), add by hand, edit, or swipe to delete.
+4. **History:** this week's percent of doses taken.
+5. **Settings (gear on Today):** reminders, **Send a test reminder in 5 seconds** for the demo, and the **spike test**.
+
+> **Camera setup (once):** target ▸ Info ▸ add `Privacy - Camera Usage Description` = `ใช้กล้องเพื่ออ่านฉลากซองยา`.
+> Until then, the **Take photo** button stays hidden (so the app can't crash) and **Choose photo** still works.
 
 ## Team
 

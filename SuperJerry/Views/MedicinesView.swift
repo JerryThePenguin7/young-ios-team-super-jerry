@@ -3,6 +3,7 @@ import SwiftUI
 /// Every medicine the user takes. Add with Jenny (AI), add by hand, edit, or swipe to delete.
 struct MedicinesView: View {
     @Environment(MedicineStore.self) private var store
+    @State private var showingScan = false
     @State private var showingAddWithJenny = false
     @State private var editingMedicine: Medicine?
     @State private var editingIsNew = false
@@ -11,13 +12,22 @@ struct MedicinesView: View {
         NavigationStack {
             List {
                 Section {
-                    addWithJennyButton
+                    redRow(title: "Scan an envelope",
+                           subtitle: "Take a photo of a Thai medicine envelope. Jenny reads it on this device.",
+                           symbol: "camera.viewfinder") {
+                        showingScan = true
+                    }
+                    redRow(title: "Add with Jenny",
+                           subtitle: "Type or paste the instructions from your prescription, and Jenny sets up the times.",
+                           symbol: "sparkles") {
+                        showingAddWithJenny = true
+                    }
                 }
                 .listRowBackground(Theme.card)
 
                 Section("Your medicines") {
                     if store.medicines.isEmpty {
-                        Text("No medicines yet. Tap \"Add with Jenny\" above.")
+                        Text("No medicines yet. Scan an envelope above.")
                             .foregroundStyle(.secondary)
                     }
                     ForEach(store.medicines) { medicine in
@@ -46,6 +56,9 @@ struct MedicinesView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showingScan) {
+                ScanView()
+            }
             .sheet(isPresented: $showingAddWithJenny) {
                 AddWithJennyView()
             }
@@ -55,17 +68,17 @@ struct MedicinesView: View {
         }
     }
 
-    private var addWithJennyButton: some View {
-        Button {
-            showingAddWithJenny = true
-        } label: {
+    private func redRow(title: String, subtitle: String, symbol: String,
+                        action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             HStack(spacing: 16) {
-                Image(systemName: "sparkles")
+                Image(systemName: symbol)
                     .font(.title)
+                    .frame(width: 40)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Add with Jenny")
+                    Text(title)
                         .font(.title3.bold())
-                    Text("Type or paste the instructions from your prescription, and Jenny sets up the times.")
+                    Text(subtitle)
                         .font(.subheadline)
                         .opacity(0.9)
                 }
@@ -95,7 +108,9 @@ struct MedicinesView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                Text(medicine.times.sorted().map(\.label).joined(separator: ", "))
+                Text(medicine.times.isEmpty
+                     ? "When needed · เมื่อมีอาการ"
+                     : medicine.times.sorted().map(\.label).joined(separator: ", "))
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.red)
             }

@@ -5,7 +5,7 @@ import SwiftUI
 enum Theme {
     /// Buttons, icons, and red text.
     static let red = Color("JennyRed")
-    /// Big red cards with white text on top.
+    /// Big red cards and filled buttons with white text on top (darker in dark mode, so white stays readable).
     static let card = Color("JennyCard")
     /// Page background: warm white (light) or near-black (dark).
     static let background = Color("JennyBackground")

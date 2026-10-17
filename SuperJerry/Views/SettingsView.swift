@@ -7,6 +7,7 @@ struct SettingsView: View {
 
     @State private var showingNotificationsOffAlert = false
     @State private var showingEraseConfirmation = false
+    @State private var showingSpikeTest = false
     @State private var testMessage: String?
 
     var body: some View {
@@ -43,6 +44,16 @@ struct SettingsView: View {
                     Text("Sample medicines and history are made up. Don't enter real patient data.")
                 }
 
+                Section {
+                    Button("Run the spike test", systemImage: "testtube.2") {
+                        showingSpikeTest = true
+                    }
+                } header: {
+                    Text("Developer")
+                } footer: {
+                    Text("Temporary test from feature/pill-reader: what works on this device? Delete SuperJerry/Debug before submitting.")
+                }
+
                 Section("About") {
                     Text("Jenny is a prototype by Team Super Jerry for YIDH26. Jenny is a reminder helper, not medical advice. Always follow your doctor or pharmacist.")
                         .font(.callout)
@@ -56,6 +67,9 @@ struct SettingsView: View {
             }
             .onChange(of: store.remindersEnabled) {
                 Task { await applyReminders() }
+            }
+            .sheet(isPresented: $showingSpikeTest) {
+                SpikeTestView()
             }
             .alert("Notifications are off", isPresented: $showingNotificationsOffAlert) {
                 Button("OK", role: .cancel) {}

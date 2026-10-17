@@ -31,7 +31,7 @@ struct DoseCard: View {
                     .padding(.vertical, 14)
                     .foregroundStyle(isTaken ? Theme.red : Color.white)
                     .background(
-                        isTaken ? Theme.red.opacity(0.12) : Theme.red,
+                        isTaken ? Theme.red.opacity(0.12) : Theme.card,
                         in: RoundedRectangle(cornerRadius: 14, style: .continuous)
                     )
             }
@@ -63,7 +63,7 @@ struct DoseCard: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .foregroundStyle(statusIsLoud ? Color.white : Theme.red)
-            .background(statusIsLoud ? Theme.red : Theme.red.opacity(0.12), in: Capsule())
+            .background(statusIsLoud ? Theme.card : Theme.red.opacity(0.12), in: Capsule())
     }
 
     /// Red pill with white text for "Time now" and "Missed".

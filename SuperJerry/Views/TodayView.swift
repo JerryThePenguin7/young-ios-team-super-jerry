@@ -4,6 +4,7 @@ import SwiftUI
 struct TodayView: View {
     @Environment(MedicineStore.self) private var store
     @State private var showingSettings = false
+    @State private var showingScan = false
 
     var body: some View {
         NavigationStack {
@@ -23,6 +24,9 @@ struct TodayView: View {
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
+            .sheet(isPresented: $showingScan) {
+                ScanView()
+            }
         }
     }
 
@@ -34,15 +38,23 @@ struct TodayView: View {
             VStack(alignment: .leading, spacing: 20) {
                 TodayHeaderCard(now: now, taken: takenCount, total: doses.count, message: jennySays(doses))
 
+                scanButton
+
                 if !store.remindersEnabled && !doses.isEmpty {
                     remindersButton
                 }
 
-                if doses.isEmpty {
+                if store.medicines.isEmpty {
                     ContentUnavailableView(
                         "No medicines yet",
                         systemImage: "pills",
-                        description: Text("Open the Medicines tab and let Jenny read your prescription.")
+                        description: Text("Tap \"Scan a medicine envelope\" above to add your first one.")
+                    )
+                } else if doses.isEmpty {
+                    ContentUnavailableView(
+                        "Nothing to take at set times",
+                        systemImage: "hand.raised",
+                        description: Text("Your medicines are \"when needed\" only. See them in the Medicines tab.")
                     )
                 } else {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 16)], spacing: 16) {
@@ -64,6 +76,20 @@ struct TodayView: View {
             .padding()
         }
         .sensoryFeedback(.success, trigger: takenCount)
+    }
+
+    private var scanButton: some View {
+        Button {
+            showingScan = true
+        } label: {
+            Label("สแกนซองยา · Scan a medicine envelope", systemImage: "camera.viewfinder")
+                .font(.title3.bold())
+                .frame(maxWidth: .infinity, minHeight: 60)
+                .padding(.horizontal, 8)
+                .foregroundStyle(.white)
+                .background(Theme.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var remindersButton: some View {

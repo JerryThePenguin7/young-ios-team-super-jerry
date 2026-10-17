@@ -17,12 +17,13 @@ and adds it to **today's medicine list**.
 | Spike test (a quick experiment: "what works on the iPad?") | ✅ Built, runs in the simulator (branch `feature/pill-reader`) |
 | **PillInfo**: the container for one medicine's info | ✅ Done |
 | **Thai rules (LabelParser)**: understands the label text | ✅ Done, **5/5** test labels correct |
-| Scan screen, result card, read-aloud, today's list | ❌ **Not built yet**. This is the real app |
+| Scan screen, result card, read-aloud, today's list | 🟡 **Built into Jenny** (scan → card → Thai voice → Today). Not yet tested in Xcode or on the iPad |
 | AI cluster helper | ❌ Not set up yet |
 | Spike test on the **real iPad** | ❌ Not done yet |
 | Build on an **Intel Mac (Xcode 26)** | ❌ Not checked yet |
 
-**The app is NOT finished.** Only the test screen and the "brain" (Thai rules) exist so far.
+**Update:** the pill reader is now part of **Jenny** (red-and-white app): Today ▸ "สแกนซองยา · Scan a medicine envelope".
+The spike test moved to Settings ▸ Developer. Next: build it in Xcode and try it on the real iPad.
 
 ---
 
