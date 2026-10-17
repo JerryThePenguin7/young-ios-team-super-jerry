@@ -1,9 +1,13 @@
 # Super Jerry 🐭
 
-Team **Super Jerry**'s iOS app for the **Young iOS Hackathon @ Srinakharinwirot University (SWU)**, October 2026.
+Team **Super Jerry**'s iOS app for **YIDH26, the Young iOS Developer Hackathon 2026** at Srinakharinwirot University (SWU), October 2026.
 The theme is AI that runs on Apple devices.
 
-👉 **Read [docs/COMPETITION.md](docs/COMPETITION.md) first.** It covers the rules, judging criteria, schedule, and what to submit.
+👉 **Read [ai/what-we-are-building.md](ai/what-we-are-building.md) first.** It covers what we're building, the AI options, judging, and how we work.
+
+- Full rules and schedule: [ai/context/competition-brief.md](ai/context/competition-brief.md)
+- Rules every AI coding agent follows: [AGENTS.md](AGENTS.md)
+- Copy-paste prompts for the team: [ai/prompts/](ai/prompts/)
 
 ## The idea
 
@@ -12,7 +16,7 @@ The theme is AI that runs on Apple devices.
 - **Who has the problem:**
 - **The problem:**
 - **Our solution (one core feature):**
-- **AI we use and why:** Foundation Models / Core ML / MLX cluster
+- **AI we use and why:** pick what fits: Foundation Models / Core ML + sensors / AI cluster (not all 3 required)
 - **Impact (numbers!):**
 
 ## Team
