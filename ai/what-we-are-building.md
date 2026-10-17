@@ -50,7 +50,7 @@ If a judge asks "why did you need this?", we must have an answer.
 ## 5. How the team works
 
 - **Code goes in ONE shared repo:** the **official team repo** from the organizers' Team card.
-  Until we have it, we use this repo, `JerryThePenguin7/SuperJerry` (private). Then we move it over and stop using SuperJerry.
+  Until we have it, we use this repo, `JerryThePenguin7/young-ios-team-super-jerry` (private). Then we move it over and stop using this one.
 - The project must open in **Xcode 26 (Intel Macs) and Xcode 27 (Apple Silicon Mac)**. Keep the iOS 26 target, and say **No** to "update project format."
 - **Never commit the AI cluster API key.** It goes in `AICluster.swift`, which is gitignored.
 - `main` always builds. Use short branches, pull before working, and commit before letting an AI agent edit code.
@@ -68,7 +68,7 @@ If a judge asks "why did you need this?", we must have an answer.
 | 1 | **Voice memo** "Srinakharinwirot University.m4a" (28 min, Thai, recorded at the SWU kickoff 2026-10-17) | The organizers' kickoff briefing | The theme, the 3 AI options, examples, the 3 takeaways, the schedule, the point system, the 5 judging criteria, submission rules. Transcribed with Whisper large-v3; the audio is noisy, so unsure details are marked **(?)** in the brief. Raw text: [context/kickoff-transcript-th.txt](context/kickoff-transcript-th.txt). Ask Jerry for the audio |
 | 2 | **Official handbook (source)** https://github.com/swiftcodingclubth/yidh26-swift-handbook | The organizers' workshop handbook (MkDocs source + starter Xcode projects for workshops 3–5) | Team kit (1 Apple Silicon Mac, 2 Intel Macs, 1 iPad), Team card, the 3 rules, Xcode 26/27 compatibility, AI cluster models + setup, Git workflow |
 | 3 | **Handbook website** https://swiftcodingclubth.github.io/yidh26-swift-handbook/ (Jerry sent the [Workshop 3 page](https://swiftcodingclubth.github.io/yidh26-swift-handbook/workshop-3/)) | The published version of #2 | Same as #2. Workshop 3 covers sensors (Core Motion, Sound Analysis, LiDAR), Create ML, Core ML, and Core AI |
-| 4 | **This repo** `github.com/JerryThePenguin7/SuperJerry` (private) | Starter SwiftUI app (Hello World) | The base for the team app. Its format was changed so Xcode 26 can open it, and it gained AGENTS.md and this `ai/` folder |
+| 4 | **This repo** `github.com/JerryThePenguin7/young-ios-team-super-jerry` (private) | Starter SwiftUI app (Hello World) | The base for the team app. Its format was changed so Xcode 26 can open it, and it gained AGENTS.md and this `ai/` folder |
 
 ### Handbook pages used most
 
