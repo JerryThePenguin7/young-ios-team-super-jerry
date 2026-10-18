@@ -30,6 +30,7 @@ struct ContentView: View {
     @Environment(\.language) private var language
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var showingCamera = false
     @State private var cameraImage: UIImage?
@@ -257,7 +258,11 @@ struct ContentView: View {
             store.remindersEnabled = true
             Task { remindersResult = await store.applyReminderSetting() }
         } label: {
-            HStack(spacing: 16) {
+            // With very big text, the icon goes above the words so they aren't squeezed.
+            let layout = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout(spacing: 16))
+            layout {
                 Image(systemName: "checklist")
                     .font(.title2)
                     .foregroundStyle(Theme.red)

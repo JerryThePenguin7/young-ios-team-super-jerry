@@ -54,7 +54,7 @@ nonisolated enum MedicineGroup: String, Codable, CaseIterable, Hashable {
     var symbol: String {
         switch self {
         case .heart: "heart.fill"
-        case .diabetes: "syringe.fill"
+        case .diabetes: "drop.fill"
         case .cholesterol: "chart.line.downtrend.xyaxis"
         case .stomach: "fork.knife"
         case .pain: "bandage.fill"

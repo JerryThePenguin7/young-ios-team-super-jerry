@@ -4,12 +4,17 @@ import PhotosUI
 /// The big red box, Jenny's main feature: take a photo of a medicine envelope, or choose one from Photos.
 struct CameraCard: View {
     @Environment(\.language) private var language
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var photoItem: PhotosPickerItem?
     let takePhoto: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 16) {
+            // With very big text, the icon goes above the words so they aren't squeezed.
+            let header = dynamicTypeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+                : AnyLayout(HStackLayout(spacing: 16))
+            header {
                 Image(systemName: "camera.fill")
                     .font(.system(size: 28, weight: .semibold))
                     .frame(width: 60, height: 60)
@@ -22,14 +27,13 @@ struct CameraCard: View {
                                   "Jenny reads the label, reads it aloud, and saves the medicine."))
                         .font(.subheadline.weight(.medium))
                         .opacity(0.9)
+                        // Wrap instead of cutting the sentence off with "…".
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
 
-            // Side by side on iPad, one above the other on a narrow iPhone.
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) { buttons }
-                VStack(spacing: 12) { buttons }
-            }
+            // Always one above the other: side by side, the labels got cut off ("เลือกจากคลัง…") on iPad.
+            VStack(spacing: 12) { buttons }
         }
         .foregroundStyle(.white)
         .padding(20)

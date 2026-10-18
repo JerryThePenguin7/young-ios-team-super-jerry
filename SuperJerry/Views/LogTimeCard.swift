@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// One time in "Log" (like the Health app): "8:00 AM", the medicines still to take then, and a + to log them.
+/// One time in "Log" (like the Health app): "8:00 AM", the medicines still to take then, and a "Log" button.
 struct LogTimeCard: View {
     @Environment(\.language) private var language
     let time: DoseTime
@@ -14,15 +14,18 @@ struct LogTimeCard: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .firstTextBaseline, spacing: 10) {
-                    Text(time.label(language))
-                        .font(.title3.bold())
-                    badge
-                    Spacer(minLength: 0)
-                    if canLog {
-                        Image(systemName: "plus")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(Theme.red)
+                // One row when it fits; with very big text the badge and "Log" go on their own lines.
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) {
+                        timeText
+                        badge
+                        Spacer(minLength: 8)
+                        logPill
+                    }
+                    VStack(alignment: .leading, spacing: 10) {
+                        timeText
+                        badge
+                        logPill
                     }
                 }
                 ForEach(medicines) { medicine in
@@ -48,25 +51,49 @@ struct LogTimeCard: View {
         .accessibilityHint(language("แตะเพื่อบันทึกว่าทานแล้ว", "Tap to log these medicines"))
     }
 
+    private var timeText: some View {
+        Text(time.label(language))
+            .font(.title3.bold())
+    }
+
+    /// A word, not a bare +, so it's clear what tapping the card does.
+    @ViewBuilder
+    private var logPill: some View {
+        if canLog {
+            Label(language("บันทึก", "Log"), systemImage: "plus")
+                .font(.headline)
+                .foregroundStyle(Theme.red)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 44)
+                .background(Theme.red.opacity(0.14), in: Capsule())
+        }
+    }
+
     @ViewBuilder
     private var badge: some View {
         switch status {
         case .dueNow:
-            badgeLabel(language("ถึงเวลาแล้ว", "Time to take"), color: Theme.card)
+            badgeLabel(language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.red)
         case .missed:
-            badgeLabel(language("เลยเวลาแล้ว", "Late"), color: .orange)
+            badgeLabel(language("เลยเวลาแล้ว", "Late"), symbol: "exclamationmark.circle.fill", color: .orange)
         default:
             EmptyView()
         }
     }
 
-    private func badgeLabel(_ title: String, color: Color) -> some View {
-        Text(title)
-            .font(.caption.bold())
-            .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(color, in: Capsule())
+    /// Dark text on a light tint, with a colored icon: white on orange is too hard to read.
+    private func badgeLabel(_ title: String, symbol: String, color: Color) -> some View {
+        Label {
+            Text(title)
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: symbol)
+                .foregroundStyle(color)
+        }
+        .font(.subheadline.bold())
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(color.opacity(0.18), in: Capsule())
     }
 }
 

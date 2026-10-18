@@ -61,8 +61,14 @@ struct WeekStrip: View {
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
+            // The letters live in fixed 32 pt circles: cap their size so they aren't cut off,
+            // and let people with very big text press and hold to see the day enlarged.
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
         .buttonStyle(.plain)
+        .accessibilityShowsLargeContentViewer {
+            Label(language.longDay(day), systemImage: "calendar")
+        }
         .accessibilityLabel(language.longDay(day))
         .accessibilityValue(progress.map { language("ทานแล้ว \(Int($0 * 100))%", "\(Int($0 * 100))% taken") } ?? "")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
