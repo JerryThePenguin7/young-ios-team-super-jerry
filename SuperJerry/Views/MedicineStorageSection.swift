@@ -59,7 +59,7 @@ private struct StorageRow: View {
         HStack(spacing: 14) {
             PillIcon(medicine: medicine)
             VStack(alignment: .leading, spacing: 6) {
-                Text(medicine.displayName(language))
+                Text(medicine.title(language))
                     .font(.title3)
                 if medicine.stock != nil {
                     // The count and "Running low" side by side, or one above the other when there's no room.

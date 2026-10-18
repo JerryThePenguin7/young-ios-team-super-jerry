@@ -14,6 +14,24 @@ nonisolated extension Medicine {
         return withoutThai.isEmpty ? name : withoutThai
     }
 
+    /// The name with what it's for in front, so a foreign name makes sense: "ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)".
+    /// Thai only, from the medicine name list. Thai names ("ฟ้าทะลายโจร") already say what they are, so they stay as they are.
+    /// The full description, with its notes ("ทานจนหมด"), is on the medicine's own screen.
+    func title(_ language: AppLanguage) -> String {
+        let name = displayName(language)
+        guard language == .thai, !MedicineNames.containsThai(self.name), let kind = shortPurpose else { return name }
+        return "\(kind) (\(name))"
+    }
+
+    /// "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)" → "ยาฆ่าเชื้อแบคทีเรีย"
+    private var shortPurpose: String? {
+        guard let friendlyName else { return nil }
+        let short = friendlyName
+            .replacingOccurrences(of: #"\s*\([^)]*\)"#, with: "", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces)
+        return short.isEmpty ? nil : short
+    }
+
     /// "1", "1-2", and a half: "ครึ่ง" or "½".
     func amountText(_ language: AppLanguage) -> String {
         guard language == .english else { return amountText }
@@ -124,6 +142,7 @@ nonisolated extension Medicine {
     /// Label warnings in the chosen language. In English, Jenny translates the warnings it knows;
     /// any other line stays as printed on the label.
     func warningLines(_ language: AppLanguage) -> [String] {
+        let warnings = cleanWarnings
         guard language == .english else { return warnings }
         var lines: [String] = []
         for warning in warnings {
@@ -131,6 +150,16 @@ nonisolated extension Medicine {
             if !lines.contains(line) { lines.append(line) }
         }
         return lines
+    }
+
+    /// The label's warnings without the envelope's "หมายเหตุ" (Note) heading: "หมายเหตุ: ทานยาจนหมด" → "ทานยาจนหมด".
+    var cleanWarnings: [String] {
+        warnings.compactMap { warning in
+            let line = warning
+                .replacingOccurrences(of: #"หมายเหตุ\s*[:：.\-]?\s*"#, with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespaces)
+            return line.isEmpty ? nil : line
+        }
     }
 
     /// What the voice reads, all in one language.

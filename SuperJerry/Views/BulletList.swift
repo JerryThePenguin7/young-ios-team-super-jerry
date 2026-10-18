@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Short lines as bullet points: "• ครั้งละ 1 เม็ด", "• หลังอาหาร". Each line wraps, never cut off.
+/// In the main text color (black, or white in dark mode), so older eyes can read it easily.
 struct BulletList: View {
     let items: [String]
     var font: Font = .callout
@@ -18,7 +19,7 @@ struct BulletList: View {
             }
         }
         .font(font)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary)
         .accessibilityElement(children: .combine)
     }
 }

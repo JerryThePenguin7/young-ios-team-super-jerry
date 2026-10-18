@@ -104,7 +104,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
             }
             if !meal.isEmpty { parts.append(meal) }
         }
-        parts += warnings
+        parts += cleanWarnings
         return parts.joined(separator: ". ")
     }
 }
