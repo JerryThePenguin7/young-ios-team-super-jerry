@@ -28,12 +28,13 @@ struct MedicineInfoView: View {
             if !medicine.meal.isEmpty {
                 Label("\(medicine.meal) · \(medicine.mealEnglish)", systemImage: "fork.knife")
                     .font(.title3.weight(.semibold))
+                    .labelStyle(TintedIconLabelStyle(tint: Theme.red))
             }
 
             ForEach(medicine.warnings, id: \.self) { warning in
                 Label(warning, systemImage: "exclamationmark.triangle.fill")
                     .font(.headline)
-                    .foregroundStyle(.orange)
+                    .labelStyle(TintedIconLabelStyle(tint: Theme.late))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

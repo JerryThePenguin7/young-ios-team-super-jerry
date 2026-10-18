@@ -13,6 +13,8 @@ struct ScanPhoto: Identifiable {
 struct ContentView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.openURL) private var openURL
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     @State private var showingCamera = false
     @State private var cameraImage: UIImage?
@@ -93,22 +95,28 @@ struct ContentView: View {
         }
     }
 
+    /// Health-style order: Time to take (only when due) → camera → Today → My medicines → disclaimer.
     private func content(now: Date) -> some View {
-        let due = store.doses(now: now).filter { $0.status == .dueNow || $0.status == .missed }
+        let doses = store.doses(now: now)
+        let due = doses.filter { $0.status == .dueNow || $0.status == .missed }
 
         return ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
+                if !due.isEmpty {
+                    DueNowCard(doses: due, now: now)
+                }
+
                 cameraCard
 
-                if !due.isEmpty {
-                    dueBanner(due, now: now)
+                if !doses.isEmpty {
+                    TodayScheduleCard(doses: doses, now: now)
                 }
 
                 if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
-                    remindersButton
+                    remindersCard
                 }
 
-                medicinesSection(now: now)
+                medicinesSection
 
                 Label("Jenny helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device.",
                       systemImage: "info.circle")
@@ -131,42 +139,60 @@ struct ContentView: View {
                 Button {
                     openCamera()
                 } label: {
-                    cameraLabel(subtitle: "Take a photo of your medicine envelope")
+                    cameraLabel(subtitle: "Take a photo of your medicine envelope. Jenny reads it out loud.")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
 
                 PhotosPicker(selection: $photoItem, matching: .images) {
-                    BigButtonLabel(title: "เลือกรูปจากคลังภาพ · Choose from Photos", symbol: "photo.on.rectangle")
+                    Label("เลือกรูปจากคลังภาพ · Choose from Photos", systemImage: "photo.on.rectangle")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.big)
             }
         } else {
             // No camera (e.g. the simulator): the big card picks a photo instead.
             PhotosPicker(selection: $photoItem, matching: .images) {
                 cameraLabel(subtitle: "No camera here. Tap to choose a photo of the label.")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
         }
     }
 
     private func cameraLabel(subtitle: String) -> some View {
-        VStack(spacing: 12) {
+        let shape = RoundedRectangle(cornerRadius: Theme.heroCornerRadius)
+        // On iPhone, or with very big text, stack the icon above the words so nothing gets squeezed.
+        let stacked = sizeClass == .compact || dynamicTypeSize.isAccessibilitySize
+        let layout = stacked
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
+            : AnyLayout(HStackLayout(alignment: .center, spacing: 20))
+
+        return layout {
             Image(systemName: "camera.fill")
-                .font(.system(size: 56, weight: .semibold))
-            Text("ถ่ายรูปซองยา")
-                .font(.largeTitle.bold())
-            Text(subtitle)
-                .font(.title3.weight(.medium))
-                .multilineTextAlignment(.center)
-                .opacity(0.9)
+                .font(.system(size: 34, weight: .semibold))
+                .foregroundStyle(Theme.card)
+                .frame(width: 72, height: 72)
+                .background(.white, in: Circle())
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("ถ่ายรูปซองยา")
+                    .font(.largeTitle.bold())
+                Text(subtitle)
+                    .font(.title3.weight(.medium))
+                    .opacity(0.9)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if !stacked {
+                Image(systemName: "chevron.right")
+                    .font(.title2.bold())
+                    .opacity(0.8)
+            }
         }
         .foregroundStyle(.white)
         .padding(24)
-        .frame(maxWidth: .infinity, minHeight: 240)
-        .background(Theme.card.gradient, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-        .contentShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: 160)
+        .background(Theme.card.gradient, in: shape)
+        .contentShape(shape)
         .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
     }
 
     private func openCamera() {
@@ -186,69 +212,40 @@ struct ContentView: View {
         scanPhoto = ScanPhoto(image: image)
     }
 
-    // MARK: Time to take
+    // MARK: Reminders
 
-    private func dueBanner(_ due: [ScheduledDose], now: Date) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Label("ถึงเวลาทานยา · Time to take", systemImage: "bell.fill")
-                .font(.title2.bold())
-                .foregroundStyle(Theme.red)
-
-            ForEach(due) { dose in
-                HStack(spacing: 12) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(dose.medicine.name)
-                            .font(.title3.bold())
-                        Text(dose.status == .missed
-                             ? "\(dose.medicine.amountLine) · \(dose.time.label) · เลยเวลา (late)"
-                             : "\(dose.medicine.amountLine) · \(dose.time.label)")
-                            .foregroundStyle(dose.status == .missed ? Color.orange : Color.secondary)
+    private var remindersCard: some View {
+        SummaryCard(title: "การเตือน · Reminders", symbol: "bell.badge.fill") {
+            Text("ให้ Jenny เตือนเมื่อถึงเวลาทานยา\nJenny can remind you at each pill time.")
+                .font(.body)
+            Button("เปิดการเตือน · Turn on reminders", systemImage: "bell.fill") {
+                store.remindersEnabled = true
+                Task {
+                    if await !store.applyReminderSetting() {
+                        showingNotificationsOff = true
                     }
-                    Spacer(minLength: 8)
-                    Button {
-                        store.toggleTaken(dose.medicine, at: dose.time, now: now)
-                    } label: {
-                        Label("ทานแล้ว", systemImage: "checkmark")
-                            .font(.headline)
-                            .padding(.horizontal, 18)
-                            .frame(minHeight: 50)
-                            .foregroundStyle(.white)
-                            .background(Theme.card, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Mark \(dose.medicine.name) as taken")
                 }
             }
+            .buttonStyle(.big)
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)
-                .strokeBorder(Theme.red, lineWidth: 2)
-        }
-    }
-
-    private var remindersButton: some View {
-        Button {
-            store.remindersEnabled = true
-            Task {
-                if await !store.applyReminderSetting() {
-                    showingNotificationsOff = true
-                }
-            }
-        } label: {
-            BigButtonLabel(title: "ให้ Jenny เตือนเวลาทานยา · Remind me at pill times", symbol: "bell.badge.fill")
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: My medicines
 
-    private func medicinesSection(now: Date) -> some View {
+    private var medicinesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(store.medicines.isEmpty ? "ยาของฉัน · My medicines" : "ยาของฉัน · My medicines (\(store.medicines.count))")
-                .font(.title2.bold())
+            HStack(alignment: .firstTextBaseline) {
+                Text("ยาของฉัน · My medicines")
+                    .font(.title2.bold())
+                    .accessibilityAddTraits(.isHeader)
+                Spacer()
+                if !store.medicines.isEmpty {
+                    Text("\(store.medicines.count)")
+                        .font(.title3.bold())
+                        .fontDesign(.rounded)
+                        .foregroundStyle(.secondary)
+                }
+            }
 
             if store.medicines.isEmpty {
                 ContentUnavailableView(
@@ -256,10 +253,11 @@ struct ContentView: View {
                     systemImage: "pills",
                     description: Text("Tap \"ถ่ายรูปซองยา\" above and take a photo of a medicine envelope.")
                 )
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
             } else {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 16)], spacing: 16) {
                     ForEach(store.medicines) { medicine in
-                        MedicineCard(medicine: medicine, now: now)
+                        MedicineCard(medicine: medicine)
                     }
                 }
             }

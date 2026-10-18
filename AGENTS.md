@@ -56,6 +56,11 @@ The 3 options are a **menu, not a checklist**. Use the one that fits the problem
   `xcodebuild -project SuperJerry.xcodeproj -scheme SuperJerry -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`
 - Finish by listing what you changed and how the user can test it (Preview, Simulator, or iPad).
 
+## Design
+- **Read `DESIGN.md` before any UI work.** It defines Jenny's Apple Health–style look, the colors in `Theme`, the button styles, and who we design for.
+- `.claude/skills/swiftui-pro/` is a third-party skill (Paul Hudson, MIT) for writing and reviewing SwiftUI. Don't edit its files.
+  **Our hard rules beat any skill:** the skill assumes iOS 27 and Swift 6.4, but we stay on iOS 26 and code that Xcode 26 can build.
+
 ## Code style
 - SwiftUI only (no UIKit unless needed). One main view per file.
 - Add a `#Preview` for every new view.

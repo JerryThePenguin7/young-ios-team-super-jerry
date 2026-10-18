@@ -42,29 +42,38 @@ struct MedicineDetailView: View {
         }
     }
 
+    /// Health-style: the label photo, then cards for the medicine, today's times, and the scanned text.
     private func content(_ medicine: Medicine, now: Date) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
             if let file = medicine.photoFile, let photo = PhotoStore.load(file) {
                 Image(uiImage: photo)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: 360)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
                     .accessibilityLabel("Photo of the label")
             }
 
-            VStack(alignment: .leading, spacing: 20) {
+            SummaryCard(title: "ยา · Medicine", symbol: "pills.fill") {
                 MedicineInfoView(medicine: medicine)
+            }
+
+            Button("อ่านออกเสียง · Read aloud", systemImage: "speaker.wave.2.fill") {
+                SpeechReader.shared.speak(medicine.spokenThai)
+            }
+            .buttonStyle(.bigProminent)
+
+            SummaryCard(title: "วันนี้ · Today", symbol: "calendar") {
                 DoseChips(medicine: medicine, now: now)
-
-                Button {
-                    SpeechReader.shared.speak(medicine.spokenThai)
-                } label: {
-                    BigButtonLabel(title: "อ่านออกเสียง · Read aloud", symbol: "speaker.wave.2.fill", filled: true)
+                if !medicine.times.isEmpty {
+                    Text("แตะเมื่อทานแล้ว · Tap a time when you've taken it")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.plain)
+            }
 
-                if !medicine.scannedText.isEmpty {
+            if !medicine.scannedText.isEmpty {
+                SummaryCard(title: "ข้อความจากฉลาก · Label text", symbol: "text.viewfinder") {
                     DisclosureGroup("ดูข้อความที่อ่านได้ · Show scanned text", isExpanded: $showingScannedText) {
                         Text(medicine.scannedText)
                             .font(.callout.monospaced())
@@ -75,16 +84,15 @@ struct MedicineDetailView: View {
                     .tint(Theme.red)
                 }
             }
-            .padding(24)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
 
             Button(role: .destructive) {
                 showingDeleteConfirmation = true
             } label: {
                 Label("ลบยานี้ · Delete this medicine", systemImage: "trash")
-                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .frame(maxWidth: .infinity, minHeight: 52)
             }
             .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle(radius: Theme.buttonCornerRadius))
 
             Label("ตรวจกับฉลากจริงทุกครั้ง · ไม่ใช่คำแนะนำทางการแพทย์\nAlways check the real label. Not medical advice.",
                   systemImage: "info.circle")

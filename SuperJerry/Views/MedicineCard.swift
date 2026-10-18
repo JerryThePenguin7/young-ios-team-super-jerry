@@ -1,55 +1,58 @@
 import SwiftUI
 
-/// One saved medicine on the home screen: its label photo, what and how many, today's ticks, and read aloud.
+/// One saved medicine on the home screen: its label photo, what and how many, its times, and read aloud.
+/// Doses are ticked in the Today card, so the times here only show when to take it.
 struct MedicineCard: View {
     let medicine: Medicine
-    let now: Date
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 14) {
             NavigationLink(value: medicine.id) {
-                HStack(alignment: .top, spacing: 14) {
-                    MedicinePhoto(file: medicine.photoFile)
+                // With very big text, the photo goes above the words so nothing gets squeezed.
+                let layout = dynamicTypeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 14))
+                    : AnyLayout(HStackLayout(alignment: .top, spacing: 14))
+                layout {
+                    MedicinePhoto(file: medicine.photoFile, size: 72)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(medicine.name.isEmpty ? "ยา (ไม่ทราบชื่อ)" : medicine.name)
-                            .font(.title2.bold())
+                            .font(.title3.bold())
                         if !subtitle.isEmpty {
                             Text(subtitle)
                                 .foregroundStyle(.secondary)
                         }
                         Text(medicine.amountLine)
                             .font(.title3.bold())
+                            .fontDesign(.rounded)
                             .foregroundStyle(Theme.red)
                         if !medicine.meal.isEmpty {
-                            Text(medicine.meal)
-                                .font(.headline)
+                            Label(medicine.meal, systemImage: "fork.knife")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
                         }
                     }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right")
-                        .font(.headline)
-                        .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    if !dynamicTypeSize.isAccessibilitySize {
+                        Image(systemName: "chevron.right")
+                            .font(.headline)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
 
-            DoseChips(medicine: medicine, now: now)
+            DoseChips(medicine: medicine)
 
-            Button {
+            Button("อ่านออกเสียง · Read aloud", systemImage: "speaker.wave.2.fill") {
                 SpeechReader.shared.speak(medicine.spokenThai)
-            } label: {
-                BigButtonLabel(title: "อ่านออกเสียง · Read aloud", symbol: "speaker.wave.2.fill")
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.big)
         }
-        .padding(20)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous)
-                .strokeBorder(Theme.red.opacity(0.15))
-        }
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
     }
 
     /// "500 mg · ยาเบาหวาน"
@@ -62,7 +65,7 @@ struct MedicineCard: View {
     let store = MedicineStore.preview()
     NavigationStack {
         ScrollView {
-            MedicineCard(medicine: store.medicines[1], now: Date())
+            MedicineCard(medicine: store.medicines[1])
                 .padding()
         }
         .background(Theme.background)

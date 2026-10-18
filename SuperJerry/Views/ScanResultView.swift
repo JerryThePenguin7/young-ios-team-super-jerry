@@ -7,6 +7,7 @@ struct ScanResultView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @AppStorage("autoReadAloud") private var autoReadAloud = true
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let image: UIImage
     /// Called when the user wants another photo. The home screen reopens the camera.
@@ -31,7 +32,7 @@ struct ScanResultView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 300)
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
                         .accessibilityLabel("Your photo of the label")
 
                     switch phase {
@@ -39,6 +40,7 @@ struct ScanResultView: View {
                         ProgressView("กำลังอ่านฉลากยา… · Reading the label…")
                             .controlSize(.large)
                             .frame(maxWidth: .infinity, minHeight: 160)
+                            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.heroCornerRadius))
                     case .found(let medicine, let timesGuessed):
                         foundCard(medicine, timesGuessed: timesGuessed)
                     case .notFound(let scannedText):
@@ -50,6 +52,12 @@ struct ScanResultView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Theme.background)
+            // The main action stays at the bottom, within thumb reach, even while scrolling.
+            .safeAreaInset(edge: .bottom) {
+                if case .found(let medicine, _) = phase {
+                    saveBar(medicine)
+                }
+            }
             .navigationTitle("ผลการอ่าน · Result")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -93,9 +101,9 @@ struct ScanResultView: View {
     private func foundCard(_ medicine: Medicine, timesGuessed: Bool) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             Label("อ่านในเครื่อง · Read on this device", systemImage: "lock.shield.fill")
-                .font(.caption.bold())
+                .font(.footnote.bold())
                 .padding(.horizontal, 10)
-                .padding(.vertical, 5)
+                .padding(.vertical, 6)
                 .foregroundStyle(Theme.red)
                 .background(Theme.red.opacity(0.12), in: Capsule())
 
@@ -106,42 +114,23 @@ struct ScanResultView: View {
                 Label("เดาเวลาจาก \"วันละ … ครั้ง\" · โปรดตรวจสอบ (times guessed, please check)",
                       systemImage: "exclamationmark.triangle.fill")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.orange)
+                    .labelStyle(TintedIconLabelStyle(tint: Theme.late))
             }
 
-            VStack(spacing: 12) {
-                Button {
-                    SpeechReader.shared.speak(medicine.spokenThai)
-                } label: {
-                    BigButtonLabel(title: "อ่านออกเสียง · Read aloud", symbol: "speaker.wave.2.fill")
+            Button("อ่านออกเสียง · Read aloud", systemImage: "speaker.wave.2.fill") {
+                SpeechReader.shared.speak(medicine.spokenThai)
+            }
+            .buttonStyle(.big)
+
+            sideBySide {
+                Button("แก้ไข · Edit", systemImage: "pencil") {
+                    editingMedicine = medicine
                 }
-                if medicine.name.isEmpty {
-                    Button {
-                        editingMedicine = medicine
-                    } label: {
-                        BigButtonLabel(title: "ใส่ชื่อยาแล้วบันทึก · Add the name, then save", symbol: "pencil", filled: true)
-                    }
-                } else {
-                    Button {
-                        save(medicine)
-                    } label: {
-                        BigButtonLabel(title: "บันทึกยา · Save medicine", symbol: "square.and.arrow.down.fill", filled: true)
-                    }
-                }
-                HStack(spacing: 12) {
-                    Button {
-                        editingMedicine = medicine
-                    } label: {
-                        BigButtonLabel(title: "แก้ไข · Edit", symbol: "pencil")
-                    }
-                    Button {
-                        retake()
-                    } label: {
-                        BigButtonLabel(title: "ถ่ายใหม่ · Retake", symbol: "camera.fill")
-                    }
+                Button("ถ่ายใหม่ · Retake", systemImage: "camera.fill") {
+                    retake()
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.big)
 
             scannedTextBox(medicine.scannedText)
 
@@ -152,7 +141,36 @@ struct ScanResultView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.heroCornerRadius))
+    }
+
+    /// Save, pinned to the bottom of the screen. With no name, it opens the editor first.
+    private func saveBar(_ medicine: Medicine) -> some View {
+        Group {
+            if medicine.name.isEmpty {
+                Button("ใส่ชื่อยาแล้วบันทึก · Add the name, then save", systemImage: "pencil") {
+                    editingMedicine = medicine
+                }
+            } else {
+                Button("บันทึกยา · Save medicine", systemImage: "square.and.arrow.down.fill") {
+                    save(medicine)
+                }
+            }
+        }
+        .buttonStyle(.bigProminent)
+        .frame(maxWidth: 700)
+        .padding(.horizontal)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(.bar)
+    }
+
+    /// Two buttons side by side, or stacked when the text is very big.
+    private func sideBySide<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 12))
+            : AnyLayout(HStackLayout(spacing: 12))
+        return layout(content)
     }
 
     // MARK: Nothing found
@@ -161,31 +179,29 @@ struct ScanResultView: View {
         VStack(alignment: .leading, spacing: 16) {
             Label("ไม่พบข้อมูลยา · Jenny couldn't find a medicine label", systemImage: "exclamationmark.triangle.fill")
                 .font(.title3.bold())
-                .foregroundStyle(.orange)
+                .labelStyle(TintedIconLabelStyle(tint: Theme.late))
             Text("ลองถ่ายใหม่ในที่สว่าง ให้ฉลากเต็มรูป และเอียงเล็กน้อยไม่ให้แสงสะท้อน\nTry again in good light. Fill the photo with the label, and tilt it a little to avoid glare.")
                 .font(.body)
 
-            Button {
+            Button("ถ่ายใหม่ · Retake", systemImage: "camera.fill") {
                 retake()
-            } label: {
-                BigButtonLabel(title: "ถ่ายใหม่ · Retake", symbol: "camera.fill", filled: true)
             }
-            Button {
+            .buttonStyle(.bigProminent)
+
+            Button("พิมพ์เอง · Type it in", systemImage: "keyboard") {
                 var medicine = Medicine.blank
                 medicine.scannedText = scannedText
                 editingMedicine = medicine
-            } label: {
-                BigButtonLabel(title: "พิมพ์เอง · Type it in", symbol: "keyboard")
             }
+            .buttonStyle(.big)
 
             if !scannedText.isEmpty {
                 scannedTextBox(scannedText)
             }
         }
-        .buttonStyle(.plain)
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.heroCornerRadius))
     }
 
     private func scannedTextBox(_ text: String) -> some View {

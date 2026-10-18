@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// A medicine's times as big chips. On a saved medicine, tap a chip to tick that dose as taken today.
+/// A medicine's times. With `now`, they're big chips you tap to tick that dose as taken today;
+/// without it, they're a plain list of times.
 struct DoseChips: View {
     @Environment(MedicineStore.self) private var store
     let medicine: Medicine
@@ -13,7 +14,7 @@ struct DoseChips: View {
         } else if medicine.orderedSlots.isEmpty {
             Label("ไม่มีเวลาทานยา · No time set. Tap Edit to add one.", systemImage: "clock.badge.questionmark")
                 .font(.headline)
-                .foregroundStyle(.orange)
+                .labelStyle(TintedIconLabelStyle(tint: Theme.late))
         } else {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 10, alignment: .leading)],
                       alignment: .leading, spacing: 10) {
@@ -25,7 +26,7 @@ struct DoseChips: View {
                         } label: {
                             chip(for: slot, status: status)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable)
                         .accessibilityHint(status.isTaken ? "Tap to un-tick" : "Tap when you've taken it")
                     } else {
                         chip(title: "\(slot.thai) · \(slot.time.label)", symbol: slot.symbol, style: .plain)
@@ -46,43 +47,47 @@ struct DoseChips: View {
         }
     }
 
+    /// Only saved medicines can be ticked. Otherwise the times are shown as plain text, so they don't look tappable.
+    private var isInteractive: Bool { now != nil && !medicine.asNeeded }
+
+    /// Text stays dark for easy reading. The icon, fill, and border carry the color.
     private func chip(title: String, symbol: String, style: ChipStyle) -> some View {
         Label(title, systemImage: symbol)
-            .font(.title3.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundStyle(foreground(style))
-            .background(background(style), in: Capsule())
+            .labelStyle(TintedIconLabelStyle(tint: tint(style)))
+            .font(.headline)
+            .foregroundStyle(style == .due ? Theme.red : Color.primary)
+            .lineLimit(2)
+            .padding(.horizontal, isInteractive ? 14 : 0)
+            .padding(.vertical, isInteractive ? 8 : 0)
+            .frame(maxWidth: .infinity, minHeight: isInteractive ? 52 : nil, alignment: .leading)
+            .background(isInteractive ? background(style) : .clear, in: Capsule())
             .overlay {
                 Capsule().strokeBorder(border(style), lineWidth: 2)
             }
+            .contentShape(Capsule())
     }
 
-    private func foreground(_ style: ChipStyle) -> Color {
+    private func tint(_ style: ChipStyle) -> Color {
         switch style {
-        case .taken: .white
-        case .due: Theme.red
-        case .missed: .orange
-        case .plain: .primary
+        case .taken: Theme.taken
+        case .due, .plain: Theme.red
+        case .missed: Theme.late
         }
     }
 
     private func background(_ style: ChipStyle) -> Color {
         switch style {
-        case .taken: Theme.card
+        case .taken: Theme.taken.opacity(0.15)
         case .due: Theme.red.opacity(0.12)
-        case .missed: Color.orange.opacity(0.12)
-        case .plain: Theme.red.opacity(0.08)
+        case .missed: Theme.late.opacity(0.12)
+        case .plain: Theme.background
         }
     }
 
     private func border(_ style: ChipStyle) -> Color {
         switch style {
         case .due: Theme.red
-        case .missed: .orange
+        case .missed: Theme.late
         case .taken, .plain: .clear
         }
     }
@@ -95,5 +100,6 @@ struct DoseChips: View {
         DoseChips(medicine: store.medicines[1])
     }
     .padding()
+    .background(Theme.surface)
     .environment(store)
 }
