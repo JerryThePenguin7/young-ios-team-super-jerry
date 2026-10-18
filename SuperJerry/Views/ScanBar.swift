@@ -1,54 +1,47 @@
 import SwiftUI
 import PhotosUI
 
-/// The camera, floating at the bottom of the home screen where a thumb can reach it (Liquid Glass, iOS 26).
-/// A big red "scan" button and a round Photos button. The full red box (CameraCard) is shown instead
-/// when there are no medicines yet, so first-time users see what Jenny does.
+/// The camera: one big red "Scan a medicine label" button floating at the bottom of the home screen,
+/// where a thumb can reach it (Liquid Glass, iOS 26). Tapping it asks how: take a photo, or choose one
+/// from Photos. Shown from the very first launch.
 struct ScanBar: View {
     @Environment(\.language) private var language
     @Binding var photoItem: PhotosPickerItem?
     let takePhoto: () -> Void
 
-    var body: some View {
-        HStack(spacing: 12) {
-            // No camera (e.g. the simulator)? Then the big button picks a photo instead.
-            if CameraPicker.isAvailable {
-                Button(action: takePhoto) {
-                    mainLabel
-                }
-                .buttonStyle(.glassProminent)
-                .tint(Theme.card)
+    @State private var showingChoice = false
+    @State private var showingPhotos = false
 
-                PhotosPicker(selection: $photoItem, matching: .images) {
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(Theme.red)
-                        .frame(width: 44, height: 44)
-                }
-                .buttonStyle(.glass)
-                .buttonBorderShape(.circle)
-                .accessibilityLabel(language("เลือกจากคลังภาพ", "Choose from Photos"))
+    var body: some View {
+        Button {
+            // No camera (e.g. the simulator)? Then go straight to Photos.
+            if CameraPicker.isAvailable {
+                showingChoice = true
             } else {
-                PhotosPicker(selection: $photoItem, matching: .images) {
-                    mainLabel
-                }
-                .buttonStyle(.glassProminent)
-                .tint(Theme.card)
+                showingPhotos = true
             }
+        } label: {
+            Label(language("ถ่ายรูปซองยา", "Scan a medicine label"), systemImage: "camera.fill")
+                .font(.title3.bold())
+                .multilineTextAlignment(.center)
+                .lineLimit(2)   // wraps onto a second line with big text instead of cutting words off
+                .frame(maxWidth: .infinity, minHeight: 44)
         }
+        .buttonStyle(.glassProminent)
+        .tint(Theme.card)
         .controlSize(.large)
+        .confirmationDialog(language("เพิ่มยาจากรูปซองยา", "Add a medicine from its label"),
+                            isPresented: $showingChoice, titleVisibility: .visible) {
+            Button(language("ถ่ายรูป", "Take photo"), action: takePhoto)
+            Button(language("เลือกจากคลังภาพ", "Choose from Photos")) { showingPhotos = true }
+            Button(language("ยกเลิก", "Cancel"), role: .cancel) {}
+        }
+        .photosPicker(isPresented: $showingPhotos, selection: $photoItem, matching: .images)
+        .accessibilityHint(language("ถ่ายรูปหรือเลือกรูปซองยา", "Take or choose a photo of a medicine envelope"))
         .frame(maxWidth: 560)
         .padding(.horizontal)
         .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
-    }
-
-    private var mainLabel: some View {
-        Label(language("ถ่ายรูปซองยา", "Scan a medicine label"), systemImage: "camera.fill")
-            .font(.title3.bold())
-            .multilineTextAlignment(.center)
-            .lineLimit(2)   // wraps onto a second line with big text instead of cutting words off
-            .frame(maxWidth: .infinity, minHeight: 44)
     }
 }
 

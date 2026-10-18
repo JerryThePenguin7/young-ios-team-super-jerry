@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// One time in "Log" (like the Health app): "8:00 AM", the medicines still to take then, and a + to log them.
+/// One time in "Log" as a checklist: "8:00 AM", then each medicine still to take with a big tick box.
+/// Tap the box when you've taken it: it moves to "Taken" (like ticking off an item in the Reminders app).
+/// Press and hold a medicine to mark it skipped; "…" opens the full log sheet.
 struct LogTimeCard: View {
     @Environment(\.language) private var language
     let time: DoseTime
@@ -9,46 +11,78 @@ struct LogTimeCard: View {
     var status: DoseStatus = .upcoming
     /// false for days that haven't come yet.
     var canLog = true
-    let action: () -> Void
+    let tick: (Medicine) -> Void
+    let skip: (Medicine) -> Void
+    let more: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 14) {
-                // One row when it fits; with very big text the badge and "Log" go on their own lines.
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
+            // One row when it fits; with very big text the badge goes on its own line.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    timeText
+                    badge
+                    Spacer(minLength: 8)
+                    moreButton
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
                         timeText
-                        badge
                         Spacer(minLength: 8)
-                        logPill
+                        moreButton
                     }
-                    VStack(alignment: .leading, spacing: 10) {
-                        timeText
-                        badge
-                        logPill
-                    }
-                }
-                ForEach(medicines) { medicine in
-                    HStack(spacing: 12) {
-                        PillIcon(medicine: medicine)
-                        Text(medicine.displayName(language))
-                            .font(.title3)
-                        Spacer(minLength: 0)
-                    }
+                    badge
                 }
             }
-            .padding(Theme.cardPadding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
-                    .strokeBorder(Theme.red, lineWidth: status == .dueNow ? 2 : 0)
+            ForEach(medicines) { medicine in
+                row(medicine)
             }
-            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         }
-        .buttonStyle(.pressable)
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(Theme.red, lineWidth: status == .dueNow ? 2 : 0)
+        }
+    }
+
+    /// One checklist row: an empty tick box, the pill icon, the name, and how much.
+    private func row(_ medicine: Medicine) -> some View {
+        Button {
+            tick(medicine)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "circle")
+                    .font(.system(size: 30, weight: .regular))
+                    .foregroundStyle(canLog ? Theme.green : Color.secondary)
+                    .frame(width: 44, height: 44)
+                PillIcon(medicine: medicine)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(medicine.displayName(language))
+                        .font(.title3)
+                    Text(medicine.instruction(language))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
         .disabled(!canLog)
-        .accessibilityHint(language("แตะเพื่อบันทึกว่าทานแล้ว", "Tap to log these medicines"))
+        .contextMenu {
+            if canLog {
+                Button(language("ทานแล้ว", "Taken"), systemImage: "checkmark.circle") { tick(medicine) }
+                Button(language("ข้าม", "Skipped"), systemImage: "xmark.circle") { skip(medicine) }
+            }
+        }
+        .accessibilityLabel(medicine.displayName(language))
+        .accessibilityValue(language("ยังไม่ได้ทาน", "Not taken yet"))
+        .accessibilityHint(language("แตะสองครั้งเมื่อทานแล้ว", "Double-tap when you've taken it"))
+        .accessibilityAction(named: language("ข้าม", "Skipped")) { skip(medicine) }
     }
 
     private var timeText: some View {
@@ -56,12 +90,19 @@ struct LogTimeCard: View {
             .font(.title3.bold())
     }
 
-    /// A round + (the whole card is the button; VoiceOver hears the hint).
+    /// "…": the full log sheet (Taken or Skipped for each, Log All as Taken, read aloud).
     @ViewBuilder
-    private var logPill: some View {
+    private var moreButton: some View {
         if canLog {
-            RoundIcon(symbol: "plus")
-                .accessibilityHidden(true)
+            Button(action: more) {
+                Image(systemName: "ellipsis")
+                    .font(.title3.bold())
+                    .foregroundStyle(Theme.red)
+                    .frame(width: 44, height: 44)
+                    .background(Theme.fill, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(language("ตัวเลือกเพิ่มเติม เช่น ข้าม หรือทานครบทุกตัว", "More: skip, or log all as taken"))
         }
     }
 
@@ -69,21 +110,37 @@ struct LogTimeCard: View {
     private var badge: some View {
         switch status {
         case .dueNow:
-            StatusBadge(title: language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.red)
+            badgeLabel(language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.red)
         case .missed:
-            StatusBadge(title: language("เลยเวลาแล้ว", "Late"), symbol: "exclamationmark.circle.fill", color: .orange)
+            badgeLabel(language("เลยเวลาแล้ว", "Late"), symbol: "exclamationmark.circle.fill", color: .orange)
         default:
             EmptyView()
         }
     }
 
+    /// Dark text on a light tint, with a colored icon: white on orange is too hard to read.
+    private func badgeLabel(_ title: String, symbol: String, color: Color) -> some View {
+        Label {
+            Text(title)
+                .foregroundStyle(.primary)
+        } icon: {
+            Image(systemName: symbol)
+                .foregroundStyle(color)
+        }
+        .font(.subheadline.bold())
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(color.opacity(0.18), in: Capsule())
+    }
 }
 
 #Preview {
     let store = MedicineStore.preview()
     VStack {
-        LogTimeCard(time: DoseTime(hour: 8), medicines: Array(store.medicines.prefix(2)), status: .dueNow) {}
-        LogTimeCard(time: DoseTime(hour: 18), medicines: Array(store.medicines.suffix(1))) {}
+        LogTimeCard(time: DoseTime(hour: 8), medicines: Array(store.medicines.prefix(2)), status: .dueNow,
+                    tick: { _ in }, skip: { _ in }, more: {})
+        LogTimeCard(time: DoseTime(hour: 18), medicines: Array(store.medicines.suffix(1)),
+                    tick: { _ in }, skip: { _ in }, more: {})
     }
     .padding()
     .environment(\.language, .english)

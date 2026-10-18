@@ -46,7 +46,7 @@ struct TutorialView: View {
                 BigButtonLabel(title: page < pageCount - 1 ? language("ถัดไป", "Next") : language("เริ่มใช้งาน", "Get started"),
                                symbol: page < pageCount - 1 ? "arrow.right" : "checkmark", filled: true)
             }
-            .buttonStyle(.pressable)
+            .buttonStyle(.plain)
             .padding()
             .frame(maxWidth: 560)
         }
@@ -83,10 +83,10 @@ struct TutorialView: View {
                         .frame(maxWidth: .infinity, minHeight: 60)
                         .foregroundStyle(option == appLanguage ? Color.white : Theme.red)
                         .background(option == appLanguage ? Theme.card : Theme.surface,
-                                    in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
-                        .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
+                                    in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
-                    .buttonStyle(.pressable)
+                    .buttonStyle(.plain)
                     .accessibilityAddTraits(option == appLanguage ? .isSelected : [])
                 }
             }
@@ -96,8 +96,8 @@ struct TutorialView: View {
     private var scanPage: some View {
         TutorialPage(symbol: "camera.fill", color: Theme.card,
                      title: language("1. ถ่ายรูปซองยา", "1. Scan a medicine envelope"),
-                     text: language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" แล้วถ่ายฉลากให้เต็มรูปในที่สว่าง Jenny จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
-                                    "Tap the red \"Scan a medicine label\" button and take a photo of the label in good light. Jenny reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
+                     text: language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วเลือก ถ่ายรูป หรือ เลือกจากคลังภาพ ถ่ายฉลากให้เต็มรูปในที่สว่าง Jenny จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
+                                    "Tap the red \"Scan a medicine label\" button at the bottom, then Take photo (or Choose from Photos). Take the photo in good light. Jenny reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
             EmptyView()
         }
     }
@@ -105,22 +105,33 @@ struct TutorialView: View {
     private var logPage: some View {
         TutorialPage(symbol: "checkmark", color: Theme.greenFill,
                      title: language("2. บันทึกการทานยา", "2. Log your medicines"),
-                     text: language("ถึงเวลาทานยา แตะการ์ดเวลานั้น แล้วเลือก ทานแล้ว (สีเขียว) หรือ ข้าม เปลี่ยนได้ภายหลังเสมอ",
-                                    "At each pill time, tap that time's card, then choose Taken (green) or Skipped. You can always change it later.")) {
-            // A picture of the two buttons, so people recognise them later.
-            HStack(spacing: 12) {
-                Label(language("ข้าม", "Skipped"), systemImage: "xmark.circle")
-                    .foregroundStyle(Theme.red)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
-                Label(language("ทานแล้ว", "Taken"), systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(Theme.greenFill, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
+                     text: language("ในหน้า บันทึกการทานยา ติ๊กช่องหน้ายาแต่ละตัวเมื่อทานแล้ว ยาจะย้ายไปที่ ทานแล้ว แตะอีกครั้งเพื่อยกเลิก กดค้างเพื่อข้าม",
+                                    "On the Log page, tick the box next to each medicine when you've taken it. It moves to Taken. Tap it again to undo; press and hold to skip.")) {
+            // A picture of a checklist row before and after ticking, so people recognise it later.
+            VStack(spacing: 10) {
+                sampleRow(ticked: false)
+                sampleRow(ticked: true)
             }
-            .font(.title3.bold())
             .accessibilityHidden(true)
         }
+    }
+
+    private func sampleRow(ticked: Bool) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: ticked ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 30))
+                .foregroundStyle(Theme.green)
+            Text("Metformin")
+                .font(.title3)
+            Spacer()
+            if ticked {
+                Text(language("ทานแล้ว", "Taken"))
+                    .font(.headline)
+                    .foregroundStyle(Theme.green)
+            }
+        }
+        .padding(16)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var remindersPage: some View {

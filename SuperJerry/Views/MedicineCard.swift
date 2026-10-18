@@ -1,8 +1,8 @@
 import SwiftUI
 import UIKit
 
-/// One medicine in "Your Medications" (like the Health app): the label photo on the left, then the name,
-/// kind and strength, and when to take it. Tap it for details; the speaker reads it aloud.
+/// One medicine in "Your Medications" (like the Health app): the label photo on the left, then the name
+/// with a read-aloud speaker next to it, the kind and strength, and when to take it. Tap it for details.
 struct MedicineCard: View {
     @Environment(\.language) private var language
     let medicine: Medicine
@@ -14,16 +14,23 @@ struct MedicineCard: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            NavigationLink(value: medicine.id) {
-                HStack(spacing: 0) {
-                    photo
-                    info
-                    Spacer(minLength: 8)
+            link { photo }
+
+            VStack(alignment: .leading, spacing: 4) {
+                // The name with the read-aloud button right next to it.
+                HStack(alignment: .center, spacing: 4) {
+                    link {
+                        Text(medicine.displayName(language))
+                            .font(.title3.bold())
+                            .lineLimit(height == nil ? nil : 2)   // in the stack every card is the same height
+                            .multilineTextAlignment(.leading)
+                    }
+                    if !isEditing { readAloudButton }
                 }
-                .contentShape(Rectangle())
+                link { details }
             }
-            .buttonStyle(.pressable)
-            .disabled(isEditing)
+            .padding(.vertical, 16)
+            .padding(.leading, 16)
 
             if isEditing {
                 Button(role: .destructive, action: onDelete) {
@@ -32,36 +39,48 @@ struct MedicineCard: View {
                         .foregroundStyle(.white, .red)
                         .frame(width: 60, height: 60)
                 }
-                .buttonStyle(.pressable)
+                .buttonStyle(.plain)
                 .accessibilityLabel(language("ลบยานี้", "Delete this medicine"))
             } else {
-                VStack(spacing: 8) {
-                    Button {
-                        SpeechReader.shared.read(medicine, in: language)
-                    } label: {
-                        RoundIcon(symbol: "speaker.wave.2.fill")
-                    }
-                    .buttonStyle(.pressable)
-                    .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))
-
-                    NavigationLink(value: medicine.id) {
-                        Image(systemName: "chevron.right")
-                            .font(.headline)
-                            .foregroundStyle(.tertiary)
-                            .frame(width: Theme.iconButton, height: 40)
-                    }
-                    .buttonStyle(.pressable)
-                    .accessibilityHidden(true)
+                // The arrow, in the middle on the right.
+                link {
+                    Image(systemName: "chevron.right")
+                        .font(.headline)
+                        .foregroundStyle(.tertiary)
+                        .frame(width: 44)
+                        .frame(maxHeight: .infinity)
                 }
-                .padding(.trailing, 12)
+                .accessibilityHidden(true)
             }
         }
         .frame(height: height, alignment: .top)
-        // Without a fixed height, the row is as tall as its text, and the photo stretches to match,
-        // so there's no gap at the card's corners.
-        .fixedSize(horizontal: false, vertical: height == nil)
         .background(Theme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    /// The speaker, with no circle around it. 44 pt so it's still easy to tap.
+    private var readAloudButton: some View {
+        Button {
+            SpeechReader.shared.read(medicine, in: language)
+        } label: {
+            Image(systemName: "speaker.wave.2.fill")
+                .font(.title3)
+                .foregroundStyle(Theme.red)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))
+    }
+
+    /// Opens the medicine. The card is split into a few links so the speaker button can sit between them.
+    private func link<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        NavigationLink(value: medicine.id) {
+            content()
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(isEditing)
     }
 
     /// The label photo, or a big pill icon on red if there's no photo.
@@ -79,17 +98,14 @@ struct MedicineCard: View {
                     .background(Theme.card.gradient)
             }
         }
-        .frame(width: 120)
-        .frame(minHeight: height ?? 150, maxHeight: .infinity)
+        .frame(width: 120, height: height ?? 150)
         .clipped()
         .accessibilityHidden(true)
     }
 
-    private var info: some View {
+    /// Everything under the name: kind and strength, when, meals, and warnings about expiry or running low.
+    private var details: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(medicine.displayName(language))
-                .font(.title3.bold())
-                .lineLimit(height == nil ? nil : 2)   // in the stack every card is the same height
             Text(medicine.formLine(language))
                 .foregroundStyle(.secondary)
             Label(medicine.scheduleText(language), systemImage: "calendar")
@@ -114,7 +130,7 @@ struct MedicineCard: View {
                 .font(.subheadline.bold())
             }
         }
-        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
