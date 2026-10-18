@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// A short welcome the first time Jenny opens: pick a language, then one page each on scanning,
-/// logging, and reminders with counting what's left. Skip it any time, or replay it from Settings.
+/// your meal times (pill times follow them), logging, and reminders with counting what's left.
+/// Skip it any time, or replay it from Settings.
 struct TutorialView: View {
     static let seenKey = "hasSeenTutorial"
 
@@ -11,7 +12,7 @@ struct TutorialView: View {
     @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
 
     @State private var page = 0
-    private let pageCount = 4
+    private let pageCount = 5
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,8 +31,9 @@ struct TutorialView: View {
             TabView(selection: $page) {
                 welcomePage.tag(0)
                 scanPage.tag(1)
-                logPage.tag(2)
-                remindersPage.tag(3)
+                mealsPage.tag(2)
+                logPage.tag(3)
+                remindersPage.tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
@@ -96,17 +98,32 @@ struct TutorialView: View {
     private var scanPage: some View {
         TutorialPage(symbol: "camera.fill", color: Theme.accentFill,
                      title: language("1. ถ่ายรูปซองยา", "1. Scan a medicine envelope"),
-                     text: language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วเลือก ถ่ายรูป หรือ เลือกจากคลังภาพ ถ่ายฉลากให้เต็มรูปในที่สว่าง Jenny จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
-                                    "Tap the red \"Scan a medicine label\" button at the bottom, then Take photo (or Choose from Photos). Take the photo in good light. Jenny reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
+                     text: language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง แล้วเลือก ถ่ายรูป หรือ เลือกจากคลังภาพ ถ่ายฉลากให้เต็มรูปในที่สว่าง Jenny จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
+                                    "Tap the green \"Scan a medicine label\" button at the bottom, then Take photo (or Choose from Photos). Take the photo in good light. Jenny reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
             EmptyView()
+        }
+    }
+
+    /// When do you eat? Jenny's pill times follow the meals, so nobody has to eat at 8:00 sharp.
+    private var mealsPage: some View {
+        TutorialPage(symbol: "fork.knife", color: Theme.accentFill,
+                     title: language("2. เวลาอาหารของคุณ", "2. When do you eat?"),
+                     text: language("ตั้งเวลาที่คุณทานอาหารแต่ละมื้อและเวลาเข้านอน Jenny จะจัดยาตามมื้อ ยาก่อนอาหารก่อน 30 นาที ยาหลังอาหารหลัง 15 นาที เปลี่ยนได้ทุกเมื่อในการตั้งค่า",
+                                    "Set when you usually eat each meal and go to bed. Jenny puts your medicines around your meals: before-meal ones 30 minutes before, after-meal ones 15 minutes after. Change it any time in Settings.")) {
+            VStack(spacing: 8) {
+                MealTimesEditor()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         }
     }
 
     private var logPage: some View {
         TutorialPage(symbol: "checkmark", color: Theme.greenFill,
-                     title: language("2. บันทึกการทานยา", "2. Log your medicines"),
-                     text: language("ในหน้า บันทึกการทานยา ติ๊กช่องหน้ายาแต่ละตัวเมื่อทานแล้ว ยาจะย้ายไปที่ ทานแล้ว แตะอีกครั้งเพื่อยกเลิก กดค้างเพื่อข้าม",
-                                    "On the Log page, tick the box next to each medicine when you've taken it. It moves to Taken. Tap it again to undo; press and hold to skip.")) {
+                     title: language("3. บันทึกการทานยา", "3. Log your medicines"),
+                     text: language("ในหน้า บันทึกการทานยา ยาจะอยู่ตามมื้อ: ก่อนอาหาร มื้ออาหาร และหลังอาหาร ติ๊กช่องหน้ายาแต่ละตัวเมื่อทานแล้ว ยาจะย้ายไปที่ ทานแล้ว แตะอีกครั้งเพื่อยกเลิก กดค้างเพื่อข้าม",
+                                    "On the Log page, medicines sit around each meal: before eating, the meal, and after eating. Tick the box next to each medicine when you've taken it. It moves to Taken. Tap it again to undo; press and hold to skip.")) {
             // A picture of a checklist row before and after ticking, so people recognise it later.
             VStack(spacing: 10) {
                 sampleRow(ticked: false)
@@ -136,7 +153,7 @@ struct TutorialView: View {
 
     private var remindersPage: some View {
         TutorialPage(symbol: "bell.fill", color: Theme.accentFill,
-                     title: language("3. เตือนและนับยา", "3. Reminders and pill counts"),
+                     title: language("4. เตือนและนับยา", "4. Reminders and pill counts"),
                      text: language("Jenny ใส่เวลาทานยาไว้ในแอปเตือนความจำได้ ในหน้าของยาแต่ละตัว ใส่จำนวนยาที่มี แล้ว Jenny จะนับลดลงทุกครั้งที่ทานและเตือนเมื่อยาใกล้หมด",
                                     "Jenny can add your pill times to the Reminders app. On each medicine's page, type how many you have: Jenny counts down each time you take one and tells you when it's running low.")) {
             Label(language("Jenny ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง",
@@ -185,10 +202,12 @@ private struct TutorialPage<Extra: View>: View {
 
 #Preview("English") {
     TutorialView()
+        .environment(MedicineStore.preview())
         .environment(\.language, .english)
 }
 
 #Preview("ภาษาไทย") {
     TutorialView()
+        .environment(MedicineStore.preview())
         .environment(\.language, .thai)
 }

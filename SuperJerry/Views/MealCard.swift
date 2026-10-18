@@ -1,12 +1,17 @@
 import SwiftUI
 
-/// One time in "Log" as a checklist: "8:00 AM", then each medicine still to take with a big tick box.
-/// Tap the box when you've taken it: it moves to "Taken" (like ticking off an item in the Reminders app).
-/// Press and hold a medicine to mark it skipped; "…" opens the full log sheet.
-struct LogTimeCard: View {
+/// One meal in "Log" as a checklist: "มื้อเช้า", then the medicines still to take around it, in order:
+///
+///     ก่อนอาหาร · 06:30 น.        ○ Metformin
+///     ┌ 🍴 ทานอาหารเช้า · 07:00 น. ┐   ← the meal itself, in the middle
+///     หลังอาหาร · 07:15 น.        ○ Amlodipine
+///
+/// Bedtime ("ก่อนนอน") has no meal block. Tap a tick box when you've taken it: it moves to "Taken"
+/// (like ticking off an item in the Reminders app). Press and hold a medicine to mark it skipped; "…" opens the full sheet.
+struct MealCard: View {
     @Environment(\.language) private var language
-    let time: DoseTime
-    let medicines: [Medicine]
+    /// Only the medicines still to take.
+    let meal: MealSchedule
     /// Today only: .dueNow shows "Time to take", .missed shows "Late".
     var status: DoseStatus = .upcoming
     /// false for days that haven't come yet.
@@ -16,27 +21,30 @@ struct LogTimeCard: View {
     let more: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
             // One row when it fits; with very big text the badge goes on its own line.
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 10) {
-                    timeText
+                    title
                     badge
                     Spacer(minLength: 8)
                     moreButton
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        timeText
+                        title
                         Spacer(minLength: 8)
                         moreButton
                     }
                     badge
                 }
             }
-            ForEach(medicines) { medicine in
-                row(medicine)
+            ForEach(meal.parts) { part in
+                if part.id == partAfterMeal?.id { mealBlock }
+                partSection(part)
             }
+            // Only "before eating" medicines: the meal comes after them.
+            if hasMealBlock && partAfterMeal == nil { mealBlock }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -47,7 +55,59 @@ struct LogTimeCard: View {
         }
     }
 
-    /// One checklist row: an empty tick box, the name, how to take it in short bullets, and anything important.
+    // MARK: The meal and its parts
+
+    private var hasMealBlock: Bool { meal.slot != .bedtime }
+
+    /// The first part that comes at or after the meal: the meal block goes right above it.
+    private var partAfterMeal: MealPartSchedule? {
+        guard hasMealBlock else { return nil }
+        return meal.parts.first { $0.part != .before }
+    }
+
+    /// "ทานอาหารเช้า · 07:00 น." in a soft block, so the medicines before and after it are easy to place.
+    private var mealBlock: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "fork.knife")
+                .font(.title3)
+                .foregroundStyle(Theme.accent)
+                .accessibilityHidden(true)
+            Text(language("ทาน\(meal.slot.foodName(.thai)) · \(meal.mealTime.label(.thai))",
+                          "Eat \(meal.slot.foodName(.english)) · \(meal.mealTime.label(.english))"))
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.fill, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "ก่อนอาหาร · 06:30 น.", then its medicines.
+    private func partSection(_ part: MealPartSchedule) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Label(partTitle(part), systemImage: "clock")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+            ForEach(part.medicines) { medicine in
+                row(medicine)
+            }
+        }
+    }
+
+    /// "ก่อนอาหาร · 06:30 น.", "หลังอาหาร · 07:15 น.", or "เวลา 21:00 น." at bedtime and for medicines the label
+    /// doesn't say before or after eating.
+    private func partTitle(_ part: MealPartSchedule) -> String {
+        let time = part.time.label(language)
+        guard let name = part.part.name(language) else { return language("เวลา \(time)", "At \(time)") }
+        return "\(name) · \(time)"
+    }
+
+    /// One checklist row: an empty tick box, the name, how much in short bullets, and anything important.
     private func row(_ medicine: Medicine) -> some View {
         Button {
             tick(medicine)
@@ -60,9 +120,10 @@ struct LogTimeCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(medicine.title(language))
                         .font(.title3)
-                    // Jenny's summary as bullets (the time is already this card's title).
+                        .fixedSize(horizontal: false, vertical: true)
+                    // How much (the part's title already says when, and before or after eating).
                     // The label's exact words are on the medicine's own screen.
-                    BulletList(items: medicine.summaryBullets(language, includeTimes: false))
+                    BulletList(items: medicine.summaryBullets(language, includeTimes: false, includeMeal: false))
                     // Expired, running low, or a warning from the label: seen before ticking.
                     // The envelope's "หมายเหตุ" notes are left out here; they're on the medicine's own screen.
                     MedicineAlerts(medicine: medicine, showsNotes: false)
@@ -86,12 +147,21 @@ struct LogTimeCard: View {
         .accessibilityAction(named: language("ข้าม", "Skipped")) { skip(medicine) }
     }
 
-    private var timeText: some View {
-        Text(time.label(language))
-            .font(.title3.bold())
+    // MARK: The header
+
+    /// "🌅 มื้อเช้า" / "Breakfast"
+    private var title: some View {
+        Label {
+            Text(meal.slot.mealName(language))
+        } icon: {
+            Image(systemName: meal.slot.symbol)
+                .foregroundStyle(Theme.accent)
+        }
+        .font(.title3.bold())
+        .accessibilityAddTraits(.isHeader)
     }
 
-    /// "…": the full log sheet (Taken or Skipped for each, Log All as Taken, read aloud).
+    /// "…": the full log sheet (Taken or Skipped for each, Log All as Taken, read aloud, open the medicine).
     @ViewBuilder
     private var moreButton: some View {
         if canLog {
@@ -139,12 +209,15 @@ struct LogTimeCard: View {
 
 #Preview {
     let store = MedicineStore.preview()
-    VStack {
-        LogTimeCard(time: DoseTime(hour: 8), medicines: Array(store.medicines.prefix(2)), status: .dueNow,
-                    tick: { _ in }, skip: { _ in }, more: {})
-        LogTimeCard(time: DoseTime(hour: 18), medicines: Array(store.medicines.suffix(1)),
-                    tick: { _ in }, skip: { _ in }, more: {})
+    ScrollView {
+        VStack {
+            ForEach(store.meals(on: Date())) { meal in
+                MealCard(meal: meal, status: meal.slot == .morning ? .dueNow : .upcoming,
+                         tick: { _ in }, skip: { _ in }, more: {})
+            }
+        }
+        .padding()
     }
-    .padding()
-    .environment(\.language, .english)
+    .background(Theme.background)
+    .environment(\.language, .thai)
 }

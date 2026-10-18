@@ -8,6 +8,10 @@ final class MedicineStore {
     private(set) var records: [DoseRecord] = []
     /// Keep Jenny's medicines in Apple's Reminders app.
     var remindersEnabled = false
+    /// When the user eats. Pill times follow these (`Medicine.doseTime(for:)`). Change them with `setMealTimes`.
+    private(set) var mealTimes = MealTimes.current
+    /// Waits a moment before rewriting reminders, so turning a time wheel doesn't rewrite them at every step.
+    @ObservationIgnored private var reminderRefresh: Task<Void, Never>?
 
     /// nil means "don't save" (used by Previews).
     private let fileURL: URL?
@@ -54,6 +58,8 @@ final class MedicineStore {
         updated.stockFull = medicines[index].stockFull
         updated.lowAt = medicines[index].lowAt
         medicines[index] = updated
+        // "ก่อนอาหาร" may have become "หลังอาหาร": its ticks move to the new time.
+        rekeyRecords()
         medicinesChanged()
     }
 
@@ -74,6 +80,43 @@ final class MedicineStore {
     private func medicinesChanged() {
         save()
         refreshReminders()
+    }
+
+    // MARK: Meal times
+
+    /// New meal times (from the tutorial or Settings). Every tick stays on its meal, at the meal's new time.
+    func setMealTimes(_ meals: MealTimes) {
+        guard meals != mealTimes else { return }
+        MealTimes.current = meals
+        mealTimes = meals
+        rekeyRecords()
+        save()
+        reminderRefresh?.cancel()
+        reminderRefresh = Task {
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            refreshReminders()
+        }
+    }
+
+    /// Each tick's time follows its meal and the medicine's ก่อน/หลังอาหาร, so it still matches the schedule.
+    private func rekeyRecords() {
+        let meals = mealTimes
+        for index in records.indices {
+            guard let slot = records[index].slot, let medicine = medicine(id: records[index].medicineID) else { continue }
+            records[index].time = medicine.doseTime(for: slot, meals: meals)
+        }
+    }
+
+    /// Older versions used fixed times (8:00, 12:00, 18:00, 21:00). Give those ticks their meal.
+    private func upgradeOldRecords() {
+        for index in records.indices where records[index].slot == nil {
+            let record = records[index]
+            guard let medicine = medicine(id: record.medicineID), !medicine.asNeeded, record.time.minute == 0,
+                  let slot = TimeSlot.legacy(hour: record.time.hour), medicine.slots.contains(slot) else { continue }
+            records[index].slot = slot
+        }
+        rekeyRecords()
     }
 
     /// Rewrites Jenny's reminders, e.g. after the user switches between Thai and English.
@@ -144,9 +187,19 @@ final class MedicineStore {
             .sorted()
     }
 
-    /// Logs a dose as taken or skipped. nil clears the log.
+    /// One meal's dose of a medicine, on one day.
+    func record(for medicine: Medicine, at slot: TimeSlot, on day: Date) -> DoseRecord? {
+        record(for: medicine.id, at: medicine.doseTime(for: slot), on: day)
+    }
+
+    /// Logs one meal's dose of a medicine as taken or skipped. nil clears the log.
+    func setLog(_ log: DoseLog?, for medicine: Medicine, at slot: TimeSlot, on day: Date) {
+        setLog(log, for: medicine.id, at: medicine.doseTime(for: slot), slot: slot, on: day)
+    }
+
+    /// Logs a dose as taken or skipped. nil clears the log. `slot` is the meal (nil for "when needed" doses).
     /// The count of what's left follows along: taken takes a dose off, un-taking puts it back.
-    func setLog(_ log: DoseLog?, for medicineID: UUID, at time: DoseTime, on day: Date) {
+    func setLog(_ log: DoseLog?, for medicineID: UUID, at time: DoseTime, slot: TimeSlot? = nil, on day: Date) {
         let day = Calendar.current.startOfDay(for: day)
         let index = recordIndex(medicineID: medicineID, time: time, day: day)
         let wasTaken = index.map { !records[$0].isSkipped } ?? false
@@ -155,9 +208,9 @@ final class MedicineStore {
         if let index { records.remove(at: index) }
         switch log {
         case .taken(let date):
-            records.append(DoseRecord(medicineID: medicineID, time: time, day: day, takenAt: date))
+            records.append(DoseRecord(medicineID: medicineID, time: time, day: day, takenAt: date, slot: slot))
         case .skipped:
-            records.append(DoseRecord(medicineID: medicineID, time: time, day: day, takenAt: Date(), skipped: true))
+            records.append(DoseRecord(medicineID: medicineID, time: time, day: day, takenAt: Date(), skipped: true, slot: slot))
         case nil:
             break
         }
@@ -189,10 +242,10 @@ final class MedicineStore {
         medicines[index].stock = takingDose ? stock - dose : stock + dose
     }
 
-    /// Ticks a dose as taken today, or clears it.
-    func toggleTaken(_ medicine: Medicine, at time: DoseTime, now: Date = Date()) {
-        let logged = record(for: medicine.id, at: time, on: now) != nil
-        setLog(logged ? nil : .taken(at: now), for: medicine.id, at: time, on: now)
+    /// Ticks one meal's dose as taken today, or clears it.
+    func toggleTaken(_ medicine: Medicine, at slot: TimeSlot, now: Date = Date()) {
+        let logged = record(for: medicine, at: slot, on: now) != nil
+        setLog(logged ? nil : .taken(at: now), for: medicine, at: slot, on: now)
     }
 
     /// A "when needed" medicine taken now. Each one is a new log.
@@ -208,34 +261,51 @@ final class MedicineStore {
     /// The medicines to take at each time on this day, in time order.
     /// A medicine only counts from the day it was added.
     func schedule(on day: Date) -> [DoseSlot] {
+        let meals = mealTimes   // read through the store, so screens redraw when meal times change
+        let active = activeMedicines(on: day)
+        let times = Set(active.flatMap { $0.times(meals: meals) }).sorted()
+        return times.map { time in
+            DoseSlot(time: time, medicines: active.filter { $0.times(meals: meals).contains(time) }.sorted(by: Self.byName))
+        }
+    }
+
+    /// The day by meal, for the Log: มื้อเช้า (ก่อนอาหาร 06:30 · หลังอาหาร 07:15), มื้อกลางวัน, มื้อเย็น, ก่อนนอน.
+    /// Only the meals and parts that have medicines.
+    func meals(on day: Date) -> [MealSchedule] {
+        let meals = mealTimes   // read through the store, so screens redraw when meal times change
+        let active = activeMedicines(on: day).filter { !$0.asNeeded }
+        return TimeSlot.allCases.compactMap { slot -> MealSchedule? in
+            let here = active.filter { $0.slots.contains(slot) }
+            let parts = MealPart.allCases.compactMap { part -> MealPartSchedule? in
+                let medicines = here.filter { $0.mealPart(at: slot) == part }.sorted(by: Self.byName)
+                guard let first = medicines.first else { return nil }
+                return MealPartSchedule(part: part, time: first.doseTime(for: slot, meals: meals), medicines: medicines)
+            }
+            return parts.isEmpty ? nil : MealSchedule(slot: slot, mealTime: meals.time(of: slot), parts: parts)
+        }
+    }
+
+    /// Medicines that count on this day: only from the day they were added.
+    private func activeMedicines(on day: Date) -> [Medicine] {
         let calendar = Calendar.current
         let day = calendar.startOfDay(for: day)
-        let active = medicines.filter { calendar.startOfDay(for: $0.addedAt) <= day }
-        let times = Set(active.flatMap(\.times)).sorted()
-        return times.map { time in
-            DoseSlot(time: time, medicines: active.filter { $0.times.contains(time) }.sorted(by: Self.byName))
-        }
+        return medicines.filter { calendar.startOfDay(for: $0.addedAt) <= day }
     }
 
-    /// Everything logged on this day, by time.
+    /// Everything logged on this day: by meal ("มื้อเช้า"), and "when needed" doses by the time they were taken.
     func logged(on day: Date) -> [LoggedTime] {
         let dayRecords = records.filter { Calendar.current.isDate($0.day, inSameDayAs: day) }
-        let byTime = Dictionary(grouping: dayRecords) { $0.time }
-        return byTime.keys.sorted().compactMap { time in
-            let doses = (byTime[time] ?? []).compactMap { record in
+        let groups = Dictionary(grouping: dayRecords) { record in
+            record.slot.map { "meal-\($0.rawValue)" } ?? "time-\(record.time.minutesFromMidnight)"
+        }
+        return groups.values.compactMap { group -> LoggedTime? in
+            let doses = group.compactMap { record in
                 medicine(id: record.medicineID).map { LoggedDose(medicine: $0, record: record) }
             }
-            return doses.isEmpty ? nil : LoggedTime(time: time, doses: doses.sorted { Self.byName($0.medicine, $1.medicine) })
+            guard let first = group.first, let time = group.map(\.time).min(), !doses.isEmpty else { return nil }
+            return LoggedTime(time: time, doses: doses.sorted { Self.byName($0.medicine, $1.medicine) }, slot: first.slot)
         }
-    }
-
-    /// For the log sheet: the medicines due at this time, plus "when needed" ones logged at this time.
-    func medicines(at time: DoseTime, on day: Date) -> [Medicine] {
-        let scheduled = schedule(on: day).first { $0.time == time }?.medicines ?? []
-        let loggedOthers = (logged(on: day).first { $0.time == time }?.doses ?? [])
-            .map(\.medicine)
-            .filter { medicine in !scheduled.contains { $0.id == medicine.id } }
-        return scheduled + loggedOthers
+        .sorted { $0.time == $1.time ? $0.id < $1.id : $0.time < $1.time }
     }
 
     /// How much of the day's schedule was taken, from 0 to 1. nil if nothing was due that day.
@@ -297,6 +367,7 @@ final class MedicineStore {
         records = saved.records.filter { $0.day > cutoff }
         // Turned on in an older version (Jenny's own notifications)? Ask again for Apple Reminders.
         remindersEnabled = saved.remindersEnabled && AppleReminders.hasAccess
+        upgradeOldRecords()
     }
 
     private func save() {

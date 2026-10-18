@@ -87,19 +87,20 @@ enum AppleReminders {
         let instruction = medicine.instruction(language).replacingOccurrences(of: "\n", with: " ")
         reminder.title = "💊 \(medicine.displayName(language)) · \(instruction)"
 
-        var notes = ["\(slot.name(language)) (\(slot.time.label(language)))"]
+        let time = medicine.doseTime(for: slot)
+        // "หลังอาหารเช้า (07:15 น.)" / "After breakfast (7:15 AM)"
+        var notes = ["\(medicine.doseLabel(at: slot, language)) (\(time.label(language)))"]
         if let directions = medicine.directions {
             notes.append(language("ฉลากเขียนว่า: ", "The label says: ") + directions)
         }
         if let expiry = medicine.expiryText(language) { notes.append(expiry) }
-        if !medicine.meal.isEmpty { notes.append(Medicine.mealName(medicine.meal, language)) }
         if let purpose = medicine.purpose(language) { notes.append(purpose) }
         notes += medicine.warningLines(language)
         notes.append(language("เพิ่มโดยแอป Jenny ไม่ใช่คำแนะนำทางการแพทย์", "Added by the Jenny app. Not medical advice."))
         reminder.notes = notes.joined(separator: "\n")
 
         reminder.dueDateComponents = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute], from: nextDate(at: slot.time))
+            [.year, .month, .day, .hour, .minute], from: nextDate(at: time))
         reminder.addAlarm(EKAlarm(relativeOffset: 0))
         reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil))
         return reminder

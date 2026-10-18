@@ -18,7 +18,7 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 | Understand it | Our **Thai label rules** ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"), then matching against `medicine-names.json` (486 medicines), even with OCR spelling mistakes | `Understanding/LabelParser.swift`, `LabelReader.swift`, `MedicineNames.swift`, `DosageForm.swift` |
 | Group it | Name list first, then how it's used. For unknown medicines: **Core AI** (iOS 27, optional, behind `#if canImport`), then Apple Intelligence for English names, then "อื่น ๆ" | `Services/MedicineGrouper.swift`, `Models/MedicineGroup.swift` |
 | Read it aloud | `AVSpeechSynthesizer` with the Thai or English voice, offline | `Speaking/SpeechReader.swift` |
-| Remind | **Apple Reminders** (EventKit): one repeating reminder per medicine per pill time. Jenny sends no notifications itself | `Services/AppleReminders.swift` |
+| Remind | **Apple Reminders** (EventKit): one repeating reminder per medicine per meal, at its time around the meal. Jenny sends no notifications itself | `Services/AppleReminders.swift` |
 | Save | A JSON file and JPEG label photos, on the device only | `Models/MedicineStore.swift`, `Services/PhotoStore.swift` |
 
 **Decisions already made. Don't redo them without asking the team:**
@@ -36,7 +36,10 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 - **Home** (`ContentView.swift`), Health-style:
   - The day and a week strip (`WeekStrip`).
   - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
-  - **Log**: a **checklist** per pill time (`LogTimeCard`): tap a medicine's tick box to mark it taken (press and hold to skip; **…** opens `DoseLogSheet`).
+  - **Log**: a **checklist per meal** (`MealCard`): ก่อนอาหาร, a meal block, then หลังอาหาร, at the user's meal times (`MealTimes`:
+    before = 30 min before, after = 15 min after; bedtime never says "หลังอาหาร"). Tap a tick box to mark it taken (press and hold to skip;
+    **…** opens `DoseLogSheet`, where a medicine's name opens it in Your Medications). Ticks remember their meal (`DoseRecord.slot`),
+    so changing a meal time moves them along; old 8/12/18/21 ticks are upgraded on load.
   - **When needed** (`AsNeededCard`, `DoseTimeline`): medicines with no set time (paracetamol). A timeline of the last 24 hours
     (doses → now → next allowed, from the label's gap `hoursApart`, "ห่างกันอย่างน้อย 6 ชม.") and a Taken button; logging too soon asks first.
   - **Taken** (`LoggedCard`): ticked medicines, tap to undo.
@@ -46,7 +49,7 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
 - **Colors** follow the team's reference image: deep green accent, red only for Skipped/expired/delete, yellow behind "Time to take",
   gray-blue background (`Theme.accent`, `accentFill`, `red`, `redFill`, `yellow`; see DESIGN.md). Only the colors, never another app's logo or name.
-- **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
+- **First launch:** a 5-page tutorial with Skip (`TutorialView`), including **your meal times** (`MealTimesEditor`, also in Settings). Settings can show it again.
 - **Label reading also keeps:** the directions word for word (`labelDirections`), "ข้างละ" doses per side (`perSide`, counted ×2 in storage),
   the gap between "when needed" doses (`hoursApart`: "ห่างกันอย่างน้อย 6 ชม.", "ทุก 4-6 ชั่วโมง", "every 6 hours"),
   the most a day as a warning ("ไม่เกินวันละ 8 เม็ด"),

@@ -3,7 +3,7 @@ version: alpha
 name: Jenny
 description: >-
   Jenny's look, modeled on the Medications page of the Apple Health app. A calm light gray-blue canvas with
-  white cards, a deep green accent (with red and yellow as small accents) and green for "Taken", Health-style Log cards for each pill time, white medicine
+  white cards, a deep green accent (with red and yellow as small accents) and green for "Taken", Health-style Log cards for each meal (before eating, the meal, after eating), white medicine
   cards in groups you can fold, pill counts that go down by themselves, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
   medicines a day, and for the family members who help them, without looking like a "special" app.
 
@@ -139,8 +139,14 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 0. **Two big buttons at the top** switch the page: **บันทึกการทานยา · Log** and **ยาของคุณ · Your Medications** (the chosen one filled green). They stay pinned under the navigation bar.
 1. **Log ▸ the day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with green as doses are taken. Tap a day to see its log.
 2. **Log ▸ no medicines yet:** a `ContentUnavailableView` pointing to the green scan button at the bottom (the old red box is gone).
-3. **Log ▸ checklist:** one white card per pill time ("8:00 น.") listing the medicines still to take, each with a big tick box (and Jenny's summary as bullets under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold a medicine to mark it skipped; the round **…** opens the full log sheet. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
-   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, under the checklist: medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
+3. **Log ▸ checklist by meal:** one white card per meal: **มื้อเช้า · มื้อกลางวัน · มื้อเย็น · ก่อนนอน**, at the times the user eats
+   (`MealTimes`, set in the tutorial and Settings; defaults 07:00, 12:00, 17:30, 21:00). Inside: **ก่อนอาหาร · 06:30 น.** (30 minutes
+   before), then a **meal block** in the middle ("🍴 ทานอาหารเช้า · 07:00 น."), then **พร้อมอาหาร** and **หลังอาหาร · 07:15 น.**
+   (15 minutes after). Bedtime has no meal block and never says "หลังอาหาร". Each medicine has a big tick box (and Jenny's summary
+   as bullets under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold
+   a medicine to mark it skipped; the round **…** opens the full log sheet, where **tapping a medicine's name** opens it in
+   Your Medications. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
+   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, at the top, above breakfast: medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
      Each has a **timeline** (`DoseTimeline`): ✓ each dose in the last 24 hours ("10:15 น. ทานแล้ว · 3 ชม. ที่แล้ว"), then
      🕒 "ตอนนี้ 13:15 น. · รออีก 3 ชม.", then ⏳ "16:15 น. ทานได้อีกครั้ง" (green line between doses, orange while waiting).
      Below it, a big green **ทานแล้ว · Taken** button. Logging it too soon asks first ("ยังไม่ครบเวลา").
@@ -156,7 +162,7 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 
 The page is one column on iPhone and iPad (at most 800 pt wide), since the two buttons switch between Log and Your Medications.
 
-**The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 4 big pages: choose the language, scan, log Taken or Skipped, Reminders and pill counts. It has **Skip**, and Settings can show it again.
+**The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 5 big pages: choose the language, scan, **your meal times** (`MealTimesEditor`), log Taken or Skipped, Reminders and pill counts. It has **Skip**, and Settings can show it again.
 **Top left** is the light or dark theme button (`AppearanceMenu`): Automatic, Light (white) or Dark (black). The language is chosen on the first tutorial page or in Settings.
 
 **Who it's for.** Our main users are **older Thai adults (60+)** who take several medicines a day, plus the **family members** who set the app up and check on them.
@@ -230,10 +236,11 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 | Home buttons | `ContentView.swift` (`tabButtons`) | Log / Your Medications, at least 60 pt: the icon above the words, both centered. Side by side (one above the other with very big text), pinned with `safeAreaInset(edge: .top)` on `.bar` |
 | Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`) from the first launch. One `.glassProminent` green button; a `confirmationDialog` offers Take photo / Choose from Photos (`photosPicker(isPresented:)`). Max 560 pt wide |
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken. Under it: "ใช้ยาแล้ว 3 จาก 4 ครั้ง" ("ใช้ยา", not "ทาน": drops and creams aren't eaten) |
-| Log checklist | `Views/LogTimeCard.swift` | A white card per time: time + badge + round **…** (full sheet), then one row per medicine: a 44 pt tick box (green ring), the name, Jenny's summary as bullets (`BulletList`), and alerts (`MedicineAlerts`: expired, running low, label warnings). Tap = taken; press and hold = Taken / Skipped menu |
+| Meal card (Log) | `Views/MealCard.swift` | A white card per meal: meal name + badge + round **…** (full sheet), then parts in order: ก่อนอาหาร, the meal block (`Theme.fill`, fork and knife), พร้อมอาหาร / at the meal, หลังอาหาร, each with its time. One row per medicine: a 44 pt tick box (green ring), the name, the amount as bullets (`BulletList`, no meal word: the part says it), and alerts (`MedicineAlerts`). Tap = taken; press and hold = Taken / Skipped menu |
+| Meal times | `Views/MealTimesEditor.swift`, `Models/MealTimes.swift` | One time picker per meal and bedtime (24-hour in Thai). In the tutorial and Settings. Changing a time moves every tick with its meal |
 | When needed | `Views/AsNeededCard.swift`, `Views/DoseTimeline.swift` | A white card in Log: "ยาเมื่อมีอาการ", then per medicine the name, bullets (incl. "ห่างกันอย่างน้อย 6 ชั่วโมง"), alerts, a timeline on `fill` (doses → now → next allowed), and a full-width green **Taken** button. Too soon → an alert first |
-| Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
-| Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green. ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a time for the sheet |
+| Log sheet | `Views/DoseLogSheet.swift` | "ยามื้อเช้า": "Log All as Taken", then per medicine "หลังอาหารเช้า · 07:15 น." and **Skipped / Taken**, then **Done**. The name (with a green ›) saves the choices, closes the sheet and opens the medicine in Your Medications |
+| Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green, grouped by meal ("มื้อเช้า"; "when needed" doses by time). ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a meal for its sheet |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
 | How many are left | `Views/StockCard.swift`, `Views/StockEditorSheet.swift` | On the medicine's screen. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge, and a set / refill button. The sheet sets or refills the count and the warning level (quick 5 / 10 / 20) |
 | Directions | `Views/DirectionsView.swift` | The label's own words, big and green, under "วิธีใช้ตามฉลาก (ทุกคำ)". English adds Jenny's summary, marked "check it against the label" |
