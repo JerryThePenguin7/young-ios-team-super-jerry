@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Language, light or dark theme, Apple Reminders, read-aloud, the tutorial, erase everything, and the disclaimer.
+/// Language, light or dark theme, meal times, Apple Reminders, read-aloud, the tutorial, erase everything, and the disclaimer.
 struct SettingsView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -46,6 +46,15 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    MealTimesEditor()
+                } header: {
+                    Text(language("เวลาอาหาร", "Meal times"))
+                } footer: {
+                    Text(language("เวลาทานยาจะตามมื้ออาหารของคุณ: ยาก่อนอาหาร 30 นาทีก่อนมื้อ ยาหลังอาหาร 15 นาทีหลังมื้อ",
+                                  "Your pill times follow your meals: before-meal medicines 30 minutes before, after-meal ones 15 minutes after."))
+                }
+
+                Section {
                     Toggle(language("เพิ่มในแอปเตือนความจำ", "Add to Apple Reminders"), isOn: $store.remindersEnabled)
                     Button(language("เปิดแอปเตือนความจำ", "Open Reminders"), systemImage: "checklist") {
                         if let url = AppleReminders.appURL { openURL(url) }
@@ -54,8 +63,8 @@ struct SettingsView: View {
                     Text(language("การเตือน", "Reminders"))
                 } footer: {
                     Text(language(
-                        "Jenny ใส่ยาแต่ละตัวไว้ในรายการ \"\(AppleReminders.listTitle)\" ของแอปเตือนความจำ เตือนทุกวันเวลา \(reminderTimes) ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว ถ้าปิดตัวเลือกนี้ Jenny จะลบการเตือนออก",
-                        "Jenny puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert: \(reminderTimes). Tick it off in Reminders when you take it. Turning this off takes Jenny's reminders out again."))
+                        "Jenny ใส่ยาแต่ละตัวไว้ในรายการ \"\(AppleReminders.listTitle)\" ของแอปเตือนความจำ เตือนทุกวันตามมื้ออาหาร (\(reminderTimes)) ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว ถ้าปิดตัวเลือกนี้ Jenny จะลบการเตือนออก",
+                        "Jenny puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert around your meals (\(reminderTimes)). Tick it off in Reminders when you take it. Turning this off takes Jenny's reminders out again."))
                 }
 
                 Section {
@@ -110,9 +119,10 @@ struct SettingsView: View {
         }
     }
 
-    /// "เช้า 08:00 น. · กลางวัน 12:00 น. · …" or "Morning 8:00 AM · Noon 12:00 PM · …"
+    /// "มื้อเช้า 07:00 น. · มื้อกลางวัน 12:00 น. · …" or "Breakfast 7:00 AM · Lunch 12:00 PM · …"
     private var reminderTimes: String {
-        TimeSlot.allCases.map { "\($0.name(language)) \($0.time.label(language))" }.joined(separator: " · ")
+        TimeSlot.allCases.map { "\($0.mealName(language)) \(store.mealTimes.time(of: $0).label(language))" }
+            .joined(separator: " · ")
     }
 
     private func applyReminders() async {

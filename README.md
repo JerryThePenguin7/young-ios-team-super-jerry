@@ -45,10 +45,12 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
    Then **Save medicine**. If you already saved the same medicine, Jenny warns you first (**Add anyway** or **Cancel**).
 3. **Home** looks like the Health app's Medications page. Two big buttons at the top switch between **Log** and **Your Medications**.
    - **Log ▸ Today, October 18** and a week strip. Each day's circle fills up green as you take that day's doses. Tap a day to see its log.
-   - **Log ▸ checklist:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take. **Tick the box** next to a
-     medicine when you've taken it. Press and hold to skip it; **…** opens the full sheet (Log All as Taken, Skipped).
+   - **Log ▸ by meal:** one card per meal (Breakfast, Lunch, Dinner, Bedtime) at the times you eat (set in the tutorial or Settings).
+     Before-meal medicines sit above the meal (30 minutes before), after-meal ones below it (15 minutes after).
+     **Tick the box** next to a medicine when you've taken it. Press and hold to skip it; **…** opens the full sheet
+     (Log All as Taken, Skipped), where tapping a medicine's name opens it in Your Medications.
      A card says **Time to take** when it's due and **Late** if it was missed.
-   - **When needed (ยาเมื่อมีอาการ):** medicines with no set time, like Paracetamol. Tap **Taken** when you take one. Jenny shows
+   - **When needed (ยาเมื่อมีอาการ)**, at the top: medicines with no set time, like Paracetamol. Tap **Taken** when you take one. Jenny shows
      how many times today and, from the label ("ห่างกันอย่างน้อย 6 ชม."), when the next dose is allowed. Too soon? It asks first.
    - **Taken:** what you took (✓) or skipped, and how long ago. Tap a medicine to undo it.
    - **Your Medications ▸** each medicine with its label photo, kind and strength, and schedule, in groups (Heart,
@@ -58,7 +60,7 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
      one dose off by itself, and shows about how many days are left. Set **when to warn** for each
      medicine (e.g. at 10 or 5 left); until you do, "Running low" shows at about a week's worth.
 4. **Apple Reminders:** tap **Remind me in Reminders** (or Settings), and allow Full Access. Jenny makes a list
-   called **Jenny Medicines** (ยา Jenny in Thai) with a repeating reminder per medicine per time (8:00, 12:00, 18:00, 21:00),
+   called **Jenny Medicines** (ยา Jenny in Thai) with a repeating reminder per medicine at its time around each meal (e.g. 06:30 before breakfast, 07:15 after),
    each with an alert. Tick them off in Reminders (they also show on an Apple Watch). Jenny sends no notifications of its own.
 5. **Tap a medicine** to see the big photo, how and when to take it, today's ticks, the scanned text, edit it, or delete it.
 

@@ -42,9 +42,27 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
                  asNeeded: false, warnings: [], scannedText: "", photoFile: nil)
     }
 
-    /// The clock times Jenny reminds at. "When needed" medicines have none.
-    var times: [DoseTime] {
-        asNeeded ? [] : orderedSlots.map(\.time)
+    /// The clock times Jenny reminds at, from the user's meal times. "When needed" medicines have none.
+    var times: [DoseTime] { times(meals: .current) }
+
+    func times(meals: MealTimes) -> [DoseTime] {
+        asNeeded ? [] : orderedSlots.map { doseTime(for: $0, meals: meals) }
+    }
+
+    /// Where this medicine sits around the meal: "ก่อนอาหาร" → before. Bedtime isn't a meal, so it's just "at".
+    func mealPart(at slot: TimeSlot) -> MealPart {
+        slot == .bedtime ? .at : MealPart(meal: meal)
+    }
+
+    /// When to take it at this meal: ก่อนอาหาร 30 minutes before, หลังอาหาร 15 minutes after,
+    /// otherwise at the meal (or at bedtime). Breakfast at 07:00 → 06:30 before, 07:15 after.
+    func doseTime(for slot: TimeSlot, meals: MealTimes = .current) -> DoseTime {
+        let mealTime = meals.time(of: slot)
+        switch mealPart(at: slot) {
+        case .before: return mealTime.adding(minutes: -MealTimes.minutesBefore)
+        case .after: return mealTime.adding(minutes: MealTimes.minutesAfter)
+        case .with, .at: return mealTime
+        }
     }
 
     var orderedSlots: [TimeSlot] {
@@ -123,6 +141,12 @@ nonisolated struct DoseTime: Codable, Hashable, Comparable {
 
     var minutesFromMidnight: Int { hour * 60 + minute }
 
+    /// 07:00 - 30 minutes = 06:30. Stays within the same day (never before 00:00 or after 23:59).
+    func adding(minutes: Int) -> DoseTime {
+        let total = min(max(minutesFromMidnight + minutes, 0), 23 * 60 + 59)
+        return DoseTime(hour: total / 60, minute: total % 60)
+    }
+
     static func < (lhs: DoseTime, rhs: DoseTime) -> Bool {
         lhs.minutesFromMidnight < rhs.minutesFromMidnight
     }
@@ -134,15 +158,6 @@ nonisolated struct DoseTime: Codable, Hashable, Comparable {
     /// "8:00 AM" in English, "08:00 น." in Thai.
     func label(_ language: AppLanguage) -> String {
         language.time(date(on: Date()))
-    }
-
-    var periodSymbol: String {
-        switch hour {
-        case ..<11: "sunrise.fill"
-        case ..<15: "sun.max.fill"
-        case ..<19: "sunset.fill"
-        default: "moon.stars.fill"
-        }
     }
 }
 
@@ -157,6 +172,9 @@ nonisolated struct DoseRecord: Identifiable, Codable, Hashable {
     var takenAt: Date
     /// true = the user chose "Skipped". Optional so files saved by older versions still load.
     var skipped: Bool? = nil
+    /// The meal this dose belongs to (nil for "when needed" doses). When meal times change, the tick moves with
+    /// its meal instead of getting lost (`MedicineStore.setMealTimes`).
+    var slot: TimeSlot? = nil
 
     var isSkipped: Bool { skipped == true }
 }
@@ -208,6 +226,28 @@ nonisolated struct DoseSlot: Identifiable, Hashable {
     var id: Int { time.minutesFromMidnight }
 }
 
+/// One meal in the Log ("มื้อเช้า", 07:00), with its medicines split by where they sit around the meal.
+nonisolated struct MealSchedule: Identifiable, Hashable {
+    var slot: TimeSlot
+    /// When the user eats it (or goes to bed).
+    var mealTime: DoseTime
+    /// Before eating, with food, at the meal, after eating: only the ones with medicines, in that order.
+    var parts: [MealPartSchedule]
+
+    var id: TimeSlot { slot }
+    var medicines: [Medicine] { parts.flatMap(\.medicines) }
+}
+
+/// The medicines due at one moment around a meal: "ก่อนอาหาร · 06:30".
+nonisolated struct MealPartSchedule: Identifiable, Hashable {
+    var part: MealPart
+    /// When these medicines are due: 06:30 before a 07:00 breakfast.
+    var time: DoseTime
+    var medicines: [Medicine]
+
+    var id: MealPart { part }
+}
+
 /// One logged dose, for the "Logged" card.
 nonisolated struct LoggedDose: Identifiable, Hashable {
     var medicine: Medicine
@@ -216,12 +256,15 @@ nonisolated struct LoggedDose: Identifiable, Hashable {
     var id: UUID { record.id }
 }
 
-/// Everything logged at one time of day.
+/// Everything logged at one meal ("มื้อเช้า"), or one "when needed" time ("10:15").
 nonisolated struct LoggedTime: Identifiable, Hashable {
+    /// The earliest dose time in the group.
     var time: DoseTime
     var doses: [LoggedDose]
+    /// The meal, or nil for "when needed" doses.
+    var slot: TimeSlot? = nil
 
-    var id: Int { time.minutesFromMidnight }
+    var id: String { slot.map { "meal-\($0.rawValue)" } ?? "time-\(time.minutesFromMidnight)" }
     /// The latest log, for "1 hr ago".
     var loggedAt: Date { doses.map(\.record.takenAt).max() ?? Date() }
 }

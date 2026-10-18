@@ -81,7 +81,7 @@ struct MedicineEditorView: View {
                     } else {
                         ForEach(TimeSlot.allCases, id: \.self) { slot in
                             Toggle(isOn: slotBinding(slot)) {
-                                Label("\(slot.name(language)) (\(slot.time.label(language)))", systemImage: slot.symbol)
+                                Label("\(slot.mealName(language)) (\(slot.mealTime.label(language)))", systemImage: slot.symbol)
                             }
                         }
                     }

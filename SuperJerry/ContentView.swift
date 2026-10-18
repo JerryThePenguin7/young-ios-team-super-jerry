@@ -21,7 +21,7 @@ enum HomeTab: Hashable {
     case medicines     // Your Medications (how many are left is on each medicine's screen)
 }
 
-/// Which log sheet to open: one time's medicines, or the "when needed" ones.
+/// Which log sheet to open: one meal's medicines, or the "when needed" ones.
 struct LogRequest: Identifiable {
     let id = UUID()
     let kind: DoseLogSheet.Kind
@@ -55,12 +55,16 @@ struct ContentView: View {
     /// Groups in "Your Medications" that are folded closed.
     @State private var collapsedGroups: Set<MedicineGroup> = []
     @State private var tab = HomeTab.log
+    /// The medicine screens open on top of home (tap a card, or a name in the "…" sheet).
+    @State private var path: [UUID] = []
+    /// A name tapped in the "…" sheet: opened in Your Medications once the sheet has closed.
+    @State private var medicineToOpen: UUID?
     @State private var medicineToDelete: Medicine?
     @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
     @State private var showingTutorial = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             // Redraws every minute so "Time to take" and "1 hr ago" stay up to date.
             TimelineView(.everyMinute) { context in
                 content(now: context.date)
@@ -104,8 +108,10 @@ struct ContentView: View {
                     retakeRequested = true
                 }
             }
-            .sheet(item: $logRequest) { request in
-                DoseLogSheet(kind: request.kind, day: request.day)
+            .sheet(item: $logRequest, onDismiss: openTappedMedicine) { request in
+                DoseLogSheet(kind: request.kind, day: request.day) { id in
+                    medicineToOpen = id
+                }
             }
             .onChange(of: photoItem) { _, item in
                 guard let item else { return }
@@ -240,11 +246,14 @@ struct ContentView: View {
         let calendar = Calendar.current
         let isToday = calendar.isDate(day, inSameDayAs: now)
         let isFuture = !isToday && day > now
-        let slots = store.schedule(on: day)
-        // Each time's medicines that haven't been logged yet.
-        let toLog = slots.compactMap { slot -> DoseSlot? in
-            let open = slot.medicines.filter { store.record(for: $0.id, at: slot.time, on: day) == nil }
-            return open.isEmpty ? nil : DoseSlot(time: slot.time, medicines: open)
+        let meals = store.meals(on: day)
+        // Each meal's medicines that haven't been logged yet.
+        let toLog = meals.compactMap { meal -> MealSchedule? in
+            let parts = meal.parts.compactMap { part -> MealPartSchedule? in
+                let open = part.medicines.filter { store.record(for: $0.id, at: part.time, on: day) == nil }
+                return open.isEmpty ? nil : MealPartSchedule(part: part.part, time: part.time, medicines: open)
+            }
+            return parts.isEmpty ? nil : MealSchedule(slot: meal.slot, mealTime: meal.mealTime, parts: parts)
         }
         let logged = store.logged(on: day)
         let asNeeded = store.medicines
@@ -256,30 +265,16 @@ struct ContentView: View {
                 ContentUnavailableView {
                     Label(language("ยังไม่มียา", "No medicines yet"), systemImage: "camera.fill")
                 } description: {
-                    Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง เพื่อเพิ่มยาตัวแรก",
-                                  "Tap the red \"Scan a medicine label\" button at the bottom to add your first medicine."))
+                    Text(language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง เพื่อเพิ่มยาตัวแรก",
+                                  "Tap the green \"Scan a medicine label\" button at the bottom to add your first medicine."))
                 }
-            } else if toLog.isEmpty && !slots.isEmpty && !isFuture {
+            } else if toLog.isEmpty && !meals.isEmpty && !isFuture {
                 Label(language("ติ๊กครบทุกตัวแล้ว", "All checked off"), systemImage: "checkmark.seal.fill")
                     .font(.title3.bold())
                     .foregroundStyle(Theme.green)
             }
 
-            ForEach(toLog) { slot in
-                LogTimeCard(time: slot.time, medicines: slot.medicines,
-                            status: isToday ? status(of: slot, now: now) : .upcoming,
-                            canLog: !isFuture) { medicine in
-                    // Today: taken now. An earlier day: taken at the time it was due.
-                    let takenAt = isToday ? now : slot.time.date(on: day)
-                    withAnimation(.snappy) { store.setLog(.taken(at: takenAt), for: medicine.id, at: slot.time, on: day) }
-                } skip: { medicine in
-                    withAnimation(.snappy) { store.setLog(.skipped, for: medicine.id, at: slot.time, on: day) }
-                } more: {
-                    logRequest = LogRequest(kind: .time(slot.time), day: day)
-                }
-            }
-
-            // Medicines with no set time, like paracetamol: a Taken button each, and when they can be taken again.
+            // Medicines with no set time, like paracetamol, come first: they can be needed at any moment.
             if isToday && !asNeeded.isEmpty {
                 AsNeededCard(medicines: asNeeded, now: now) { medicine in
                     withAnimation(.snappy) { store.logAsNeeded(medicine) }
@@ -288,19 +283,37 @@ struct ContentView: View {
                 }
             }
 
+            ForEach(toLog) { meal in
+                MealCard(meal: meal, status: isToday ? status(of: meal, now: now) : .upcoming,
+                         canLog: !isFuture) { medicine in
+                    // Today: taken now. An earlier day: taken at the time it was due.
+                    let takenAt = isToday ? now : medicine.doseTime(for: meal.slot).date(on: day)
+                    withAnimation(.snappy) { store.setLog(.taken(at: takenAt), for: medicine, at: meal.slot, on: day) }
+                } skip: { medicine in
+                    withAnimation(.snappy) { store.setLog(.skipped, for: medicine, at: meal.slot, on: day) }
+                } more: {
+                    logRequest = LogRequest(kind: .meal(meal.slot), day: day)
+                }
+            }
+
             if !logged.isEmpty {
                 LoggedCard(logged: logged, now: now) { dose in
-                    withAnimation(.snappy) { store.setLog(nil, for: dose.medicine.id, at: dose.record.time, on: day) }
-                } open: { time in
-                    logRequest = LogRequest(kind: .time(time), day: day)
+                    withAnimation(.snappy) {
+                        store.setLog(nil, for: dose.medicine.id, at: dose.record.time, slot: dose.record.slot, on: day)
+                    }
+                } open: { group in
+                    // A meal opens its sheet; a "when needed" time opens the "when needed" sheet.
+                    logRequest = LogRequest(kind: group.slot.map { DoseLogSheet.Kind.meal($0) } ?? .asNeeded, day: day)
                 }
             }
         }
     }
 
-    /// "Time to take" if any medicine at this time is due now, "Late" if one was missed.
-    private func status(of slot: DoseSlot, now: Date) -> DoseStatus {
-        let statuses = slot.medicines.map { store.status(of: $0, at: slot.time, now: now) }
+    /// "Time to take" if any medicine in this meal is due now, "Late" if one was missed.
+    private func status(of meal: MealSchedule, now: Date) -> DoseStatus {
+        let statuses = meal.parts.flatMap { part in
+            part.medicines.map { store.status(of: $0, at: part.time, now: now) }
+        }
         if statuses.contains(.dueNow) { return .dueNow }
         if statuses.contains(.missed) { return .missed }
         return .upcoming
@@ -364,8 +377,8 @@ struct ContentView: View {
                 ContentUnavailableView(
                     language("ยังไม่มียา", "No medicines yet"),
                     systemImage: "pills",
-                    description: Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วถ่ายรูปซองยา",
-                                               "Tap the red \"Scan a medicine label\" button at the bottom and take a photo of a medicine envelope."))
+                    description: Text(language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง แล้วถ่ายรูปซองยา",
+                                               "Tap the green \"Scan a medicine label\" button at the bottom and take a photo of a medicine envelope."))
                 )
             } else {
                 ForEach(sections) { section in
@@ -442,6 +455,14 @@ struct ContentView: View {
             let medicines = store.medicines.filter { ($0.group ?? .other) == group }
             return medicines.isEmpty ? nil : MedicineSection(group: group, medicines: medicines)
         }
+    }
+
+    /// A name was tapped in the "…" sheet: switch to Your Medications and open that medicine.
+    private func openTappedMedicine() {
+        guard let id = medicineToOpen else { return }
+        medicineToOpen = nil
+        tab = .medicines
+        path = [id]
     }
 
     /// First launch, or "Show the tutorial again" in Settings. Not in Xcode Previews, so they show the home screen.

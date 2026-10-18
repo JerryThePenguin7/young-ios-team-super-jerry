@@ -67,24 +67,53 @@ nonisolated extension Medicine {
 
     /// Jenny's summary as short bullet points, for lists (the Log checklist and Your Medications):
     /// • ครั้งละ 1 เม็ด  • วันละ 2 ครั้ง: เช้า เย็น  • หลังอาหาร
+    /// "หลังอาหาร" is for meals, never bedtime: • วันละ 4 ครั้ง  • หลังอาหาร เช้า กลางวัน เย็น  • ก่อนนอน
     /// The label's own words are kept too (`directions`) and shown in full on the medicine's own screen.
-    /// `includeTimes: false` leaves out when to take it (the Log checklist already shows the time).
-    func summaryBullets(_ language: AppLanguage, includeTimes: Bool = true) -> [String] {
+    /// `includeTimes: false` leaves out when to take it, and `includeMeal: false` leaves out ก่อน/หลังอาหาร
+    /// (the Log's meal cards already show both).
+    func summaryBullets(_ language: AppLanguage, includeTimes: Bool = true, includeMeal: Bool = true) -> [String] {
         var bullets = [amountLine(language)]
+        var mealShown = false
         if includeTimes {
             if asNeeded {
                 bullets.append(language("เมื่อมีอาการ", "When needed"))
             } else if !orderedSlots.isEmpty {
                 let count = orderedSlots.count
-                let names = orderedSlots.map { $0.name(language) }.joined(separator: language == .thai ? " " : ", ")
-                bullets.append(language("วันละ \(count) ครั้ง: \(names)",
-                                        count == 1 ? "Once a day: \(names)" : "\(count) times a day: \(names)"))
+                let mealSlots = orderedSlots.filter { $0 != .bedtime }
+                if includeMeal && !meal.isEmpty && orderedSlots.contains(.bedtime) && !mealSlots.isEmpty {
+                    bullets.append(language("วันละ \(count) ครั้ง", count == 1 ? "Once a day" : "\(count) times a day"))
+                    bullets.append(language("\(meal) \(Self.slotNames(mealSlots, .thai))",
+                                            "\(Self.mealName(meal, .english)): \(Self.slotNames(mealSlots, .english))"))
+                    bullets.append(language("ก่อนนอน", "At bedtime"))
+                    mealShown = true
+                } else {
+                    let names = Self.slotNames(orderedSlots, language)
+                    bullets.append(language("วันละ \(count) ครั้ง: \(names)",
+                                            count == 1 ? "Once a day: \(names)" : "\(count) times a day: \(names)"))
+                }
             }
         }
         // The gap between "when needed" doses is a safety rule, so it's shown even without the times.
         if let apart = apartText(language) { bullets.append(apart) }
-        if !meal.isEmpty { bullets.append(Self.mealName(meal, language)) }
+        if includeMeal && !mealShown && !meal.isEmpty { bullets.append(Self.mealName(meal, language)) }
         return bullets
+    }
+
+    /// "เช้า เย็น" or "Morning, Evening"
+    private static func slotNames(_ slots: [TimeSlot], _ language: AppLanguage) -> String {
+        slots.map { $0.name(language) }.joined(separator: language == .thai ? " " : ", ")
+    }
+
+    /// One dose, by its meal: "ก่อนอาหารเช้า", "หลังอาหารเย็น", "พร้อมอาหารกลางวัน", "มื้อเช้า", "ก่อนนอน"
+    /// or "Before breakfast", "After dinner", "With lunch", "Breakfast", "Bedtime".
+    func doseLabel(at slot: TimeSlot, _ language: AppLanguage) -> String {
+        let food = slot.foodName(language)
+        switch mealPart(at: slot) {
+        case .before: return language("ก่อน\(food)", "Before \(food)")
+        case .with: return language("พร้อม\(food)", "With \(food)")
+        case .after: return language("หลัง\(food)", "After \(food)")
+        case .at: return slot.mealName(language)
+        }
     }
 
     /// "1 เม็ด", "ข้างละ 2 ที" or "1 tablet", for "1 tablet at 8:00 AM".

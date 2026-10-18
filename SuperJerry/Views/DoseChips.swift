@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// A medicine's times as big chips. On a saved medicine, tap a chip to tick that dose as taken today.
+/// A medicine's times as big chips, by meal: "หลังอาหารเช้า · 07:15 น.". On a saved medicine, tap a chip to tick
+/// that dose as taken today.
 struct DoseChips: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -22,9 +23,9 @@ struct DoseChips: View {
                       alignment: .leading, spacing: 10) {
                 ForEach(medicine.orderedSlots, id: \.self) { slot in
                     if let now {
-                        let status = store.status(of: medicine, at: slot.time, now: now)
+                        let status = store.status(of: medicine, at: medicine.doseTime(for: slot), now: now)
                         Button {
-                            store.toggleTaken(medicine, at: slot.time, now: now)
+                            store.toggleTaken(medicine, at: slot, now: now)
                         } label: {
                             chip(for: slot, status: status)
                         }
@@ -32,7 +33,8 @@ struct DoseChips: View {
                         .accessibilityHint(status.isLogged ? language("แตะเพื่อยกเลิก", "Tap to undo")
                                                            : language("แตะเมื่อทานแล้ว", "Tap when you've taken it"))
                     } else {
-                        chip(title: "\(slot.name(language)) · \(slot.time.label(language))", symbol: slot.symbol, style: .plain)
+                        chip(title: "\(medicine.doseLabel(at: slot, language)) · \(medicine.doseTime(for: slot).label(language))",
+                             symbol: slot.symbol, style: .plain)
                     }
                 }
             }
@@ -45,13 +47,13 @@ struct DoseChips: View {
     private enum ChipStyle { case plain, taken, due, missed }
 
     private func chip(for slot: TimeSlot, status: DoseStatus) -> some View {
-        let name = slot.name(language)
+        let name = medicine.doseLabel(at: slot, language)
         return switch status {
         case .taken: chip(title: "\(name) · \(language("ทานแล้ว", "Taken"))", symbol: "checkmark.circle.fill", style: .taken)
         case .skipped: chip(title: "\(name) · \(language("ข้าม", "Skipped"))", symbol: "minus.circle.fill", style: .plain)
         case .dueNow: chip(title: "\(name) · \(language("ถึงเวลา", "Now"))", symbol: "bell.fill", style: .due)
         case .missed: chip(title: "\(name) · \(language("ยังไม่ทาน", "Not taken"))", symbol: "exclamationmark.circle.fill", style: .missed)
-        case .upcoming: chip(title: "\(name) · \(slot.time.label(language))", symbol: slot.symbol, style: .plain)
+        case .upcoming: chip(title: "\(name) · \(medicine.doseTime(for: slot).label(language))", symbol: slot.symbol, style: .plain)
         }
     }
 
