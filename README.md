@@ -37,26 +37,26 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
 0. **First time:** a short tutorial shows how Jenny works. Pick **ภาษาไทย** or **English** on its first page (change it later in Settings).
    The whole app switches: screens, the read-aloud voice, and the Apple Reminders text. The two languages are never mixed on one screen.
    The button at the top left switches between a light (white) and a dark (black) look.
-1. **Scan a label:** the first time, the big red box at the top has **Take photo** (allow the camera) and **Choose from Photos**.
-   Once you have medicines, the scan button floats at the bottom of the screen: **Scan a medicine label**, plus a round Photos button.
+1. **Scan a label:** tap the red **Scan a medicine label** button at the bottom, then **Take photo** (allow the camera the first time)
+   or **Choose from Photos**.
    Fill the photo with the label, in good light.
 2. **Result:** Jenny shows and reads aloud the label's directions **word for word** (never shortened), plus the expiry date
    if the label has one ("EXP" / "หมดอายุ"). Tap **Read aloud** to hear it again. Fix anything with **Edit**, or **Retake**.
    Then **Save medicine**. If you already saved the same medicine, Jenny warns you first (**Add anyway** or **Cancel**).
-3. **Home** looks like the Health app's Medications page:
-   - **Today, October 18** and a week strip. Each day's circle fills up green as you take that day's doses. Tap a day to see its log.
-   - **Log:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take and a round **+**. Tap it, then **Taken** or **Skipped** for each
-     medicine (or **Log All as Taken**), then **Done**. A card says **Time to take** when it's due and **Late** if it was missed.
+3. **Home** looks like the Health app's Medications page. Two big buttons at the top switch between **Log** and **Your Medications**.
+   - **Log ▸ Today, October 18** and a week strip. Each day's circle fills up green as you take that day's doses. Tap a day to see its log.
+   - **Log ▸ checklist:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take. **Tick the box** next to a
+     medicine when you've taken it. Press and hold to skip it; **…** opens the full sheet (Log All as Taken, Skipped).
+     A card says **Time to take** when it's due and **Late** if it was missed.
    - **As Needed Medications:** log a "when needed" medicine (like Paracetamol) when you take it.
-   - **Logged:** what you took (✓) or skipped, and how long ago. Tap a time to change it.
-   - **Your Medications:** a stack of cards, like a widget stack on the Home Screen. **Swipe up or down** to flip through them,
+   - **Taken:** what you took (✓) or skipped, and how long ago. Tap a medicine to undo it.
+   - **Your Medications ▸** a stack of cards, like a widget stack on the Home Screen. **Swipe up or down** to flip through them,
      and **tap** to spread them out: each medicine with its label photo, kind and strength, and
-     schedule, in groups (Heart, Diabetes, Eyes & ears…). Tap a group's header to fold it. The speaker button reads it aloud.
+     schedule, in groups (Heart, Diabetes, Eyes & ears…). Tap a group's header to fold it. The speaker next to a name reads it aloud.
      **Edit** lets you delete medicines, and **Stack** piles them back up.
-   - **Medicine Storage:** tap a medicine and type how many you have. Each time you log **Taken** (the green button), Jenny takes
+   - **Your Medications ▸ Medicine Storage:** tap a medicine and type how many you have. Each time you log **Taken** (the green button), Jenny takes
      one dose off by itself, and shows about how many days are left. It's also a swipeable stack. Set **when to warn** for each
      medicine (e.g. at 10 or 5 left); until you do, "Running low" shows at about a week's worth.
-   On iPad the log and your medicines are side by side.
 4. **Apple Reminders:** tap **Remind me in Reminders** (or Settings), and allow Full Access. Jenny makes a list
    called **Jenny Medicines** (ยา Jenny in Thai) with a repeating reminder per medicine per time (8:00, 12:00, 18:00, 21:00),
    each with an alert. Tick them off in Reminders (they also show on an Apple Watch). Jenny sends no notifications of its own.

@@ -1,27 +1,36 @@
 import SwiftUI
 
-/// "Logged" (like the Health app): what was taken (✓) or skipped on this day, by time.
-/// Tap a time to change it.
+/// "Taken": what was taken (green ✓) or skipped on this day, by time, like the completed items in Reminders.
+/// Tap a medicine's tick to undo it (it goes back to the checklist); tap a time to open its log sheet.
 struct LoggedCard: View {
     @Environment(\.language) private var language
     let logged: [LoggedTime]
     let now: Date
+    /// Untick one dose: it goes back to the checklist.
+    let undo: (LoggedDose) -> Void
     let open: (DoseTime) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(language("บันทึกแล้ว", "Logged"))
+            Label(language("ทานแล้ว", "Taken"), systemImage: "checkmark.circle.fill")
                 .font(.headline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.green)
                 .padding(.bottom, 12)
             ForEach(logged) { group in
                 Divider()
-                Button {
-                    open(group.time)
-                } label: {
-                    row(group)
+                VStack(alignment: .leading, spacing: 4) {
+                    Button {
+                        open(group.time)
+                    } label: {
+                        header(group)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(language("แตะเพื่อเปิดรายละเอียด", "Tap for details"))
+                    ForEach(group.doses) { dose in
+                        row(dose)
+                    }
                 }
-                .buttonStyle(.plain)
+                .padding(.vertical, 12)
             }
         }
         .padding(20)
@@ -29,40 +38,54 @@ struct LoggedCard: View {
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
-    private func row(_ group: LoggedTime) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // "8:00 AM · 3 hr. ago" on one line when it fits, otherwise one under the other.
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 6) {
-                    timeText(group)
-                    Spacer(minLength: 8)
-                    agoText(group)
-                    chevron
-                }
-                HStack(alignment: .top, spacing: 6) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        timeText(group)
-                        agoText(group)
-                    }
-                    Spacer(minLength: 8)
-                    chevron
-                }
+    /// "8:00 AM · 3 hr. ago ›" on one line when it fits, otherwise one under the other.
+    private func header(_ group: LoggedTime) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 6) {
+                timeText(group)
+                Spacer(minLength: 8)
+                agoText(group)
+                chevron
             }
-            ForEach(group.doses) { dose in
-                HStack(spacing: 10) {
-                    Image(systemName: dose.record.isSkipped ? "minus.circle.fill" : "checkmark.circle.fill")
-                        .foregroundStyle(dose.record.isSkipped ? Color.secondary : Theme.green)
-                    Text(dose.medicine.displayName(language))
-                    if dose.record.isSkipped {
-                        Text(language("ข้าม", "Skipped"))
-                            .foregroundStyle(.secondary)
-                    }
+            HStack(alignment: .top, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
+                    timeText(group)
+                    agoText(group)
                 }
-                .font(.title3)
+                Spacer(minLength: 8)
+                chevron
             }
         }
-        .padding(.vertical, 14)
+        .frame(minHeight: 44)
         .contentShape(Rectangle())
+    }
+
+    /// A ticked row: tap to undo.
+    private func row(_ dose: LoggedDose) -> some View {
+        Button {
+            undo(dose)
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: dose.record.isSkipped ? "minus.circle.fill" : "checkmark.circle.fill")
+                    .font(.system(size: 30))
+                    .foregroundStyle(dose.record.isSkipped ? Color.secondary : Theme.green)
+                    .frame(width: 44, height: 44)
+                Text(dose.medicine.displayName(language))
+                    .font(.title3)
+                    .strikethrough(dose.record.isSkipped, color: .secondary)
+                if dose.record.isSkipped {
+                    Text(language("ข้าม", "Skipped"))
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(dose.medicine.displayName(language))
+        .accessibilityValue(dose.record.isSkipped ? language("ข้าม", "Skipped") : language("ทานแล้ว", "Taken"))
+        .accessibilityHint(language("แตะสองครั้งเพื่อยกเลิก", "Double-tap to undo"))
     }
 
     private func timeText(_ group: LoggedTime) -> some View {
@@ -88,7 +111,7 @@ struct LoggedCard: View {
     let record = DoseRecord(medicineID: medicine.id, time: DoseTime(hour: 8), day: Date(),
                             takenAt: Date().addingTimeInterval(-3600))
     LoggedCard(logged: [LoggedTime(time: DoseTime(hour: 8), doses: [LoggedDose(medicine: medicine, record: record)])],
-               now: Date()) { _ in }
+               now: Date(), undo: { _ in }) { _ in }
         .padding()
         .environment(\.language, .english)
 }

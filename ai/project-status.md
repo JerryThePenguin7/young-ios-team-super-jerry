@@ -33,8 +33,9 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 
 - **Home** (`ContentView.swift`), Health-style:
   - The day and a week strip (`WeekStrip`).
-  - **Log** cards per pill time, each with a round **+** (`LogTimeCard`). Tapping one opens the log sheet with Taken / Skipped (`DoseLogSheet`).
-  - **Logged** (`LoggedCard`).
+  - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
+  - **Log**: a **checklist** per pill time (`LogTimeCard`): tap a medicine's tick box to mark it taken (press and hold to skip; **…** opens `DoseLogSheet`).
+  - **Taken** (`LoggedCard`): ticked medicines, tap to undo.
   - **Your Medications** as a Smart Stack–style widget stack you swipe up and down; tap it to spread the cards into groups you can fold (`CardStack`).
   - **Medicine Storage**, also a widget stack: pills left, counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine (`MedicineStorageSection`, `StockEditorSheet`).
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
@@ -44,8 +45,7 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 - **Same medicine twice:** saving a medicine that's already saved asks first (Add anyway / Cancel), on the scan result and when typing one in.
   - A disclaimer at the bottom.
 - **Camera:**
-  - When there are no medicines yet, the big red box (`CameraCard`) is at the top.
-  - After that, a floating Liquid Glass **scan bar** sits at the bottom (`ScanBar`).
+  - One floating Liquid Glass **scan button** at the bottom from the first launch (`ScanBar`): tap it, then Take photo or Choose from Photos.
 - **Scan result** (`ScanResultView`): what Jenny read, read aloud, Edit / Retake / Save.
 - **Medicine detail, editor, settings:** `MedicineDetailView`, `MedicineEditorView`, `SettingsView`.
 - **Look:**
