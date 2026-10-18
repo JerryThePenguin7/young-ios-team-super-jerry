@@ -226,7 +226,7 @@ struct ScanResultView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Label(language("กลุ่ม: \(group.thai)", "Group: \(group.english)"), systemImage: group.symbol)
                     .font(.headline)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                 if let source = reading.groupSource {
                     Text(source.label(language))
                         .font(.subheadline)
@@ -262,7 +262,7 @@ struct ScanResultView: View {
             .font(.subheadline.bold())
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .foregroundStyle(Theme.red)
+            .foregroundStyle(Theme.accent)
             .background(Theme.fill, in: Capsule())
     }
 
@@ -280,7 +280,7 @@ struct ScanResultView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
         }
-        .tint(Theme.red)
+        .tint(Theme.accent)
     }
 
     // MARK: Actions

@@ -74,7 +74,7 @@ struct DoseChips: View {
     private func foreground(_ style: ChipStyle) -> Color {
         switch style {
         case .taken: .white
-        case .due: Theme.red
+        case .due: .primary
         case .missed: .orange
         case .plain: .primary
         }
@@ -83,7 +83,7 @@ struct DoseChips: View {
     private func background(_ style: ChipStyle) -> Color {
         switch style {
         case .taken: Theme.greenFill
-        case .due: Theme.red.opacity(0.12)
+        case .due: Theme.yellow
         case .missed: Color.orange.opacity(0.12)
         case .plain: Theme.fill
         }
@@ -91,7 +91,7 @@ struct DoseChips: View {
 
     private func border(_ style: ChipStyle) -> Color {
         switch style {
-        case .due: Theme.red
+        case .due: Theme.accent
         case .missed: .orange
         case .taken, .plain: .clear
         }

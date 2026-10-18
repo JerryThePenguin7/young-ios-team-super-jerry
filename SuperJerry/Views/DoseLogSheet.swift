@@ -70,7 +70,7 @@ struct DoseLogSheet: View {
                         .font(.title3.bold())
                         .frame(maxWidth: .infinity, minHeight: 60)
                         .foregroundStyle(.white)
-                        .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
+                        .background(Theme.accentFill, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
                 }
                 .buttonStyle(.pressable)
                 .frame(maxWidth: 700)
@@ -211,7 +211,7 @@ struct DoseLogSheet: View {
     private func choiceButtons(_ medicine: Medicine, choice: DoseLog?) -> some View {
         if kind != .asNeeded {
             choiceButton(language("ข้าม", "Skipped"), symbol: "xmark.circle", selected: choice == .skipped,
-                         color: Theme.red, fill: Theme.card) {
+                         color: Theme.red, fill: Theme.redFill) {
                 choices[medicine.id] = choice == .skipped ? nil : .skipped
             }
         }
@@ -226,7 +226,7 @@ struct DoseLogSheet: View {
         switch choice {
         case .taken: Theme.green
         case .skipped: .secondary
-        case nil: Theme.red
+        case nil: Theme.accent
         }
     }
 

@@ -16,7 +16,7 @@ struct DirectionsView: View {
                     .foregroundStyle(.secondary)
                 Text(directions)
                     .font(.title.bold())
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
                 if language == .english {
@@ -31,7 +31,7 @@ struct DirectionsView: View {
             } else {
                 Text(medicine.amountLine(language))
                     .font(.title.bold())
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

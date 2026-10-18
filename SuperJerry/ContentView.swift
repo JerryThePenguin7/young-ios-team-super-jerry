@@ -217,8 +217,8 @@ struct ContentView: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, minHeight: 60)
-                .foregroundStyle(selected ? Color.white : Theme.red)
-                .background(selected ? Theme.card : Theme.fill,
+                .foregroundStyle(selected ? Color.white : Theme.accent)
+                .background(selected ? Theme.accentFill : Theme.fill,
                             in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
@@ -318,7 +318,7 @@ struct ContentView: View {
             layout {
                 Image(systemName: "checklist")
                     .font(.title2)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(width: 48, height: 48)
                     .background(Theme.fill, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
@@ -332,7 +332,7 @@ struct ContentView: View {
                 Spacer(minLength: 0)
                 Image(systemName: "plus")
                     .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(width: 44, height: 44)
                     .background(Theme.fill, in: Circle())
             }
@@ -399,7 +399,7 @@ struct ContentView: View {
                 withAnimation { isEditing.toggle() }
             }
             .font(.title3)
-            .tint(Theme.red)
+            .tint(Theme.accent)
         }
     }
 
@@ -417,7 +417,7 @@ struct ContentView: View {
             HStack(spacing: 10) {
                 Label(section.group.name(language), systemImage: section.group.symbol)
                     .font(.headline)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                 Spacer(minLength: 8)
                 Text("\(section.medicines.count)")
                     .font(.headline)

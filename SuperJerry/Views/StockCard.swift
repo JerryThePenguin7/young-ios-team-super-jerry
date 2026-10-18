@@ -42,7 +42,7 @@ struct StockCard: View {
                 Label(medicine.stock == nil ? language("ใส่จำนวนยา", "Add how many") : language("เติมยา หรือแก้จำนวน", "Refill or change"),
                       systemImage: medicine.stock == nil ? "plus" : "pencil")
                     .font(.headline)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(maxWidth: .infinity, minHeight: 52)
                     .background(Theme.fill, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
                     .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))

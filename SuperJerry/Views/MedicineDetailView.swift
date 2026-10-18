@@ -99,7 +99,7 @@ struct MedicineDetailView: View {
                 }
                 .padding(20)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
-                .tint(Theme.red)
+                .tint(Theme.accent)
             }
 
             Button(role: .destructive) {
@@ -111,7 +111,7 @@ struct MedicineDetailView: View {
                     .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             }
             .buttonStyle(.pressable)
-            .foregroundStyle(.red)
+            .foregroundStyle(Theme.red)
 
             Label(language("ตรวจกับฉลากจริงทุกครั้ง ไม่ใช่คำแนะนำทางการแพทย์",
                            "Always check the real label. Not medical advice."),
@@ -147,7 +147,7 @@ struct MedicineDetailView: View {
                 if let purpose = medicine.purpose(language) {
                     Label(purpose, systemImage: (medicine.group ?? .other).symbol)
                         .font(.headline)
-                        .foregroundStyle(Theme.red)
+                        .foregroundStyle(Theme.accent)
                 }
                 ExpiryLabel(medicine: medicine)
             }

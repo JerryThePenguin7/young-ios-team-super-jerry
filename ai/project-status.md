@@ -37,13 +37,15 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - The day and a week strip (`WeekStrip`).
   - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
   - **Log**: a **checklist** per pill time (`LogTimeCard`): tap a medicine's tick box to mark it taken (press and hold to skip; **…** opens `DoseLogSheet`).
-  - **When needed** (`AsNeededCard`): medicines with no set time (paracetamol). A Taken button each, taken today, and "next dose after"
-    from the label's gap (`hoursApart`, "ห่างกันอย่างน้อย 6 ชม."); logging too soon asks first.
+  - **When needed** (`AsNeededCard`, `DoseTimeline`): medicines with no set time (paracetamol). A timeline of the last 24 hours
+    (doses → now → next allowed, from the label's gap `hoursApart`, "ห่างกันอย่างน้อย 6 ชม.") and a Taken button; logging too soon asks first.
   - **Taken** (`LoggedCard`): ticked medicines, tap to undo.
   - **Your Medications**: a plain list of medicine cards in groups you can fold (the swipe stack was removed on request).
   - **How many are left** (merged into Your Medications): on each card, and a card on the medicine's screen (`StockCard`, `StockEditorSheet`).
     Counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine.
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
+- **Colors** follow the team's reference image: deep green accent, red only for Skipped/expired/delete, yellow behind "Time to take",
+  gray-blue background (`Theme.accent`, `accentFill`, `red`, `redFill`, `yellow`; see DESIGN.md). Only the colors, never another app's logo or name.
 - **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
 - **Label reading also keeps:** the directions word for word (`labelDirections`), "ข้างละ" doses per side (`perSide`, counted ×2 in storage),
   the gap between "when needed" doses (`hoursApart`: "ห่างกันอย่างน้อย 6 ชม.", "ทุก 4-6 ชั่วโมง", "every 6 hours"),

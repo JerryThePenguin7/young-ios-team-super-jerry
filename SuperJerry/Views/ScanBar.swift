@@ -28,7 +28,7 @@ struct ScanBar: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
         }
         .buttonStyle(.glassProminent)
-        .tint(Theme.card)
+        .tint(Theme.accentFill)
         .controlSize(.large)
         .confirmationDialog(language("เพิ่มยาจากรูปซองยา", "Add a medicine from its label"),
                             isPresented: $showingChoice, titleVisibility: .visible) {

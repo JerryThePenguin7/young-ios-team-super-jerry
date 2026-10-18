@@ -2,7 +2,7 @@ import SwiftUI
 
 /// "When needed" medicines in Log, like paracetamol: "ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ".
 /// They have no set time, so each one has its own big **Taken** button instead of a tick box.
-/// Jenny shows when it was last taken and, if the label gives a gap, when it can be taken again.
+/// A timeline (`DoseTimeline`) shows when it was taken and, if the label gives a gap, when it can be taken again.
 /// Logging it again before the gap is over asks first, so nobody takes too much by mistake.
 struct AsNeededCard: View {
     @Environment(MedicineStore.self) private var store
@@ -39,8 +39,8 @@ struct AsNeededCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .alert(language("ยังไม่ครบเวลา", "It's too soon"), isPresented: tooSoonShown, presenting: tooSoon) { medicine in
-            Button(language("ยังไม่ทาน", "Not yet"), role: .cancel) {}
-            Button(language("บันทึกว่าทานแล้ว", "Log as taken")) { take(medicine) }
+            Button(language("ยังไม่\(medicine.thaiVerb)", "Not yet"), role: .cancel) {}
+            Button(language("บันทึกว่า\(medicine.thaiVerb)แล้ว", "Log as taken")) { take(medicine) }
         } message: { medicine in
             Text(tooSoonMessage(medicine))
         }
@@ -57,24 +57,19 @@ struct AsNeededCard: View {
                 // How much, and the least time between doses ("ห่างกันอย่างน้อย 6 ชั่วโมง").
                 BulletList(items: medicine.summaryBullets(language, includeTimes: false))
                 MedicineAlerts(medicine: medicine, showsNotes: false)
-                takenToday(medicine)
-                if let next {
-                    Label {
-                        Text(language("ทานได้อีกครั้งหลัง \(language.time(next))", "Next dose after \(language.time(next))"))
-                            .foregroundStyle(.primary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    } icon: {
-                        Image(systemName: "hourglass")
-                            .foregroundStyle(.orange)
-                    }
-                    .font(.callout.weight(.semibold))
-                }
             }
+
+            // Taken in the last 24 hours → now → when it can be taken again.
+            DoseTimeline(medicine: medicine,
+                         taken: store.takenTimes(of: medicine.id, since: now.addingTimeInterval(-24 * 3600)),
+                         now: now)
+                .padding(14)
+                .background(Theme.fill.opacity(0.6), in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
 
             Button {
                 if next != nil { tooSoon = medicine } else { take(medicine) }
             } label: {
-                Label(language("ทานแล้ว", "Taken"), systemImage: "checkmark.circle")
+                Label(language("\(medicine.thaiVerb)แล้ว", "Taken"), systemImage: "checkmark.circle")
                     .font(.title3.bold())
                     .foregroundStyle(Theme.green)
                     .frame(maxWidth: .infinity, minHeight: 52)
@@ -82,24 +77,10 @@ struct AsNeededCard: View {
                     .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             }
             .buttonStyle(.pressable)
-            .accessibilityLabel(language("ทาน \(medicine.title(.thai)) แล้ว", "Taken: \(medicine.title(.english))"))
-            .accessibilityHint(language("แตะเมื่อทานยานี้แล้ว", "Tap after you've taken it"))
+            .accessibilityLabel(language("\(medicine.thaiVerb) \(medicine.title(.thai)) แล้ว", "Taken: \(medicine.title(.english))"))
+            .accessibilityHint(language("แตะเมื่อ\(medicine.thaiVerb)ยานี้แล้ว", "Tap after you've taken it"))
         }
         .padding(.vertical, 10)
-    }
-
-    /// "วันนี้ทานแล้ว 2 ครั้ง ล่าสุด 10:15 น." Nothing if it hasn't been taken today.
-    @ViewBuilder
-    private func takenToday(_ medicine: Medicine) -> some View {
-        let count = store.takenCount(of: medicine.id, on: now)
-        if count > 0, let last = store.lastTaken(medicine.id) {
-            let time = language.time(last)
-            Label(language("วันนี้ทานแล้ว \(count) ครั้ง ล่าสุด \(time)",
-                           count == 1 ? "Taken once today, at \(time)" : "Taken \(count) times today, last at \(time)"),
-                  systemImage: "clock")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-        }
     }
 
     /// When it can be taken again, while the label's gap isn't over yet (it can be from last night). nil = it can be taken now.
@@ -112,8 +93,9 @@ struct AsNeededCard: View {
         let last = store.lastTaken(medicine.id).map { language.time($0) } ?? ""
         let next = nextDose(medicine).map { language.time($0) } ?? ""
         let hours = String(format: "%g", medicine.hoursApart ?? 0)
+        let verb = medicine.thaiVerb
         return language(
-            "ฉลากบอกให้ทานห่างกันอย่างน้อย \(hours) ชั่วโมง ทานครั้งล่าสุดเมื่อ \(last) ทานได้อีกครั้งหลัง \(next) ถ้าไม่แน่ใจ ให้ถามเภสัชกร",
+            "ฉลากบอกให้\(verb)ห่างกันอย่างน้อย \(hours) ชั่วโมง \(verb)ครั้งล่าสุดเมื่อ \(last) \(verb)ได้อีกครั้งหลัง \(next) ถ้าไม่แน่ใจ ให้ถามเภสัชกร",
             "The label says at least \(hours) hours apart. It was last taken at \(last), so the next dose is after \(next). If unsure, ask your pharmacist.")
     }
 
@@ -125,7 +107,7 @@ struct AsNeededCard: View {
         Button(action: more) {
             Image(systemName: "ellipsis")
                 .font(.title3.bold())
-                .foregroundStyle(Theme.red)
+                .foregroundStyle(Theme.accent)
                 .frame(width: 44, height: 44)
                 .background(Theme.fill, in: Circle())
         }

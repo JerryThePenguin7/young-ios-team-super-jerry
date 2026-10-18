@@ -28,7 +28,7 @@ struct StatusBadge: View {
 #Preview {
     VStack(spacing: 12) {
         StatusBadge(title: "Late", symbol: "exclamationmark.circle.fill", color: .orange)
-        StatusBadge(title: "Time to take", symbol: "bell.fill", color: Theme.red)
+        StatusBadge(title: "Time to take", symbol: "bell.fill", color: Theme.accent)
         StatusBadge(title: "ใกล้หมด", symbol: "exclamationmark.triangle.fill", color: .orange)
     }
     .padding()
