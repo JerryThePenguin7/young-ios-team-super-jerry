@@ -22,7 +22,7 @@ nonisolated extension LabelParser {
         guard info.hasAnyTime else { return false }
         let compact = normalize(lines.joined(separator: "\n")).replacingOccurrences(of: " ", with: "")
         let latin = lines.joined(separator: "\n").lowercased().replacingOccurrences(of: ".", with: "")
-        let namedTimes = ["เช้า", "กลางวัน", "เที่ยง", "เย็น", "ก่อนนอน", "ก่อนเข้านอน"].contains { compact.contains($0) }
+        let namedTimes = ["เช้า", "กลางวัน", "เที่ยง", "เย็น", "ก่อนนอน"].contains { compact.contains($0) }
         return !namedTimes && !latin.contains(#/\bhs\b/#)
     }
 }

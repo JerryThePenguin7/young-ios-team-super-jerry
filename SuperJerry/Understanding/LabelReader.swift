@@ -135,14 +135,8 @@ nonisolated enum LabelReader {
         return ("", .none, nil)
     }
 
-    /// Words that the "Name 5 mg" rule can pick up by mistake, like "Amoxicillin Suspension 125 mg".
-    /// Then the name is looked up in the list instead.
-    private static let notNames: Set<String> = [
-        "TOTAL", "BOTTLE", "EACH", "TAKE", "DOSE", "VOLUME", "CONTAINS", "NET",
-        "SYRUP", "SUSPENSION", "SOLUTION", "ELIXIR", "MIXTURE", "DROPS", "DROP", "CREAM", "OINTMENT", "LOTION",
-        "TABLET", "TABLETS", "CAPSULE", "CAPSULES", "INJECTION", "SPRAY", "INHALER", "EVOHALER", "ACCUHALER",
-        "TURBUHALER", "RESPIMAT", "POWDER", "SACHET",
-    ]
+    /// Words that the "Name 5 mg" rule can pick up by mistake.
+    private static let notNames: Set<String> = ["TOTAL", "BOTTLE", "EACH", "TAKE", "DOSE", "VOLUME", "CONTAINS", "NET"]
 
     /// Lines with these are the hospital, the patient, or the date, not the medicine.
     private static let skipThai = [
