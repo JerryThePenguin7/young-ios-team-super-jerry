@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// One time in "Log" (like the Health app): "8:00 AM", the medicines still to take then, and a "Log" button.
+/// One time in "Log" (like the Health app): "8:00 AM", the medicines still to take then, and a + to log them.
 struct LogTimeCard: View {
     @Environment(\.language) private var language
     let time: DoseTime
@@ -39,7 +39,7 @@ struct LogTimeCard: View {
             }
             .padding(20)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .strokeBorder(Theme.red, lineWidth: status == .dueNow ? 2 : 0)
@@ -56,16 +56,16 @@ struct LogTimeCard: View {
             .font(.title3.bold())
     }
 
-    /// A word, not a bare +, so it's clear what tapping the card does.
+    /// A round + (the whole card is the button; VoiceOver hears the hint).
     @ViewBuilder
     private var logPill: some View {
         if canLog {
-            Label(language("บันทึก", "Log"), systemImage: "plus")
-                .font(.headline)
+            Image(systemName: "plus")
+                .font(.title3.bold())
                 .foregroundStyle(Theme.red)
-                .padding(.horizontal, 14)
-                .frame(minHeight: 44)
-                .background(Theme.red.opacity(0.14), in: Capsule())
+                .frame(width: 44, height: 44)
+                .background(Theme.fill, in: Circle())
+                .accessibilityHidden(true)
         }
     }
 

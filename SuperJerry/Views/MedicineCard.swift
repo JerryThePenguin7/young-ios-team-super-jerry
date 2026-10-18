@@ -41,7 +41,7 @@ struct MedicineCard: View {
                             .font(.title3)
                             .foregroundStyle(Theme.red)
                             .frame(width: 48, height: 48)
-                            .background(Theme.red.opacity(0.12), in: Circle())
+                            .background(Theme.fill, in: Circle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))

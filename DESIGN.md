@@ -2,9 +2,9 @@
 version: alpha
 name: Jenny
 description: >-
-  Jenny's look, modeled on the Medications page of the Apple Health app. A warm white canvas,
-  one big red box for the main feature (scan a medicine label), Health-style Log cards for each pill time,
-  and white medicine cards grouped by what they're for. Built for older Thai adults who take several
+  Jenny's look, modeled on the Medications page of the Apple Health app. A calm light-gray canvas with
+  white cards, red used only as the accent, Health-style Log cards for each pill time, white medicine cards
+  in groups you can fold, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
   medicines a day, and for the family members who help them, without looking like a "special" app.
 
 colors:
@@ -15,14 +15,16 @@ colors:
   primary-fill: "#D32F2F"
   primary-fill-dark-mode: "#B3261E"
   on-primary: "#FFFFFF"
-  # Page background (asset "JennyBackground"): warm white. Dark mode: #140A0B.
-  background: "#FFF5F5"
-  background-dark-mode: "#140A0B"
-  # Medicine cards, sheets' cards, reminder card (asset "JennySurface"). Dark mode: #261416.
+  # Page background (asset "JennyBackground"): neutral light gray. Dark mode: black.
+  background: "#F2F2F5"
+  background-dark-mode: "#000000"
+  # Every card: Log, Logged, medicines, reminders, sheets (asset "JennySurface"). Dark mode: #1C1C1E.
   surface: "#FFFFFF"
-  surface-dark-mode: "#261416"
-  # Log cards: brand red at 8% on the background. Logged card: primary at 5%.
-  log-card: "color-mix(in srgb, #D32F2F 8%, #FFF5F5)"
+  surface-dark-mode: "#1C1C1E"
+  # Soft gray for secondary buttons and icon circles on a card (asset "JennyFill"). Dark mode: #2C2C2E.
+  # Red text on it is 4.57:1 (light) and 4.94:1 (dark).
+  fill: "#F5F5F7"
+  fill-dark-mode: "#2C2C2E"
   on-surface: "#000000"
   # "Late" state. Always with a word, never color alone.
   late: "#FF9500"
@@ -77,7 +79,7 @@ components:
     rounded: "{rounded.box-button}"
     height: 60px
   log-time-card:
-    backgroundColor: "{colors.log-card}"
+    backgroundColor: "{colors.surface}"
     rounded: "{rounded.card}"
     padding: "{spacing.card-padding}"
   medicine-card:
@@ -89,10 +91,20 @@ components:
     rounded: "{rounded.button}"
     height: 60px
   button-secondary:
-    backgroundColor: "color-mix(in srgb, #D32F2F 12%, transparent)"
+    backgroundColor: "{colors.fill}"
     textColor: "{colors.primary}"
     rounded: "{rounded.button}"
     height: 60px
+  plus-button:
+    backgroundColor: "{colors.fill}"
+    textColor: "{colors.primary}"
+    size: 44px
+    rounded: "{rounded.full}"
+  scan-bar:
+    backgroundColor: "{colors.primary-fill}"
+    textColor: "{colors.on-primary}"
+    height: 60px
+    rounded: "{rounded.full}"
   pill-icon:
     backgroundColor: "{colors.primary-fill}"
     size: 40px
@@ -107,11 +119,12 @@ Jenny follows the **Medications page of the Apple Health app**, so it should fee
 The home screen ("ยาของฉัน · Medications") reads top to bottom:
 
 1. **The day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with red as doses are taken. Tap a day to see its log.
-2. **The red box:** Jenny's main feature. **ถ่ายรูป · Take photo** (white button) and **เลือกจากคลังภาพ · Choose from Photos** (outlined).
-3. **Log:** one card per pill time ("8:00 น.") with the medicines still to take. Tap a card to log them as taken or skipped. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
+2. **The red box, only when there are no medicines yet:** it explains what Jenny does, with **ถ่ายรูป · Take photo** (white button) and **เลือกจากคลังภาพ · Choose from Photos** (outlined).
+3. **Log:** one white card per pill time ("8:00 น.") with the medicines still to take and a round **+**. Tap a card to log them as taken or skipped. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
 4. **Logged:** what was taken (✓) or skipped, by time. Tap a time to change it.
-5. **Your Medications:** white cards grouped by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button.
+5. **Your Medications:** white cards in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button. **Tap a group's header to fold it closed or open** (it shows how many medicines it has).
 6. The disclaimer.
+7. **The scan bar** (once you have medicines) floats at the bottom in Liquid Glass, where a thumb can reach it: a big red **ถ่ายรูปซองยา** button and a round Photos button.
 
 On iPad, Log and Your Medications sit side by side.
 
@@ -138,11 +151,17 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 
 ## Colors
 
-- **Red** is Jenny's brand: the red box, pill icons, the + and ✓ marks, and group headers.
-  Use only **one big red call to action per screen**: the red box on home, and **Taken** or **Done** in the log sheet.
-- **Warm white background** (`#FFF5F5`) with **white cards**. Log cards are a soft red tint, and the Logged card is a soft gray tint.
+- **Tone first: neutrals carry the layout, red is the accent.** Three neutral steps, light to dark:
+  - the page (`background`, light gray)
+  - the cards (`surface`, white)
+  - small fills inside cards (`fill`, soft gray)
+
+  Never use red tints as card or button backgrounds. They look washed out next to the red accent.
+- **Red** is Jenny's brand: the scan button and red box, pill icons, the + and ✓ marks, and group headers.
+  Use only **one big red call to action per screen**: the scan bar (or red box) on home, and **Taken** or **Done** in the log sheet.
+- A red **tint** is allowed only for a *state*: the "ถึงเวลา" chip or badge. The red border on a due Log card is a state too.
 - **Orange** means late. It always comes with a word ("เลยเวลาแล้ว · Late"). **Text on orange must be dark**, because white on orange is too hard to read.
-- In code, colors come from `Theme` (`Theme.red`, `Theme.card`, `Theme.background`, `Theme.surface`). The light and dark versions live in `Assets.xcassets`. Never hard-code a hex value in Swift.
+- In code, colors come from `Theme` (`Theme.red`, `Theme.card`, `Theme.background`, `Theme.surface`, `Theme.fill`). The light and dark versions live in `Assets.xcassets`. Never hard-code a hex value in Swift.
 
 ## Typography
 
@@ -161,7 +180,7 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 
 ## Elevation & Depth
 
-Flat, like Health. Cards sit on the background without shadows. Depth only comes from the system's Liquid Glass bars and sheets.
+Flat, like Health. White cards sit on the light-gray background without shadows. Depth only comes from Liquid Glass: the navigation bar, sheets, and the floating scan bar.
 The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as the main feature, and pill icons use the same gradient.
 
 ## Shapes
@@ -173,11 +192,13 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 
 | Component | File | Notes |
 |---|---|---|
-| Red box | `Views/CameraCard.swift` | White main button plus a white-outlined second button. The buttons sit side by side when there's room (`ViewThatFits`) |
+| Red box | `Views/CameraCard.swift` | Only shown when there are no medicines yet. White main button plus a white-outlined second button, stacked |
+| Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`). `.glassProminent` red button plus a `.glass` round Photos button. Max 560 pt wide |
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken |
-| Log card | `Views/LogTimeCard.swift` | The whole card is the button. Time + badge + the medicines still to take |
+| Log card | `Views/LogTimeCard.swift` | A white card. The whole card is the button. Time + badge + a round **+** (gray fill, red plus) + the medicines still to take |
 | Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
 | Logged card | `Views/LoggedCard.swift` | ✓ or ⊖ per medicine, "3 hr. ago", tap a time to change it |
+| Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
 | Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), name, kind and strength, schedule, meals, and a round read-aloud button |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a red circle |
 | Big button | `Views/BigButtonLabel.swift` | 60 pt, full width. `filled: true` for the main action |
@@ -192,6 +213,7 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 - Do test with the largest Dynamic Type size, dark mode, VoiceOver, and both languages.
 - Do use `ContentUnavailableView` for empty states.
 - Don't put white text on orange or on light red.
+- Don't use red tints as backgrounds for cards or secondary buttons. Use `Theme.surface` and `Theme.fill`.
 - Don't use fixed font sizes for text, or `.caption` for anything users must read.
 - Don't use a symbol that could scare or mislead. For example, avoid a syringe for a diabetes **tablet**.
 - Don't hide features on iPhone that exist on iPad.
