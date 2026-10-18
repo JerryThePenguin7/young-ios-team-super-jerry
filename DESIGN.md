@@ -169,6 +169,9 @@ The page is one column on iPhone and iPad (at most 800 pt wide), since the two b
 We design for them **quietly**: Jenny looks like a normal Apple app, but every detail works for weaker eyes, shakier hands and less confidence with technology:
 
 - Text is big and grows with the iPhone/iPad text-size setting (Dynamic Type), up to the accessibility sizes.
+  **Settings ▸ ขนาดตัวอักษร** (`TextSize`) sets it for Jenny only: ตามเครื่อง (follows the device, up to AX3), ปกติ, ใหญ่, ใหญ่มาก,
+  ใหญ่พิเศษ (AX1) or ใหญ่ที่สุด (AX2), applied with `.dynamicTypeSize` at the root. Things pinned to the screen stop growing
+  so the content stays visible: the Log / Your Medications buttons at AX1, the scan bar at AX2, day circles at xxLarge.
 - Main tap targets are **60 pt** tall, and nothing you tap is smaller than **44 pt** (Apple's minimum). Aim for 52 pt or more.
 - **One language at a time**: all Thai or all English, picked in Settings (or the first tutorial page). Write every string as `language("ไทย", "English")`.
 - Each screen has **one** obvious next step.
@@ -235,7 +238,9 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 |---|---|---|
 | Home buttons | `ContentView.swift` (`tabButtons`) | Log / Your Medications, at least 60 pt: the icon above the words, both centered. Side by side (one above the other with very big text), pinned with `safeAreaInset(edge: .top)` on `.bar` |
 | Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`) from the first launch. One `.glassProminent` green button; a `confirmationDialog` offers Take photo / Choose from Photos (`photosPicker(isPresented:)`). Max 560 pt wide |
-| Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken. Under it: "ใช้ยาแล้ว 3 จาก 4 ครั้ง" ("ใช้ยา", not "ทาน": drops and creams aren't eaten) |
+| Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken. Under it: "ใช้ยาแล้ว 3 จาก 4 ครั้ง" ("ใช้ยา", not "ทาน": drops and creams aren't eaten). The date on top (with a green ⌄) opens the month calendar |
+| Month calendar | `Views/MonthCalendarSheet.swift` | A popover on iPad, a sheet on iPhone. One white card per month ("ตุลาคม 2569"), scroll up for earlier months (up to a year, from the first medicine). Each day has its ring (`DayRing`); tap a day to see it. Days to come are dimmed |
+| Text size | `Models/TextSize.swift`, `SettingsView.swift` | An inline list in Settings; each choice is drawn at its own size |
 | Meal card (Log) | `Views/MealCard.swift` | A white card per meal: meal name + badge + round **…** (full sheet), then parts in order: ก่อนอาหาร, the meal block (`Theme.fill`, fork and knife), พร้อมอาหาร / at the meal, หลังอาหาร, each with its time. One row per medicine: a 44 pt tick box (green ring), the name, the amount as bullets (`BulletList`, no meal word: the part says it), and alerts (`MedicineAlerts`). Tap = taken; press and hold = Taken / Skipped menu |
 | Meal times | `Views/MealTimesEditor.swift`, `Models/MealTimes.swift` | One time picker per meal and bedtime (24-hour in Thai). In the tutorial and Settings. Changing a time moves every tick with its meal |
 | When needed | `Views/AsNeededCard.swift`, `Views/DoseTimeline.swift` | A white card in Log: "ยาเมื่อมีอาการ", then per medicine the name, bullets (incl. "ห่างกันอย่างน้อย 6 ชั่วโมง"), alerts, a timeline on `fill` (doses → now → next allowed), and a full-width green **Taken** button. Too soon → an alert first |

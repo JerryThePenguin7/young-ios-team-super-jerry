@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Language, light or dark theme, meal times, Apple Reminders, read-aloud, the tutorial, erase everything, and the disclaimer.
+/// Language, text size, light or dark theme, meal times, Apple Reminders, read-aloud, the tutorial, erase everything,
+/// and the disclaimer.
 struct SettingsView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -9,6 +10,7 @@ struct SettingsView: View {
     @AppStorage("autoReadAloud") private var autoReadAloud = true
     @AppStorage(AppLanguage.storageKey) private var appLanguage = AppLanguage.deviceDefault
     @AppStorage(AppAppearance.storageKey) private var appearance = AppAppearance.automatic
+    @AppStorage(TextSize.storageKey) private var textSize = TextSize.system
     @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
 
     @State private var remindersResult: AppleReminders.Result?
@@ -31,6 +33,24 @@ struct SettingsView: View {
                 } footer: {
                     Text(language("Jenny จะแสดงและอ่านออกเสียงเป็นภาษาไทยทั้งหมด",
                                   "Jenny shows and reads everything in English."))
+                }
+
+                Section {
+                    // Each choice is shown at its own size, so it's easy to pick one you can read.
+                    Picker(language("ขนาดตัวอักษร", "Text size"), selection: $textSize) {
+                        ForEach(TextSize.allCases) { size in
+                            Text(size.name(language))
+                                .dynamicTypeSize(size.range)
+                                .tag(size)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                } header: {
+                    Text(language("ขนาดตัวอักษร", "Text size"))
+                } footer: {
+                    Text(language("ตัวอักษรทั้งแอปเปลี่ยนทันที \"ตามเครื่อง\" ใช้ขนาดจาก การตั้งค่า ▸ จอภาพและความสว่าง ▸ ขนาดข้อความ",
+                                  "All of Jenny's text changes right away. \"Same as iPad\" uses Settings ▸ Display & Brightness ▸ Text Size."))
                 }
 
                 Section {

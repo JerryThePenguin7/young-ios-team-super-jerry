@@ -35,6 +35,7 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
 
 ### How to use it (on the iPad)
 0. **First time:** a short tutorial shows how Jenny works. Pick **ภาษาไทย** or **English** on its first page (change it later in Settings).
+   **Settings ▸ ขนาดตัวอักษร (Text size)** makes all of Jenny's text bigger, from Normal up to Largest.
    The whole app switches: screens, the read-aloud voice, and the Apple Reminders text. The two languages are never mixed on one screen.
    The button at the top left switches between a light (white) and a dark (black) look.
 1. **Scan a label:** tap the red **Scan a medicine label** button at the bottom, then **Take photo** (allow the camera the first time)
@@ -45,6 +46,7 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
    Then **Save medicine**. If you already saved the same medicine, Jenny warns you first (**Add anyway** or **Cancel**).
 3. **Home** looks like the Health app's Medications page. Two big buttons at the top switch between **Log** and **Your Medications**.
    - **Log ▸ Today, October 18** and a week strip. Each day's circle fills up green as you take that day's doses. Tap a day to see its log.
+     Tap the date itself for a **calendar by month** to look further back.
    - **Log ▸ by meal:** one card per meal (Breakfast, Lunch, Dinner, Bedtime) at the times you eat (set in the tutorial or Settings).
      Before-meal medicines sit above the meal (30 minutes before), after-meal ones below it (15 minutes after).
      **Tick the box** next to a medicine when you've taken it. Press and hold to skip it; **…** opens the full sheet

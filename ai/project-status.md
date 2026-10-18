@@ -34,7 +34,7 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 ## The app today (main)
 
 - **Home** (`ContentView.swift`), Health-style:
-  - The day and a week strip (`WeekStrip`).
+  - The day and a week strip (`WeekStrip`). Tap the date for a calendar by month (`MonthCalendarSheet`).
   - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
   - **Log**: a **checklist per meal** (`MealCard`): ก่อนอาหาร, a meal block, then หลังอาหาร, at the user's meal times (`MealTimes`:
     before = 30 min before, after = 15 min after; bedtime never says "หลังอาหาร"). Tap a tick box to mark it taken (press and hold to skip;
@@ -59,7 +59,8 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 - **Camera:**
   - One floating Liquid Glass **scan button** at the bottom from the first launch (`ScanBar`): tap it, then Take photo or Choose from Photos.
 - **Scan result** (`ScanResultView`): what Jenny read, read aloud, Edit / Retake / Save.
-- **Medicine detail, editor, settings:** `MedicineDetailView`, `MedicineEditorView`, `SettingsView`.
+- **Medicine detail, editor, settings:** `MedicineDetailView`, `MedicineEditorView`, `SettingsView` (including **text size**, `TextSize`,
+  applied at the root with `.dynamicTypeSize`; pinned bars stop growing at AX1/AX2 so screens don't break).
 - **Look:**
   - Light-gray page, white cards, a soft gray fill, and red as the accent only (`Theme.swift`, `DESIGN.md`).
   - Works in dark mode, at the biggest text sizes, and on iPad (two columns).

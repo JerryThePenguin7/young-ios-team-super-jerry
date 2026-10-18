@@ -70,6 +70,13 @@ nonisolated enum AppLanguage: String, CaseIterable, Identifiable {
         return date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale, calendar: calendar))
     }
 
+    /// "October 2026" or "ตุลาคม 2569" (Buddhist year in Thai), for the month calendar.
+    func month(_ date: Date) -> String {
+        let calendar = Calendar(identifier: self == .thai ? .buddhist : .gregorian)
+        let style = Date.FormatStyle(date: .omitted, time: .omitted, locale: locale, calendar: calendar)
+        return date.formatted(style.month(.wide).year())
+    }
+
     /// "Friday, September 23" or "วันศุกร์ที่ 23 กันยายน"
     func longDay(_ day: Date) -> String {
         let date = day.formatted(.dateTime.month(.wide).day().locale(locale))
