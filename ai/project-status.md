@@ -37,12 +37,17 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - The day and a week strip (`WeekStrip`).
   - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
   - **Log**: a **checklist** per pill time (`LogTimeCard`): tap a medicine's tick box to mark it taken (press and hold to skip; **…** opens `DoseLogSheet`).
+  - **When needed** (`AsNeededCard`): medicines with no set time (paracetamol). A Taken button each, taken today, and "next dose after"
+    from the label's gap (`hoursApart`, "ห่างกันอย่างน้อย 6 ชม."); logging too soon asks first.
   - **Taken** (`LoggedCard`): ticked medicines, tap to undo.
   - **Your Medications**: a plain list of medicine cards in groups you can fold (the swipe stack was removed on request).
-  - **Medicine Storage**, a list: pills left, counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine (`MedicineStorageSection`, `StockEditorSheet`).
+  - **How many are left** (merged into Your Medications): on each card, and a card on the medicine's screen (`StockCard`, `StockEditorSheet`).
+    Counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine.
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
 - **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
 - **Label reading also keeps:** the directions word for word (`labelDirections`), "ข้างละ" doses per side (`perSide`, counted ×2 in storage),
+  the gap between "when needed" doses (`hoursApart`: "ห่างกันอย่างน้อย 6 ชม.", "ทุก 4-6 ชั่วโมง", "every 6 hours"),
+  the most a day as a warning ("ไม่เกินวันละ 8 เม็ด"),
   and the expiry date (`expiresOn`; "EXP 12/2027", "หมดอายุ 31/12/2569", "หมดอายุ 5 มี.ค. 70"…; Buddhist years converted).
 - **Same medicine twice:** saving a medicine that's already saved asks first (Add anyway / Cancel), on the scan result and when typing one in.
   - A disclaimer at the bottom.

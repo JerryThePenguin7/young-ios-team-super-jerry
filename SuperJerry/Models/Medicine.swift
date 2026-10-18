@@ -20,7 +20,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var route: String?          // how it's used: "หยอดตา", "ทาบาง ๆ", "สูด"… nil = by mouth
     var amountMax: Double?      // "ครั้งละ 1-2 เม็ด" → amount 1, amountMax 2
     var group: MedicineGroup?   // what it's for; nil until Jenny (or the AI) has grouped it
-    var stock: Double?          // how many are left (Medicine Storage); nil = not counted
+    var stock: Double?          // how many are left (shown on the medicine's screen); nil = not counted
     var stockFull: Double?      // how many there were at the last refill, for the bar
     var lowAt: Double?          // "Running low" at this many left, set by the user; nil = about a week's worth
     /// How to use it, word for word as printed on the label ("พ่นจมูก 2 ข้าง ข้างละ 2 ที").
@@ -28,6 +28,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var labelDirections: String?
     var perSide: Bool?          // "ข้างละ 2 ที": the amount is for each side (each eye, ear or nostril)
     var expiresOn: Date?        // the expiry date printed on the label
+    var hoursApart: Double?     // "ห่างกันอย่างน้อย 6 ชม.": the least time between "when needed" doses
 
     static let units = ["เม็ด", "แคปซูล", "หยด", "ช้อนชา", "ช้อนโต๊ะ", "ml", "ซอง", "พัฟ", "ที", "ครั้ง", "ยูนิต", ""]
     static let meals = ["", "ก่อนอาหาร", "หลังอาหาร", "พร้อมอาหาร"]
@@ -102,9 +103,10 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
             } else if !orderedSlots.isEmpty {
                 parts.append(orderedSlots.map(\.spokenThai).joined(separator: " และ"))
             }
+            if let apart = apartText(.thai) { parts.append(apart) }
             if !meal.isEmpty { parts.append(meal) }
         }
-        parts += cleanWarnings
+        parts += cleanWarnings()
         return parts.joined(separator: ". ")
     }
 }

@@ -2,7 +2,8 @@ import SwiftUI
 import UIKit
 
 /// One medicine in "Your Medications" (like the Health app): the label photo on the left, then the name
-/// with a read-aloud speaker next to it, the kind and strength, and when to take it. Tap it for details.
+/// with a read-aloud speaker next to it, the kind and strength, when to take it, and how many are left.
+/// Tap it for details (and to refill the count).
 struct MedicineCard: View {
     @Environment(\.language) private var language
     let medicine: Medicine
@@ -106,6 +107,10 @@ struct MedicineCard: View {
                 .foregroundStyle(.secondary)
             // Jenny's summary as bullets: how much, when, meals. The label's exact words are on the detail screen.
             BulletList(items: medicine.summaryBullets(language))
+            if medicine.stock != nil && medicine.canCountStock {
+                Label(medicine.stockText(language), systemImage: "shippingbox")
+                    .font(.callout.weight(.semibold))
+            }
             MedicineAlerts(medicine: medicine)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

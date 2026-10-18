@@ -5,6 +5,28 @@ nonisolated enum MedicineGroup: String, Codable, CaseIterable, Hashable {
     case heart, diabetes, cholesterol, stomach, pain, infection, breathing, brain
     case eyesEars, skin, vitamins, hormones, bonesJoints, urinary, herbal, other
 
+    /// A short Thai name for this kind of medicine, put in front of a foreign name: "ยาฆ่าเชื้อ (Xyz)". nil for "Other".
+    var kindName: String? {
+        switch self {
+        case .heart: "ยาหัวใจและความดัน"
+        case .diabetes: "ยาเบาหวาน"
+        case .cholesterol: "ยาลดไขมัน"
+        case .stomach: "ยากระเพาะและลำไส้"
+        case .pain: "ยาแก้ปวด ลดไข้"
+        case .infection: "ยาฆ่าเชื้อ"
+        case .breathing: "ยาแก้แพ้ แก้ไอ"
+        case .brain: "ยาระบบประสาท"
+        case .eyesEars: "ยาตาและหู"
+        case .skin: "ยาผิวหนัง"
+        case .vitamins: "วิตามิน"
+        case .hormones: "ยาฮอร์โมน"
+        case .bonesJoints: "ยากระดูกและข้อ"
+        case .urinary: "ยาทางเดินปัสสาวะ"
+        case .herbal: "ยาสมุนไพร"
+        case .other: nil
+        }
+    }
+
     var thai: String {
         switch self {
         case .heart: "หัวใจ หลอดเลือด และความดัน"

@@ -18,7 +18,7 @@ struct MedicineSection: Identifiable {
 /// The two halves of the home screen, switched with the two big buttons at the top.
 enum HomeTab: Hashable {
     case log           // the day's checklist
-    case medicines     // Your Medications and Medicine Storage
+    case medicines     // Your Medications (how many are left is on each medicine's screen)
 }
 
 /// Which log sheet to open: one time's medicines, or the "when needed" ones.
@@ -30,7 +30,7 @@ struct LogRequest: Identifiable {
 
 /// Home, laid out like the Health app's Medications page. Two big buttons at the top switch between
 /// **Log** (the day and week, then a checklist for each pill time and what's been taken) and
-/// **Your Medications** (the medicine stack and Medicine Storage). The red scan button floats at the bottom:
+/// **Your Medications** (every medicine, by group). The red scan button floats at the bottom:
 /// Jenny's main feature, photo → read the label → read aloud → save.
 struct ContentView: View {
     @Environment(MedicineStore.self) private var store
@@ -56,8 +56,6 @@ struct ContentView: View {
     @State private var collapsedGroups: Set<MedicineGroup> = []
     @State private var tab = HomeTab.log
     @State private var medicineToDelete: Medicine?
-    /// The medicine whose count is being set in Medicine Storage.
-    @State private var stockMedicine: Medicine?
     @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
     @State private var showingTutorial = false
 
@@ -116,9 +114,6 @@ struct ContentView: View {
             .sheet(isPresented: $showingSettings, onDismiss: showTutorialIfNeeded) {
                 SettingsView()
             }
-            .sheet(item: $stockMedicine) { medicine in
-                StockEditorSheet(medicine: medicine)
-            }
             .fullScreenCover(isPresented: $showingTutorial) {
                 TutorialView()
             }
@@ -162,11 +157,6 @@ struct ContentView: View {
                     }
                 case .medicines:
                     yourMedications
-                    if store.medicines.contains(where: \.canCountStock) {
-                        MedicineStorageSection { medicine in
-                            stockMedicine = medicine
-                        }
-                    }
                 }
 
                 Label(language("Jenny ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
@@ -257,7 +247,9 @@ struct ContentView: View {
             return open.isEmpty ? nil : DoseSlot(time: slot.time, medicines: open)
         }
         let logged = store.logged(on: day)
-        let hasAsNeeded = store.medicines.contains { $0.asNeeded }
+        let asNeeded = store.medicines
+            .filter(\.asNeeded)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         return VStack(alignment: .leading, spacing: 14) {
             if store.medicines.isEmpty {
@@ -287,8 +279,13 @@ struct ContentView: View {
                 }
             }
 
-            if isToday && hasAsNeeded {
-                asNeededCard(day: day)
+            // Medicines with no set time, like paracetamol: a Taken button each, and when they can be taken again.
+            if isToday && !asNeeded.isEmpty {
+                AsNeededCard(medicines: asNeeded, now: now) { medicine in
+                    withAnimation(.snappy) { store.logAsNeeded(medicine) }
+                } more: {
+                    logRequest = LogRequest(kind: .asNeeded, day: day)
+                }
             }
 
             if !logged.isEmpty {
@@ -307,27 +304,6 @@ struct ContentView: View {
         if statuses.contains(.dueNow) { return .dueNow }
         if statuses.contains(.missed) { return .missed }
         return .upcoming
-    }
-
-    private func asNeededCard(day: Date) -> some View {
-        Button {
-            logRequest = LogRequest(kind: .asNeeded, day: day)
-        } label: {
-            HStack {
-                Text(language("ยาเมื่อมีอาการ", "As Needed Medications"))
-                    .font(.title3)
-                Spacer(minLength: 8)
-                Image(systemName: "plus")
-                    .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
-                    .frame(width: 44, height: 44)
-                    .background(Theme.fill, in: Circle())
-            }
-            .padding(20)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        }
-        .buttonStyle(.plain)
     }
 
     private var remindersCard: some View {

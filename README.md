@@ -48,12 +48,13 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
    - **Log ▸ checklist:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take. **Tick the box** next to a
      medicine when you've taken it. Press and hold to skip it; **…** opens the full sheet (Log All as Taken, Skipped).
      A card says **Time to take** when it's due and **Late** if it was missed.
-   - **As Needed Medications:** log a "when needed" medicine (like Paracetamol) when you take it.
+   - **When needed (ยาเมื่อมีอาการ):** medicines with no set time, like Paracetamol. Tap **Taken** when you take one. Jenny shows
+     how many times today and, from the label ("ห่างกันอย่างน้อย 6 ชม."), when the next dose is allowed. Too soon? It asks first.
    - **Taken:** what you took (✓) or skipped, and how long ago. Tap a medicine to undo it.
    - **Your Medications ▸** each medicine with its label photo, kind and strength, and schedule, in groups (Heart,
      Diabetes, Eyes & ears…). Tap a group's header to fold it. The speaker next to a name reads it aloud.
      **Edit** lets you delete medicines.
-   - **Your Medications ▸ Medicine Storage:** tap a medicine and type how many you have. Each time you log **Taken** (the green button), Jenny takes
+   - **How many are left:** each medicine card shows the count. Tap a medicine, then **Add how many** in "How many are left". Each time you log **Taken** (the green button), Jenny takes
      one dose off by itself, and shows about how many days are left. Set **when to warn** for each
      medicine (e.g. at 10 or 5 left); until you do, "Running low" shows at about a week's worth.
 4. **Apple Reminders:** tap **Remind me in Reminders** (or Settings), and allow Full Access. Jenny makes a list

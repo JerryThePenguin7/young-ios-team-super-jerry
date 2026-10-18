@@ -132,8 +132,20 @@ final class MedicineStore {
         recordIndex(medicineID: medicineID, time: time, day: day).map { records[$0] }
     }
 
+    /// The last time this medicine was taken, on any day. For "when needed" medicines: when can it be taken again?
+    func lastTaken(_ medicineID: UUID) -> Date? {
+        records.filter { $0.medicineID == medicineID && !$0.isSkipped }.map(\.takenAt).max()
+    }
+
+    /// How many times this medicine was taken on this day.
+    func takenCount(of medicineID: UUID, on day: Date) -> Int {
+        records.filter { record in
+            record.medicineID == medicineID && !record.isSkipped && Calendar.current.isDate(record.day, inSameDayAs: day)
+        }.count
+    }
+
     /// Logs a dose as taken or skipped. nil clears the log.
-    /// Medicine Storage follows along: taken takes a dose off, un-taking puts it back.
+    /// The count of what's left follows along: taken takes a dose off, un-taking puts it back.
     func setLog(_ log: DoseLog?, for medicineID: UUID, at time: DoseTime, on day: Date) {
         let day = Calendar.current.startOfDay(for: day)
         let index = recordIndex(medicineID: medicineID, time: time, day: day)
@@ -152,7 +164,7 @@ final class MedicineStore {
         save()
     }
 
-    // MARK: Medicine Storage
+    // MARK: How many are left
 
     /// Sets how many are left, e.g. after a refill. nil stops counting this medicine.
     func setStock(_ count: Double?, for medicineID: UUID) {
