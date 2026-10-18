@@ -24,3 +24,6 @@ AICluster.swift
 
 # Finder aliases
 * alias
+
+# Python (the ui-ux-pro-max skill's scripts)
+__pycache__/
