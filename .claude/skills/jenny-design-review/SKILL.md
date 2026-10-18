@@ -56,10 +56,10 @@ Say which findings come from screenshots and which from reading code. The camera
    - Reduce Motion honored.
    - Contrast in both light and dark.
 2. **Fit for older users** (`docs/design/research.md` section 2):
-   - Tap targets: 60 pt for main buttons, nothing under 52 pt.
+   - Tap targets: 60 pt for main buttons, nothing under 44 pt (aim for 52 pt).
    - Labeled buttons rather than bare icons.
    - Taps only, with no hidden gestures.
-   - Thai first, then English.
+   - One language at a time, and both languages work. Switch with the globe menu and check for English left in Thai mode, and the other way round.
    - One obvious next step per screen.
    - Every state shown with an icon **and** a word.
    - Read aloud available.
@@ -71,8 +71,9 @@ Say which findings come from screenshots and which from reading code. The camera
    - Nothing under the Dynamic Island or the home indicator.
 4. **Follows DESIGN.md:**
    - Colors come from `Theme` only, never raw hex in Swift.
-   - The `.big` and `.bigProminent` button styles, with at most one filled red button per screen.
-   - `SummaryCard` for cards, corner radii from `Theme`, and no shadows.
+   - The components listed in DESIGN.md are reused (red box, Log cards, `BigButtonLabel`, `PillIcon`) instead of new one-off styles.
+   - One big red call to action per screen, continuous corners, and no shadows.
+   - Every string uses `language("ไทย", "English")`.
 5. **Adapts to the device:**
    - The iPad layout uses the extra width (grid, max width) instead of a stretched phone layout.
    - Rotation works.
@@ -82,11 +83,28 @@ Say which findings come from screenshots and which from reading code. The camera
    - Empty, loading, and error states handled (`ContentUnavailableView`, the "couldn't read the label" card).
    - "Not medical advice" on every screen with medicine facts.
    - "Stays on this device" visible.
-   - Easy undo, so tapping a dose again un-ticks it.
+   - Easy to change a log: tap a time in Logged, then switch between Taken and Skipped.
+
+### Anti-AI-slop check
+
+These patterns make an app look AI-generated instead of hand-made for Apple devices. Flag any you find:
+- A generic welcome or hero section that pushes the real content (today's pills) down. The content comes first.
+- Purple or blue gradients, neon on dark, or decorative gradients other than the red box.
+- Emoji used as icons instead of SF Symbols, or icons mixed from different styles.
+- Cards with a colored stripe down the left edge, cards inside cards, or every element in its own card.
+- Web-style controls: custom toggles, links styled as buttons, hover-only hints, a hamburger menu.
+- Custom fonts (Inter, Roboto…) instead of SF Pro.
+- Vague labels ("Submit", "OK", a bare "+") where a verb with an object would be clearer ("บันทึก", "Log").
+- Filler copy that says nothing ("Welcome to the best medicine app!").
+- Many different corner radii, paddings or reds, instead of the values in DESIGN.md.
+- Inconsistent wording: the same action named two ways ("Log" here, "Record" there).
+
+These rules are adapted from [wholiver/swiftui-design-skill](https://github.com/wholiver/swiftui-design-skill) (MIT) and [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0).
+Unlike those skills, Jenny keeps Dynamic Type text styles and `Theme` colors. Never fix slop with fixed font sizes or hex colors.
 
 ## 4. Test with Jenny's personas
 
-Walk through the core flow as each person: open the app → take a photo or pick one → result → save → tick a dose. Write down where each one would get stuck.
+Walk through the core flow as each person: open the app → take a photo or pick one → result → save → log a dose as taken (Log card → Taken → Done). Write down where each one would get stuck.
 
 - **คุณยายสมศรี, 72 (main user):**
   - Has diabetes and high blood pressure and takes 4 medicines.

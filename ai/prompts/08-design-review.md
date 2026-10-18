@@ -13,10 +13,13 @@ read Thai only, afraid of pressing the wrong thing), plus the family members who
 
 Score each area 0–4 with one line of reasoning:
 1. Accessibility (VoiceOver labels, Dynamic Type up to the largest size, Reduce Motion, contrast)
-2. Fit for older users (tap targets 60/52 pt, labeled buttons, taps only, Thai first, one obvious next step,
-   icon + word for every state)
+2. Fit for older users (tap targets 60 pt main / 44 pt minimum, labeled buttons, taps only, one obvious next step,
+   icon or word for every state, both Thai and English work)
 3. Apple platform fit (native controls, SF Symbols, sheets, large titles, safe areas)
-4. Follows DESIGN.md (Theme colors only, .big/.bigProminent buttons, one filled red button, SummaryCard)
+4. Follows DESIGN.md (Theme colors only, reuses the red box / Log cards / BigButtonLabel / PillIcon,
+   one big red call to action, every string in language("ไทย", "English"))
+   Also flag "AI slop": generic hero sections, emoji icons, left-stripe cards, cards in cards, custom fonts,
+   vague labels like a bare "+", filler copy, many different corner radii or reds.
 5. Adapts to iPhone and iPad (no stretched phone layout on iPad)
 6. Clarity and trust (empty/loading/error states, "not medical advice", "stays on this device", easy undo)
 

@@ -56,7 +56,7 @@ def main():
         medicine("Amlodipine", "5 mg", 1, ["morning"], "หลังอาหาร", added),
         medicine("Simvastatin", "20 mg", 0.5, ["bedtime"], "", added, ["ห้ามทานกับน้ำเกรพฟรุต"]),
     ]
-    # Amlodipine was taken this morning, so the Today card shows a mix of states.
+    # Amlodipine was taken this morning, so the Log shows a mix of states.
     records = [{
         "id": str(uuid.uuid4()).upper(),
         "medicineID": medicines[1]["id"],

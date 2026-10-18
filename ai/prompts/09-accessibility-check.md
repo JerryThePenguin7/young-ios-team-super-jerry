@@ -16,13 +16,14 @@ For each item, answer Pass / Fail / Needs iPad test, with the file:line for ever
 5. Reduced Motion: are custom animations turned off when Reduce Motion is on?
 6. Dark Interface: do all colors come from Theme / Assets with a dark version?
 7. Voice Control: does every button have a visible name you could say ("Tap Read aloud")?
-8. Touch targets: is anything you can tap smaller than 52 × 52 pt?
+8. Touch targets: is anything you can tap smaller than 44 × 44 pt? (We aim for 52 pt or more.)
+9. Both languages: switch the globe menu to ภาษาไทย and to English. Is any text left in the other language?
 
 Then list the fixes from most to least important for older users. Wait for my approval.
 ```
 
 Then by hand on the iPad (Settings ▸ Accessibility):
-- [ ] **VoiceOver** on: do the whole flow (photo → result → save → tick a dose) with your eyes closed
+- [ ] **VoiceOver** on: do the whole flow (photo → result → save → Log card → Taken → Done) with your eyes closed
 - [ ] **Display & Text Size ▸ Larger Text** at the maximum: every screen still readable
 - [ ] **Bold Text**, **Increase Contrast**, and **Reduce Motion** on: nothing breaks
 - [ ] **Voice Control**: say "Tap ถ่ายรูปซองยา"

@@ -28,27 +28,27 @@ Every claim links to its source. Numbers marked **(secondary)** come from a sear
 
 | Topic | What the research says | Source | Jenny today |
 |---|---|---|---|
-| **Text size** | Studies with people aged 62–84 on iPads recommend about **18 pt**, and reviews give 14–22 pt for English text. One reading study notes that very large text slows reading, so "bigger may not always mean better" | [Font-size review, PMC9376262](https://pmc.ncbi.nlm.nih.gov/articles/PMC9376262/), including Chatrangsan & Petrie (2019) | ✅ The smallest text we use is `.body` (17 pt) and it grows with Dynamic Type. Key facts use `.title3` or larger |
-| **Let users choose the size** | Make it easy to change the text size | [Toptal guide](https://www.toptal.com/designers/ui/ui-design-for-older-adults); [Liu et al. 2021](https://pmc.ncbi.nlm.nih.gov/articles/PMC8510293/) | ✅ Dynamic Type, and layouts stack at accessibility sizes |
-| **Touch targets** | Treat 44 pt as the bare minimum for older users and add spacing between controls | [Toptal guide](https://www.toptal.com/designers/ui/ui-design-for-older-adults); [systematic review 2025](https://link.springer.com/article/10.1007/s40520-025-03157-7) | ✅ 52–60 pt |
-| **Simple taps** | Use simple taps, avoid zoom and complex gestures, use large labeled buttons | [Liu et al. 2021, JAMIA](https://pmc.ncbi.nlm.nih.gov/articles/PMC8510293/) (74 studies) | ✅ Tap-only. ⚠️ Settings and Add in the toolbar are icon-only |
+| **Text size** | Studies with people aged 62–84 on iPads recommend about **18 pt**, and reviews give 14–22 pt for English text. One reading study notes that very large text slows reading, so "bigger may not always mean better" | [Font-size review, PMC9376262](https://pmc.ncbi.nlm.nih.gov/articles/PMC9376262/), including Chatrangsan & Petrie (2019) | ✅ Rows use `.title3` (20 pt) and grow with Dynamic Type. ⚠️ The Late badge uses `.caption` |
+| **Let users choose the size** | Make it easy to change the text size | [Toptal guide](https://www.toptal.com/designers/ui/ui-design-for-older-adults); [Liu et al. 2021](https://pmc.ncbi.nlm.nih.gov/articles/PMC8510293/) | ✅ Dynamic Type. ⚠️ The week strip and the red box squeeze at accessibility sizes |
+| **Touch targets** | Treat 44 pt as the bare minimum for older users and add spacing between controls | [Toptal guide](https://www.toptal.com/designers/ui/ui-design-for-older-adults); [systematic review 2025](https://link.springer.com/article/10.1007/s40520-025-03157-7) | ✅ 60 pt main buttons |
+| **Simple taps** | Use simple taps, avoid zoom and complex gestures, use large labeled buttons | [Liu et al. 2021, JAMIA](https://pmc.ncbi.nlm.nih.gov/articles/PMC8510293/) (74 studies) | ✅ Tap-only. ⚠️ Log cards use a bare "+", and the toolbar buttons are icon-only |
 | **Flat navigation** | Put the main functions on the home screen, use few menus and a clear back button | Liu et al. 2021 | ✅ Everything starts on one home screen |
 | **Text style** | Sans-serif, bold for key points, avoid italics and ALL CAPS | Liu et al. 2021 | ✅ SF Pro, bold key facts |
-| **Contrast** | Dark text on a light background, a limited palette | Liu et al. 2021 | ✅ Orange and green only on icons, never text |
+| **Contrast** | Dark text on a light background, a limited palette | Liu et al. 2021 | ⚠️ White text on the orange Late badge is too hard to read |
 | **Less typing** | Use voice and button inputs instead of typing | Liu et al. 2021 | ✅ The camera does the typing. Read aloud is built in |
 | **Audio** | Offer audio and vibration alongside visuals | Liu et al. 2021 | ✅ Thai read-aloud plus success haptics |
-| **Reminders** | Reminders improved medication adherence in several studies | Liu et al. 2021 | ✅ One notification per pill time |
+| **Reminders** | Reminders improved medication adherence in several studies | Liu et al. 2021 | ✅ Pill times go into Apple's Reminders app |
 | **Family** | Older adults value family and caregiver support | [Buawangpong 2025](https://pmc.ncbi.nlm.nih.gov/articles/PMC11908770/); Liu et al. 2021 | ❌ Not yet (idea below) |
 
 ## 3. What Apple Health's Medications feature does (and what users complain about)
 
 Source: [Apple Support: Add and log medications](https://support.apple.com/en-ca/105064); [TidBITS review and user thread](https://tidbits.com/2022/10/07/an-apple-a-day-ios-16-medications-feature-provides-alerts-logging-and-peace-of-mind/)
 
-- **Taken *and* Skipped.** You can log a dose as Taken or Skipped, and you can fix the time it was taken. Jenny only has Taken.
+- **Taken *and* Skipped.** You can log a dose as Taken or Skipped, and you can fix the time it was taken. ✅ Jenny's log sheet has both (from PR #2).
 - **Follow-up reminder.** Health can remind you again 30 minutes later if you haven't logged the dose. Jenny reminds you only once.
-- **Answer from the notification.** On iPhone you reply Taken or Skipped right from the notification. Jenny makes you open the app.
+- **Answer from the notification.** On iPhone you reply Taken or Skipped right from the notification. Jenny uses Apple Reminders, which can be ticked but doesn't update Jenny's log.
 - **User complaints:**
-  - Logging a dose outside a reminder takes too many taps. Jenny's Today card already fixes this.
+  - Logging a dose outside a reminder takes too many taps. Jenny's Log cards on the home screen fix this.
   - Notifications vanish after a few minutes, with no badge.
   - Multi-dose schedules are awkward to set up.
 
@@ -82,11 +82,13 @@ Source: [Apple Support: Add and log medications](https://support.apple.com/en-ca
 
 Ranked by impact for our users and for judging:
 
-1. **Answer from the notification:** "ทานแล้ว · Taken" and "เตือนอีก 10 นาที · Remind me in 10 min" buttons on the reminder (actionable notifications, `UNNotificationAction`).
-   - Health does this, and it saves an older user from finding and opening the app.
-   - Test on the iPad, because notification delivery isn't guaranteed. Source: [Apple: Declaring actionable notification types](https://developer.apple.com/documentation/usernotifications/declaring-your-actionable-notification-types)
-2. **Follow-up reminder** 30 minutes later if a dose isn't ticked, like Health.
+1. **Ticking a reminder logs the dose.** Since PR #2, Jenny puts pill times in Apple's Reminders app (they also show on an Apple Watch).
+   - When the user ticks one off there, Jenny could read the completed reminder (EventKit) and log the dose as Taken.
+   - Then the grandmother only has one place to tick, like answering a Health notification with "Taken".
+   - The other way is actionable notifications ("ทานแล้ว", "เตือนอีก 10 นาที"), but those would replace the Reminders approach. That's a team decision.
+     Source: [Apple: Declaring actionable notification types](https://developer.apple.com/documentation/usernotifications/declaring-your-actionable-notification-types)
+2. **Follow-up reminder** 30 minutes later if a dose isn't logged, like Health.
 3. **Meal-timing pictograms** (before, after or with food) on the result and detail screens, backed by the Thai pictogram trials above.
-4. **"ข้าม · Skip"** next to "ทานแล้ว", so a skipped dose isn't shown as "late" all day.
+4. ~~"ข้าม · Skip"~~: done in PR #2 (the log sheet has Skipped / Taken).
 5. **Labeled toolbar buttons**, or the Large Content Viewer for Settings and Add, since older users do better with labeled buttons (Liu 2021).
 6. **Family summary:** a share button that sends today's ticks to a family member through the share sheet. It stays private because the user chooses to send it.
