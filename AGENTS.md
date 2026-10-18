@@ -66,6 +66,9 @@ The 3 options are a **menu, not a checklist**. Use the one that fits the problem
 - Skills in `.claude/skills/`:
   - `jenny-design-review` (ours): use it to review or critique any screen.
   - Third-party, MIT: `swiftui-pro` (SwiftUI code), `ios-design-guidelines`, `ipados-design-guidelines` (Apple HIG rules). Don't edit their files.
+  - Third-party, MIT: `ui-ux-pro-max`, a searchable UX/accessibility database. Run it from the repo root:
+    `python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --domain ux` or `--stack swiftui`.
+    Never use `--design-system --persist` (DESIGN.md is our design system), and ignore its web-only advice (see its `SOURCE.md`).
   - **Our rules beat any skill.** `swiftui-pro` assumes iOS 27 and Swift 6.4, but we stay on iOS 26 and code that Xcode 26 can build.
     If a HIG skill disagrees with `DESIGN.md`, follow `DESIGN.md`.
 

@@ -59,6 +59,8 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 - `.claude/skills/`:
   - `jenny-design-review` (ours): screenshots, scores, personas, an anti-AI-slop check.
   - `swiftui-pro`, `ios-design-guidelines`, `ipados-design-guidelines`: third-party, MIT.
+  - `ui-ux-pro-max`: third-party, MIT. A searchable database of 119 UX guidelines plus SwiftUI tips
+    (`python3 .claude/skills/ui-ux-pro-max/scripts/search.py "touch target" --domain ux`). Lookups only; DESIGN.md wins.
 - `ai/prompts/01–11`: copy-paste prompts for other tools (feature, bug, design review, accessibility, user test…).
 
 ## How to build and check
