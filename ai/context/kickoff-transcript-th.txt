@@ -1,4 +1,4 @@
-# Kickoff briefing — raw auto-transcript (Thai, Whisper large-v3). Noisy; see COMPETITION.md for the cleaned summary.
+# Kickoff briefing — raw auto-transcript (Thai, Whisper large-v3). Noisy; see competition-brief.md for the cleaned summary.
 
 [01:00] อยากสร้างแอมป์หัวส่ง อยากสร้างแอมป์ช้อมปิ๊ก
 [01:03] อันนี้สิ้นไทยเลย

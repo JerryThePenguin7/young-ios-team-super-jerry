@@ -9,15 +9,74 @@ The theme is AI that runs on Apple devices.
 - Rules every AI coding agent follows: [AGENTS.md](AGENTS.md)
 - Copy-paste prompts for the team: [ai/prompts/](ai/prompts/)
 
-## The idea
+## The idea: Jenny 💊
 
-> _TODO: fill in once we pick it (first task on Day 1)._
+> Take a photo of a medicine envelope, and Jenny reads it out loud in big, clear Thai, then remembers it for you.
 
-- **Who has the problem:**
-- **The problem:**
-- **Our solution (one core feature):**
-- **AI we use and why:** pick what fits: Foundation Models / Core ML + sensors / AI cluster (not all 3 required)
-- **Impact (numbers!):**
+- **Who has the problem:** older people (e.g. our grandparents) who take several medicines every day.
+- **The problem:** the labels are tiny, the drug names are in English, and every envelope looks the same,
+  so they take the wrong pill, at the wrong time, or forget it.
+- **Our solution (one core feature): the camera.** Open Jenny and tap the big **ถ่ายรูปซองยา** button.
+  Take a photo of a Thai medicine envelope, and Jenny shows **huge text** (what, how many, when) and **reads it aloud in Thai**.
+  Tap **Save**, and the medicine is kept with its label photo, sorted into a group (heart, diabetes, eyes…).
+  Jenny puts it in **Apple Reminders**, which reminds you at each pill time.
+- **AI we use and why:** Apple's **Vision** reads the label text on the device (a neural network on the Neural Engine),
+  then our **Thai label rules** understand it ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"). It all works offline, and health data never leaves the device.
+  We tested Apple's on-device language model (Foundation Models): it doesn't support Thai and it blocked medicine text as
+  "sensitive content", so the rules do the understanding. See [docs/pill-reader/ai-explained.md](docs/pill-reader/ai-explained.md).
+  Names come from a **medicine name list** in the app (486 medicines: common hospital medicines, Thai herbal medicines like
+  มะแว้ง/MAWANG and ฟ้าทะลายโจร, eye drops, creams, inhalers). Vision gets the list as custom words, and Jenny matches it
+  against the label even with OCR spelling mistakes. Grow it from the official TMT list: see "Medicine names" below.
+- **Impact (numbers!):** _TODO: run the impact test in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 3.3 and put the numbers here._
+
+The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is named Jenny.
+
+### How to use it (on the iPad)
+0. **Language:** tap the globe (top left) and pick **ภาษาไทย** or **English** (also in Settings). The whole app switches:
+   screens, the read-aloud voice, and the Apple Reminders text. The two languages are never mixed on one screen.
+1. **The red box:** tap **Take photo** (the first time, allow the camera), or **Choose from Photos**.
+   Fill the photo with the label, in good light.
+2. **Result:** Jenny reads the label aloud (turn this off in Settings). Tap **Read aloud** to hear it again.
+   Fix anything with **Edit**, or **Retake**. Then **Save medicine**.
+3. **Home** looks like the Health app's Medications page:
+   - **Today, October 18** and a week strip. Each day's circle fills up red as you take that day's doses. Tap a day to see its log.
+   - **Log:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take. Tap it, then **Taken** or **Skipped** for each
+     medicine (or **Log All as Taken**), then **Done**. A card says **Time to take** when it's due and **Late** if it was missed.
+   - **As Needed Medications:** log a "when needed" medicine (like Paracetamol) when you take it.
+   - **Logged:** what you took (✓) or skipped, and how long ago. Tap a time to change it.
+   - **Your Medications:** each medicine with its label photo, kind and strength, and schedule, in groups (Heart, Diabetes,
+     Eyes & ears…). The speaker button reads it aloud. **Edit** lets you delete medicines.
+   On iPad the log and your medicines are side by side.
+4. **Apple Reminders:** tap **Remind me in Reminders** (or Settings), and allow Full Access. Jenny makes a list
+   called **Jenny Medicines** (ยา Jenny in Thai) with a repeating reminder per medicine per time (8:00, 12:00, 18:00, 21:00),
+   each with an alert. Tick them off in Reminders (they also show on an Apple Watch). Jenny sends no notifications of its own.
+5. **Tap a medicine** to see the big photo, how and when to take it, today's ticks, the scanned text, edit it, or delete it.
+
+No camera (e.g. the simulator)? The big button picks a photo from the library instead. To test, print the 5 fake envelopes
+in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 10.1 (made-up data only, PDPA).
+
+### Medicine names (and how to add more)
+The list is [SuperJerry/Understanding/medicine-names.json](SuperJerry/Understanding/medicine-names.json). Each medicine has a
+`name`, other spellings in `aliases` (Thai or English), a short friendly Thai description in `thai` (general categories only),
+and an optional `form` (`eyeDrops`, `topical`, `inhaler`… which sets หยด, ทา, พัฟ).
+- **Add one by hand:** copy an entry in the JSON, change it, build again.
+- **Add thousands from TMT** (Thai Medicines Terminology, the official Thai drug list): make a free account at
+  [this.or.th](https://this.or.th/service/tmt/download/), download the latest release zip, unzip it, then run
+  `python3 tools/tmt_to_medicine_names.py ~/Downloads/TMTRF…` and build again. Check TMT's license before sharing the data.
+- **Jenny also learns:** a name you saved (or corrected) once is recognised the next time you scan that envelope.
+
+### Groups and Core AI
+Every medicine in the name list has a group, and unknown ones are grouped by how they're used (eye drops → ตาและหู, creams → ผิวหนัง).
+Only medicines Jenny still can't place go to an on-device AI: **Core AI** (iOS 27) if it's set up, otherwise Apple Intelligence
+for English names, otherwise "อื่น ๆ" (you can change the group in Edit). The result screen says who grouped it.
+
+**Turning on Core AI (optional, on the M-chip Mac with Xcode 27, as in handbook workshop 3):**
+1. File ▸ Add Package Dependencies… → `https://github.com/apple/coreai-models.git` → product **CoreAILM** → SuperJerry target.
+   (This is a new package, so the team agrees first. Intel Macs on Xcode 26 still build, because the code is behind `#if canImport`.)
+2. Get the model folder `qwen3_0_6b_mixed_4bit_8bit_static` (~430 MB) from a TA. Drag the **whole folder** into Xcode as a
+   **folder reference** (blue folder), target SuperJerry.
+3. Signing & Capabilities ▸ **+ Capability** ▸ **Increased Memory Limit**. (Untested with a free Personal Team; ask a TA if it fails.)
+4. Run on the iPad (iOS 27). The first grouping is slow while Core AI prepares the model. If the model isn't there, Jenny just skips it.
 
 ## Team
 
@@ -38,7 +97,7 @@ If Xcode 27 asks to "update to recommended settings / project format," click **N
 
 ```bash
 git clone <this repo url>
-cd SuperJerry
+cd young-ios-team-super-jerry
 open SuperJerry.xcodeproj
 ```
 

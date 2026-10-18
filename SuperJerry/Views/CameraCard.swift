@@ -1,0 +1,79 @@
+import SwiftUI
+import PhotosUI
+
+/// The big red box, Jenny's main feature: take a photo of a medicine envelope, or choose one from Photos.
+struct CameraCard: View {
+    @Environment(\.language) private var language
+    @Binding var photoItem: PhotosPickerItem?
+    let takePhoto: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 16) {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 28, weight: .semibold))
+                    .frame(width: 60, height: 60)
+                    .background(Color.white.opacity(0.2), in: Circle())
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(language("ถ่ายรูปซองยา", "Scan a medicine label"))
+                        .font(.title2.bold())
+                    Text(language("Jenny จะอ่านฉลาก อ่านออกเสียง และบันทึกยาให้คุณ",
+                                  "Jenny reads the label, reads it aloud, and saves the medicine."))
+                        .font(.subheadline.weight(.medium))
+                        .opacity(0.9)
+                }
+            }
+
+            // Side by side on iPad, one above the other on a narrow iPhone.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { buttons }
+                VStack(spacing: 12) { buttons }
+            }
+        }
+        .foregroundStyle(.white)
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.card.gradient, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var buttons: some View {
+        // No camera (e.g. the simulator)? Then "Choose from Photos" becomes the main button.
+        if CameraPicker.isAvailable {
+            Button(action: takePhoto) {
+                boxButton(title: language("ถ่ายรูป", "Take photo"), symbol: "camera.fill", main: true)
+            }
+            .buttonStyle(.plain)
+        }
+        PhotosPicker(selection: $photoItem, matching: .images) {
+            boxButton(title: language("เลือกจากคลังภาพ", "Choose from Photos"), symbol: "photo.on.rectangle",
+                      main: !CameraPicker.isAvailable)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// White button for the main action, white-outlined for the other one.
+    private func boxButton(title: String, symbol: String, main: Bool) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.title3.bold())
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .frame(maxWidth: .infinity, minHeight: 60)
+            .padding(.horizontal, 12)
+            .foregroundStyle(main ? Theme.card : Color.white)
+            .background(main ? Color.white : Color.white.opacity(0.15),
+                        in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.white.opacity(main ? 0 : 0.85), lineWidth: 2)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+}
+
+#Preview {
+    CameraCard(photoItem: .constant(nil), takePhoto: {})
+        .padding()
+        .environment(\.language, .english)
+}

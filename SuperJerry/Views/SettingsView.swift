@@ -1,0 +1,107 @@
+import SwiftUI
+
+/// Language, Apple Reminders, read-aloud, erase everything, and the disclaimer.
+struct SettingsView: View {
+    @Environment(MedicineStore.self) private var store
+    @Environment(\.language) private var language
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
+    @AppStorage("autoReadAloud") private var autoReadAloud = true
+    @AppStorage(AppLanguage.storageKey) private var appLanguage = AppLanguage.deviceDefault
+
+    @State private var remindersResult: AppleReminders.Result?
+    @State private var showingEraseConfirmation = false
+
+    var body: some View {
+        @Bindable var store = store
+
+        NavigationStack {
+            Form {
+                Section {
+                    Picker(language("ภาษา", "Language"), selection: $appLanguage) {
+                        ForEach(AppLanguage.allCases) { option in
+                            Text(option.name).tag(option)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text(language("ภาษา", "Language"))
+                } footer: {
+                    Text(language("Jenny จะแสดงและอ่านออกเสียงเป็นภาษาไทยทั้งหมด",
+                                  "Jenny shows and reads everything in English."))
+                }
+
+                Section {
+                    Toggle(language("เพิ่มในแอปเตือนความจำ", "Add to Apple Reminders"), isOn: $store.remindersEnabled)
+                    Button(language("เปิดแอปเตือนความจำ", "Open Reminders"), systemImage: "checklist") {
+                        if let url = AppleReminders.appURL { openURL(url) }
+                    }
+                } header: {
+                    Text(language("การเตือน", "Reminders"))
+                } footer: {
+                    Text(language(
+                        "Jenny ใส่ยาแต่ละตัวไว้ในรายการ \"\(AppleReminders.listTitle)\" ของแอปเตือนความจำ เตือนทุกวันเวลา \(reminderTimes) ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว ถ้าปิดตัวเลือกนี้ Jenny จะลบการเตือนออก",
+                        "Jenny puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert: \(reminderTimes). Tick it off in Reminders when you take it. Turning this off takes Jenny's reminders out again."))
+                }
+
+                Section {
+                    Toggle(language("อ่านออกเสียงหลังถ่ายรูป", "Read aloud after each photo"), isOn: $autoReadAloud)
+                } header: {
+                    Text(language("เสียง", "Voice"))
+                } footer: {
+                    Text(language("ใช้เสียงภาษาไทยที่มีในเครื่อง ถ้าเสียงฟังไม่ชัด ให้เพิ่มเสียงภาษาไทยที่ การตั้งค่า ▸ การช่วยการเข้าถึง ▸ เนื้อหาที่พูด ▸ เสียง",
+                                  "Uses the English voice built into this device. To change it, go to Settings ▸ Accessibility ▸ Spoken Content ▸ Voices."))
+                }
+
+                Section {
+                    Button(language("ลบข้อมูลทั้งหมด", "Erase all medicines"), systemImage: "trash", role: .destructive) {
+                        showingEraseConfirmation = true
+                    }
+                } footer: {
+                    Text(language("ยาและรูปฉลากของคุณเก็บไว้ในเครื่องนี้เท่านั้น",
+                                  "Your medicines and label photos are saved on this device only."))
+                }
+
+                Section(language("เกี่ยวกับ", "About")) {
+                    Text(language("Jenny โดยทีม Super Jerry (YIDH26) ช่วยอ่านฉลากยาเพื่อให้คุณจำยาได้ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามแพทย์หรือเภสัชกรเมื่อไม่แน่ใจ",
+                                  "Jenny by Team Super Jerry (YIDH26). Jenny reads medicine labels to help you remember them. It is not medical advice: always check the real label, and ask your doctor or pharmacist if unsure."))
+                        .font(.callout)
+                }
+            }
+            .tint(Theme.red)
+            .navigationTitle(language("ตั้งค่า", "Settings"))
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(language("เสร็จ", "Done")) { dismiss() }
+                }
+            }
+            .onChange(of: store.remindersEnabled) {
+                Task { await applyReminders() }
+            }
+            .remindersAlert(result: $remindersResult)
+            .confirmationDialog(language("ลบยาและรูปทั้งหมด?", "Erase all medicines and photos?"),
+                                isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
+                Button(language("ลบทั้งหมด", "Erase everything"), role: .destructive) {
+                    store.eraseAll()
+                }
+            }
+        }
+    }
+
+    /// "เช้า 08:00 น. · กลางวัน 12:00 น. · …" or "Morning 8:00 AM · Noon 12:00 PM · …"
+    private var reminderTimes: String {
+        TimeSlot.allCases.map { "\($0.name(language)) \($0.time.label(language))" }.joined(separator: " · ")
+    }
+
+    private func applyReminders() async {
+        if let result = await store.applyReminderSetting() {
+            remindersResult = result
+        }
+    }
+}
+
+#Preview {
+    SettingsView()
+        .environment(MedicineStore.preview())
+        .environment(\.language, .english)
+}
