@@ -58,7 +58,7 @@ struct LogTimeCard: View {
                     .foregroundStyle(canLog ? Theme.green : Color.secondary)
                     .frame(width: 44, height: 44)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(medicine.displayName(language))
+                    Text(medicine.title(language))
                         .font(.title3)
                     // Jenny's summary as bullets (the time is already this card's title).
                     // The label's exact words are on the medicine's own screen.
@@ -79,7 +79,7 @@ struct LogTimeCard: View {
                 Button(language("ข้าม", "Skipped"), systemImage: "xmark.circle") { skip(medicine) }
             }
         }
-        .accessibilityLabel(medicine.displayName(language))
+        .accessibilityLabel(medicine.title(language))
         .accessibilityValue(language("ยังไม่ได้ทาน", "Not taken yet"))
         .accessibilityHint(language("แตะสองครั้งเมื่อทานแล้ว", "Double-tap when you've taken it"))
         .accessibilityAction(named: language("ข้าม", "Skipped")) { skip(medicine) }

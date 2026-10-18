@@ -70,7 +70,7 @@ struct LoggedCard: View {
                     .font(.system(size: 30))
                     .foregroundStyle(dose.record.isSkipped ? Color.secondary : Theme.green)
                     .frame(width: 44, height: 44)
-                Text(dose.medicine.displayName(language))
+                Text(dose.medicine.title(language))
                     .font(.title3)
                     .strikethrough(dose.record.isSkipped, color: .secondary)
                 if dose.record.isSkipped {
@@ -83,7 +83,7 @@ struct LoggedCard: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(dose.medicine.displayName(language))
+        .accessibilityLabel(dose.medicine.title(language))
         .accessibilityValue(dose.record.isSkipped ? language("ข้าม", "Skipped") : language("ทานแล้ว", "Taken"))
         .accessibilityHint(language("แตะสองครั้งเพื่อยกเลิก", "Double-tap to undo"))
     }

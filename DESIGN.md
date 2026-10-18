@@ -230,6 +230,10 @@ Pill icons use a soft red gradient (`Theme.card.gradient`).
   The summary must never drop a detail: "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must never become "พ่นจมูก 2 ครั้ง".
 - **Show what matters before the tick:** expired or expiring soon, running low, and the label's warnings appear under the medicine's
   name in the checklist and on its card (`MedicineAlerts`).
+- **Say what a foreign name is.** In Thai, lists show what the medicine is first, then its name in brackets:
+  "ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)" (`Medicine.title`, from the name list). Thai names like "ฟ้าทะลายโจร" stay as they are.
+- **Bullets are in the main text color** (black, or white in dark mode), not gray, so they're easy to read. The envelope's
+  "หมายเหตุ" heading is left out of warnings (`cleanWarnings`); the note itself is kept.
 
 - Do write every string as `language("ไทย", "English")`, and check both languages.
 - Do pair every color with an SF Symbol or a word.

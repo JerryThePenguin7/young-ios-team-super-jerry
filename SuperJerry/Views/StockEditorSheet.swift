@@ -25,7 +25,7 @@ struct StockEditorSheet: View {
                     HStack(spacing: 14) {
                         PillIcon(medicine: medicine, size: 52)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(medicine.displayName(language))
+                            Text(medicine.title(language))
                                 .font(.title3.bold())
                             Text(medicine.formLine(language))
                                 .foregroundStyle(.secondary)

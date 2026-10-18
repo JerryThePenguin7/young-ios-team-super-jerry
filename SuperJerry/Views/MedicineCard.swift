@@ -18,7 +18,7 @@ struct MedicineCard: View {
                 // The name with the read-aloud button right next to it.
                 HStack(alignment: .center, spacing: 4) {
                     link {
-                        Text(medicine.displayName(language))
+                        Text(medicine.title(language))
                             .font(.title3.bold())
                             .multilineTextAlignment(.leading)
                     }

@@ -122,7 +122,7 @@ struct DoseLogSheet: View {
                     PillIcon(medicine: medicine, size: 72)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(medicine.displayName(language))
+                    Text(medicine.title(language))
                         .font(.title2.bold())
                     Text(medicine.formLine(language))
                         .foregroundStyle(.secondary)
