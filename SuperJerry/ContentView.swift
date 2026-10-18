@@ -31,6 +31,7 @@ struct ContentView: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var showingCamera = false
     @State private var cameraImage: UIImage?
@@ -45,6 +46,8 @@ struct ContentView: View {
     @State private var selectedDay: Date?
     @State private var logRequest: LogRequest?
     @State private var isEditing = false
+    /// Groups in "Your Medications" that are folded closed.
+    @State private var collapsedGroups: Set<MedicineGroup> = []
     @State private var medicineToDelete: Medicine?
 
     var body: some View {
@@ -134,6 +137,12 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 28) {
                 WeekStrip(selectedDay: dayBinding(now: now), now: now)
 
+                // First time: the full red box explains what Jenny does. After that, the camera
+                // floats at the bottom (ScanBar) so the day's log comes first.
+                if store.medicines.isEmpty {
+                    CameraCard(photoItem: $photoItem, takePhoto: openCamera)
+                }
+
                 if sizeClass == .regular {
                     HStack(alignment: .top, spacing: 28) {
                         logColumn(day: day, now: now)
@@ -154,6 +163,11 @@ struct ContentView: View {
             .frame(maxWidth: 1100)
             .frame(maxWidth: .infinity)
         }
+        .safeAreaInset(edge: .bottom) {
+            if !store.medicines.isEmpty {
+                ScanBar(photoItem: $photoItem, takePhoto: openCamera)
+            }
+        }
         .sensoryFeedback(.success, trigger: store.records.count)
     }
 
@@ -169,13 +183,12 @@ struct ContentView: View {
 
     private func logColumn(day: Date, now: Date) -> some View {
         VStack(alignment: .leading, spacing: 28) {
-            CameraCard(photoItem: $photoItem, takePhoto: openCamera)
             logSection(day: day, now: now)
             if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
                 remindersCard
             }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     private func logSection(day: Date, now: Date) -> some View {
@@ -243,11 +256,13 @@ struct ContentView: View {
                     .font(.title3)
                 Spacer(minLength: 8)
                 Image(systemName: "plus")
-                    .font(.title2.weight(.semibold))
+                    .font(.title3.bold())
                     .foregroundStyle(Theme.red)
+                    .frame(width: 44, height: 44)
+                    .background(Theme.fill, in: Circle())
             }
             .padding(20)
-            .background(Theme.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -267,7 +282,7 @@ struct ContentView: View {
                     .font(.title2)
                     .foregroundStyle(Theme.red)
                     .frame(width: 48, height: 48)
-                    .background(Theme.red.opacity(0.12), in: Circle())
+                    .background(Theme.fill, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
                     Text(language("เตือนในแอปเตือนความจำ", "Remind me in Reminders"))
                         .font(.headline)
@@ -277,9 +292,11 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
-                Image(systemName: "plus.circle.fill")
-                    .font(.title2)
+                Image(systemName: "plus")
+                    .font(.title3.bold())
                     .foregroundStyle(Theme.red)
+                    .frame(width: 44, height: 44)
+                    .background(Theme.fill, in: Circle())
             }
             .padding(20)
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -314,20 +331,54 @@ struct ContentView: View {
                 )
             } else {
                 ForEach(sections) { section in
+                    let isOpen = !collapsedGroups.contains(section.group)
                     VStack(alignment: .leading, spacing: 12) {
-                        Label(section.group.name(language), systemImage: section.group.symbol)
-                            .font(.headline)
-                            .foregroundStyle(Theme.red)
-                        ForEach(section.medicines) { medicine in
-                            MedicineCard(medicine: medicine, isEditing: isEditing) {
-                                medicineToDelete = medicine
+                        sectionHeader(section, isOpen: isOpen)
+                        if isOpen {
+                            ForEach(section.medicines) { medicine in
+                                MedicineCard(medicine: medicine, isEditing: isEditing) {
+                                    medicineToDelete = medicine
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    /// A group's header ("❤️ Heart & blood pressure  2  ⌄"). Tap it to fold the group open or closed.
+    private func sectionHeader(_ section: MedicineSection, isOpen: Bool) -> some View {
+        Button {
+            withAnimation(reduceMotion ? nil : .snappy) {
+                if isOpen {
+                    collapsedGroups.insert(section.group)
+                } else {
+                    collapsedGroups.remove(section.group)
+                }
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Label(section.group.name(language), systemImage: section.group.symbol)
+                    .font(.headline)
+                    .foregroundStyle(Theme.red)
+                Spacer(minLength: 8)
+                Text("\(section.medicines.count)")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.down")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.secondary)
+                    .rotationEffect(.degrees(isOpen ? 0 : -90))
+            }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityValue(isOpen ? language("แสดงอยู่", "Expanded") : language("ซ่อนอยู่", "Collapsed"))
+        .accessibilityHint(language("แตะเพื่อแสดงหรือซ่อนยากลุ่มนี้", "Tap to show or hide these medicines"))
     }
 
     /// Medicines grouped by what they're for, in a fixed order. Not grouped yet → "Other".

@@ -133,7 +133,7 @@ struct DoseLogSheet: View {
                         .font(.title3)
                         .foregroundStyle(Theme.red)
                         .frame(width: 50, height: 50)
-                        .background(Theme.red.opacity(0.12), in: Circle())
+                        .background(Theme.fill, in: Circle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))
@@ -190,7 +190,7 @@ struct DoseLogSheet: View {
                 .font(.title3.bold())
                 .frame(maxWidth: .infinity, minHeight: 56)
                 .foregroundStyle(selected ? Color.white : Theme.red)
-                .background(selected ? Theme.card : Theme.red.opacity(0.12),
+                .background(selected ? Theme.card : Theme.fill,
                             in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }

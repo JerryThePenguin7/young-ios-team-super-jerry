@@ -12,6 +12,7 @@ struct LoggedCard: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(language("บันทึกแล้ว", "Logged"))
                 .font(.headline)
+                .foregroundStyle(.secondary)
                 .padding(.bottom, 12)
             ForEach(logged) { group in
                 Divider()
@@ -25,7 +26,7 @@ struct LoggedCard: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
     private func row(_ group: LoggedTime) -> some View {

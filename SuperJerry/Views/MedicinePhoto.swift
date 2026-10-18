@@ -17,7 +17,7 @@ struct MedicinePhoto: View {
                     .font(.system(size: size * 0.4))
                     .foregroundStyle(Theme.red)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Theme.red.opacity(0.12))
+                    .background(Theme.fill)
             }
         }
         .frame(width: size, height: size)

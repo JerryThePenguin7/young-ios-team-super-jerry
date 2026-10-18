@@ -13,7 +13,7 @@ struct BigButtonLabel: View {
             .frame(maxWidth: .infinity, minHeight: 60)
             .padding(.horizontal, 8)
             .foregroundStyle(filled ? Color.white : Theme.red)
-            .background(filled ? Theme.card : Theme.red.opacity(0.12),
+            .background(filled ? Theme.card : Theme.fill,
                         in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }

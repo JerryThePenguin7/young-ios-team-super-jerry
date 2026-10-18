@@ -80,7 +80,7 @@ struct DoseChips: View {
         case .taken: Theme.card
         case .due: Theme.red.opacity(0.12)
         case .missed: Color.orange.opacity(0.12)
-        case .plain: Theme.red.opacity(0.08)
+        case .plain: Theme.fill
         }
     }
 

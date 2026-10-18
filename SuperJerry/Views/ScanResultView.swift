@@ -252,7 +252,7 @@ struct ScanResultView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .foregroundStyle(Theme.red)
-            .background(Theme.red.opacity(0.12), in: Capsule())
+            .background(Theme.fill, in: Capsule())
     }
 
     private func checkNote(_ text: String) -> some View {
