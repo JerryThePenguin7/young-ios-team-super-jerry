@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSCameraUsageDescription" : {
+      "comment" : "Privacy - Camera Usage Description",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenny uses the camera to read the label on your medicine envelope."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenny ใช้กล้องเพื่ออ่านฉลากบนซองยาของคุณ"
+          }
+        }
+      }
+    },
+    "NSRemindersFullAccessUsageDescription" : {
+      "comment" : "Privacy - Reminders Full Access Usage Description",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenny adds your medicines to the Reminders app, so it can remind you at each pill time."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenny เพิ่มยาของคุณลงในแอปเตือนความจำ เพื่อเตือนทุกเวลาทานยา"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

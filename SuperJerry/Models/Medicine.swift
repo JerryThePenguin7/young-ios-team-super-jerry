@@ -102,9 +102,9 @@ nonisolated struct DoseTime: Codable, Hashable, Comparable {
         Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: day) ?? day
     }
 
-    /// "8:00 AM" or "08:00", following the device's settings.
-    var label: String {
-        date(on: Date()).formatted(date: .omitted, time: .shortened)
+    /// "8:00 AM" in English, "08:00 น." in Thai.
+    func label(_ language: AppLanguage) -> String {
+        language.time(date(on: Date()))
     }
 
     var periodSymbol: String {
@@ -117,30 +117,53 @@ nonisolated struct DoseTime: Codable, Hashable, Comparable {
     }
 }
 
-/// Proof that a dose was taken on a given day.
+/// What the user logged for one dose: taken or skipped, and when.
 nonisolated struct DoseRecord: Identifiable, Codable, Hashable {
     var id = UUID()
     var medicineID: UUID
     var time: DoseTime
     /// Start of the day the dose belongs to.
     var day: Date
+    /// When it was logged (the time it was taken).
     var takenAt: Date
+    /// true = the user chose "Skipped". Optional so files saved by older versions still load.
+    var skipped: Bool? = nil
+
+    var isSkipped: Bool { skipped == true }
 }
 
-nonisolated enum DoseStatus: Hashable {
+/// What the user chooses in the log sheet.
+nonisolated enum DoseLog: Hashable {
     case taken(at: Date)
-    case dueNow
-    case missed
-    case upcoming
+    case skipped
+
+    init(_ record: DoseRecord) {
+        self = record.isSkipped ? .skipped : .taken(at: record.takenAt)
+    }
 
     var isTaken: Bool {
         if case .taken = self { return true }
         return false
     }
+}
+
+nonisolated enum DoseStatus: Hashable {
+    case taken(at: Date)
+    case skipped
+    case dueNow
+    case missed
+    case upcoming
+
+    var isLogged: Bool {
+        switch self {
+        case .taken, .skipped: true
+        default: false
+        }
+    }
 
     /// Due from 30 minutes before the time; missed once it's more than 60 minutes late.
-    static func make(time: DoseTime, takenAt: Date?, day: Date, now: Date) -> DoseStatus {
-        if let takenAt { return .taken(at: takenAt) }
+    static func make(time: DoseTime, record: DoseRecord?, day: Date, now: Date) -> DoseStatus {
+        if let record { return record.isSkipped ? .skipped : .taken(at: record.takenAt) }
         let minutesLate = now.timeIntervalSince(time.date(on: day)) / 60
         if minutesLate > 60 { return .missed }
         if minutesLate >= -30 { return .dueNow }
@@ -148,11 +171,28 @@ nonisolated enum DoseStatus: Hashable {
     }
 }
 
-/// One medicine at one time today.
-nonisolated struct ScheduledDose: Identifiable, Hashable {
-    var medicine: Medicine
+/// The medicines to take at one time of day, e.g. 08:00: Amlodipine and Metformin.
+nonisolated struct DoseSlot: Identifiable, Hashable {
     var time: DoseTime
-    var status: DoseStatus
+    var medicines: [Medicine]
 
-    var id: String { "\(medicine.id.uuidString)-\(time.minutesFromMidnight)" }
+    var id: Int { time.minutesFromMidnight }
+}
+
+/// One logged dose, for the "Logged" card.
+nonisolated struct LoggedDose: Identifiable, Hashable {
+    var medicine: Medicine
+    var record: DoseRecord
+
+    var id: UUID { record.id }
+}
+
+/// Everything logged at one time of day.
+nonisolated struct LoggedTime: Identifiable, Hashable {
+    var time: DoseTime
+    var doses: [LoggedDose]
+
+    var id: Int { time.minutesFromMidnight }
+    /// The latest log, for "1 hr ago".
+    var loggedAt: Date { doses.map(\.record.takenAt).max() ?? Date() }
 }

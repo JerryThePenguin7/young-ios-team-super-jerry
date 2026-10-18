@@ -47,6 +47,10 @@ nonisolated enum MedicineGroup: String, Codable, CaseIterable, Hashable {
         }
     }
 
+    func name(_ language: AppLanguage) -> String {
+        language(thai, english)
+    }
+
     var symbol: String {
         switch self {
         case .heart: "heart.fill"
@@ -73,12 +77,12 @@ nonisolated enum MedicineGroup: String, Codable, CaseIterable, Hashable {
 nonisolated enum GroupSource {
     case nameList, rules, coreAI, appleIntelligence
 
-    var label: String {
+    func label(_ language: AppLanguage) -> String {
         switch self {
-        case .nameList: "จากรายชื่อยา · from the medicine list"
-        case .rules: "จากวิธีใช้ · from how it's used"
-        case .coreAI: "จัดโดย Core AI ในเครื่อง · by Core AI on this device"
-        case .appleIntelligence: "จัดโดย Apple Intelligence ในเครื่อง · by Apple Intelligence"
+        case .nameList: language("จากรายชื่อยา", "From the medicine list")
+        case .rules: language("จากวิธีใช้ยา", "From how it's used")
+        case .coreAI: language("จัดกลุ่มโดย Core AI ในเครื่อง", "Grouped by Core AI on this device")
+        case .appleIntelligence: language("จัดกลุ่มโดย Apple Intelligence ในเครื่อง", "Grouped by Apple Intelligence on this device")
         }
     }
 }

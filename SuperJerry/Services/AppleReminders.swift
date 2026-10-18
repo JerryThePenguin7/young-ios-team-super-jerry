@@ -4,7 +4,7 @@ import CoreGraphics
 import UserNotifications
 
 /// Puts Jenny's medicines into Apple's Reminders app: one repeating reminder per medicine per pill time,
-/// with an alert, in a list called "ยา · Jenny". The user ticks it off in Reminders when they've taken it,
+/// with an alert, in a list called "ยา Jenny" (or "Jenny Medicines" in English). The user ticks it off in Reminders when they've taken it,
 /// and it also shows on their Apple Watch and other Apple devices. Jenny sends no notifications itself.
 enum AppleReminders {
     enum Result {
@@ -14,7 +14,9 @@ enum AppleReminders {
         case failed(String)
     }
 
-    static let listTitle = "ยา · Jenny"
+    /// The list's name, in the app's language. The other names are ones Jenny used before.
+    static var listTitle: String { AppLanguage.current("ยา Jenny", "Jenny Medicines") }
+    private static let jennyListTitles: Set = ["ยา Jenny", "Jenny Medicines", "ยา · Jenny"]
     /// Opens the Reminders app.
     static let appURL = URL(string: "x-apple-reminderkit://")
 
@@ -78,15 +80,16 @@ enum AppleReminders {
     // MARK: Helpers
 
     private static func makeReminder(for medicine: Medicine, at slot: TimeSlot, in list: EKCalendar) -> EKReminder {
+        let language = AppLanguage.current
         let reminder = EKReminder(eventStore: store)
         reminder.calendar = list
-        reminder.title = "💊 \(medicine.name) · \(medicine.amountLine)"
+        reminder.title = "💊 \(medicine.displayName(language)) · \(medicine.amountLine(language))"
 
-        var notes = ["\(slot.thai) (\(slot.time.label))"]
-        if !medicine.meal.isEmpty { notes.append(medicine.meal) }
-        if let friendly = medicine.friendlyName { notes.append(friendly) }
-        notes += medicine.warnings
-        notes.append("เพิ่มโดยแอป Jenny · ไม่ใช่คำแนะนำทางการแพทย์")
+        var notes = ["\(slot.name(language)) (\(slot.time.label(language)))"]
+        if !medicine.meal.isEmpty { notes.append(Medicine.mealName(medicine.meal, language)) }
+        if let purpose = medicine.purpose(language) { notes.append(purpose) }
+        notes += medicine.warningLines(language)
+        notes.append(language("เพิ่มโดยแอป Jenny ไม่ใช่คำแนะนำทางการแพทย์", "Added by the Jenny app. Not medical advice."))
         reminder.notes = notes.joined(separator: "\n")
 
         reminder.dueDateComponents = Calendar.current.dateComponents(
@@ -112,12 +115,17 @@ enum AppleReminders {
         UserDefaults.standard.removeObject(forKey: itemIDsKey)
     }
 
-    /// The "ยา · Jenny" list, made the first time. Falls back to the default list if a new one can't be made.
+    /// Jenny's list, made the first time. Falls back to the default list if a new one can't be made.
     private static func jennyList() throws -> EKCalendar {
         if let id = UserDefaults.standard.string(forKey: listIDKey), let list = store.calendar(withIdentifier: id) {
+            // Switched language? Rename the list too (but never a name the user typed).
+            if list.title != listTitle && jennyListTitles.contains(list.title) {
+                list.title = listTitle
+                try? store.saveCalendar(list, commit: false)
+            }
             return list
         }
-        if let existing = store.calendars(for: .reminder).first(where: { $0.title == listTitle }) {
+        if let existing = store.calendars(for: .reminder).first(where: { jennyListTitles.contains($0.title) }) {
             UserDefaults.standard.set(existing.calendarIdentifier, forKey: listIDKey)
             return existing
         }

@@ -21,8 +21,8 @@ struct BigButtonLabel: View {
 
 #Preview {
     VStack(spacing: 12) {
-        BigButtonLabel(title: "บันทึกยา · Save medicine", symbol: "square.and.arrow.down.fill", filled: true)
-        BigButtonLabel(title: "อ่านออกเสียง · Read aloud", symbol: "speaker.wave.2.fill")
+        BigButtonLabel(title: "Save medicine", symbol: "square.and.arrow.down.fill", filled: true)
+        BigButtonLabel(title: "Read aloud", symbol: "speaker.wave.2.fill")
     }
     .padding()
 }

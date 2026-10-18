@@ -32,16 +32,25 @@ The theme is AI that runs on Apple devices.
 The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is named Jenny.
 
 ### How to use it (on the iPad)
-1. **The red box:** tap **ถ่ายรูป · Take photo** (the first time, allow the camera), or **เลือกรูปจากคลังภาพ · Choose from Photos**.
+0. **Language:** tap the globe (top left) and pick **ภาษาไทย** or **English** (also in Settings). The whole app switches:
+   screens, the read-aloud voice, and the Apple Reminders text. The two languages are never mixed on one screen.
+1. **The red box:** tap **Take photo** (the first time, allow the camera), or **Choose from Photos**.
    Fill the photo with the label, in good light.
-2. **Result:** Jenny reads the label aloud (turn this off in Settings). Tap **อ่านออกเสียง** to hear it again.
-   Fix anything with **แก้ไข · Edit**, or **ถ่ายใหม่ · Retake**. Then **บันทึกยา · Save medicine**.
-3. **Home ▸ ยาของฉัน · My medicines:** medicines are shown in groups (หัวใจ หลอดเลือด และความดัน, เบาหวาน, ตาและหู…), each with its
-   label photo. Tap a time chip (เช้า, เย็น…) to tick it as taken today. **ถึงเวลาทานยา · Time to take** appears when a dose is due.
-4. **Apple Reminders:** tap **เพิ่มในแอปเตือนความจำ · Add to Apple Reminders** (or Settings), and allow Full Access. Jenny makes a list
-   called **ยา · Jenny** with a repeating reminder per medicine per time (เช้า 08:00, กลางวัน 12:00, เย็น 18:00, ก่อนนอน 21:00),
+2. **Result:** Jenny reads the label aloud (turn this off in Settings). Tap **Read aloud** to hear it again.
+   Fix anything with **Edit**, or **Retake**. Then **Save medicine**.
+3. **Home** looks like the Health app's Medications page:
+   - **Today, October 18** and a week strip. Each day's circle fills up red as you take that day's doses. Tap a day to see its log.
+   - **Log:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take. Tap it, then **Taken** or **Skipped** for each
+     medicine (or **Log All as Taken**), then **Done**. A card says **Time to take** when it's due and **Late** if it was missed.
+   - **As Needed Medications:** log a "when needed" medicine (like Paracetamol) when you take it.
+   - **Logged:** what you took (✓) or skipped, and how long ago. Tap a time to change it.
+   - **Your Medications:** each medicine with its label photo, kind and strength, and schedule, in groups (Heart, Diabetes,
+     Eyes & ears…). The speaker button reads it aloud. **Edit** lets you delete medicines.
+   On iPad the log and your medicines are side by side.
+4. **Apple Reminders:** tap **Remind me in Reminders** (or Settings), and allow Full Access. Jenny makes a list
+   called **Jenny Medicines** (ยา Jenny in Thai) with a repeating reminder per medicine per time (8:00, 12:00, 18:00, 21:00),
    each with an alert. Tick them off in Reminders (they also show on an Apple Watch). Jenny sends no notifications of its own.
-5. **Tap a medicine** to see the big photo, the scanned text, edit it, or delete it.
+5. **Tap a medicine** to see the big photo, how and when to take it, today's ticks, the scanned text, edit it, or delete it.
 
 No camera (e.g. the simulator)? The big button picks a photo from the library instead. To test, print the 5 fake envelopes
 in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 10.1 (made-up data only, PDPA).

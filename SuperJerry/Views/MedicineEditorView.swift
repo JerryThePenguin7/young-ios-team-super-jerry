@@ -4,6 +4,7 @@ import UIKit
 /// Fix what the camera read, or type a medicine in by hand.
 struct MedicineEditorView: View {
     @Environment(MedicineStore.self) private var store
+    @Environment(\.language) private var language
     @Environment(\.dismiss) private var dismiss
 
     private let isNew: Bool
@@ -25,77 +26,81 @@ struct MedicineEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("ยา · Medicine") {
-                    TextField("ชื่อยา · Name, e.g. Metformin", text: $medicine.name)
+                Section(language("ยา", "Medicine")) {
+                    TextField(language("ชื่อยา เช่น Metformin", "Name, e.g. Metformin"), text: $medicine.name)
                         .font(.title3)
-                    TextField("ขนาด · Strength, e.g. 500 mg", text: $medicine.strength)
+                    TextField(language("ขนาดยา เช่น 500 mg", "Strength, e.g. 500 mg"), text: $medicine.strength)
                 }
 
-                Section("ครั้งละ · Each time") {
-                    Picker("วิธีใช้ · How it's used", selection: routeBinding) {
+                Section(language("ครั้งละ", "Each time")) {
+                    Picker(language("วิธีใช้", "How it's used"), selection: routeBinding) {
                         ForEach(routeOptions, id: \.self) { route in
-                            Text(route.isEmpty ? "กิน · By mouth" : route).tag(route)
+                            Text(Medicine.routeName(route, language)).tag(route)
                         }
                     }
                     Stepper(value: $medicine.amount, in: 0.5...20, step: 0.5) {
-                        Text(medicine.amountLine)
+                        Text(medicine.amountLine(language))
                             .font(.title3.bold())
                             .foregroundStyle(Theme.red)
                     }
                     .disabled(medicine.unit.isEmpty)
-                    Picker("หน่วย · Unit", selection: $medicine.unit) {
+                    Picker(language("หน่วย", "Unit"), selection: $medicine.unit) {
                         ForEach(unitOptions, id: \.self) { unit in
-                            Text(unit.isEmpty ? "ไม่นับจำนวน · No count (cream)" : unit).tag(unit)
+                            Text(unit.isEmpty ? language("ไม่นับจำนวน (ยาทา)", "No count (cream)")
+                                              : Medicine.unitName(unit, language, plural: true)).tag(unit)
                         }
                     }
                 }
 
                 Section {
-                    Toggle("เมื่อมีอาการ · Only when needed", isOn: $medicine.asNeeded)
+                    Toggle(language("ใช้เมื่อมีอาการเท่านั้น", "Only when needed"), isOn: $medicine.asNeeded)
                     if !medicine.asNeeded {
                         ForEach(TimeSlot.allCases, id: \.self) { slot in
                             Toggle(isOn: slotBinding(slot)) {
-                                Label("\(slot.thai) · \(slot.english) (\(slot.time.label))", systemImage: slot.symbol)
+                                Label("\(slot.name(language)) (\(slot.time.label(language)))", systemImage: slot.symbol)
                             }
                         }
                     }
                 } header: {
-                    Text("เวลาทานยา · When")
+                    Text(language("เวลาทานยา", "When"))
                 } footer: {
-                    Text("Jenny reminds you at these times. \"Only when needed\" medicines have no reminders.")
+                    Text(language("Jenny เตือนตามเวลาเหล่านี้ ยาที่ใช้เมื่อมีอาการจะไม่มีการเตือน",
+                                  "Jenny reminds you at these times. \"Only when needed\" medicines have no reminders."))
                 }
 
-                Section("กลุ่ม · Group") {
-                    Picker("ยานี้ใช้สำหรับ · What it's for", selection: groupBinding) {
+                Section(language("กลุ่มยา", "Group")) {
+                    Picker(language("ยานี้ใช้สำหรับ", "What it's for"), selection: groupBinding) {
                         ForEach(MedicineGroup.allCases, id: \.self) { group in
-                            Label(group.thai, systemImage: group.symbol).tag(group)
+                            Label(group.name(language), systemImage: group.symbol).tag(group)
                         }
                     }
                 }
 
-                Section("อาหาร · Meals") {
-                    Picker("ก่อน/หลังอาหาร · Meals", selection: $medicine.meal) {
+                Section(language("อาหาร", "Meals")) {
+                    Picker(language("ก่อนหรือหลังอาหาร", "Before or after meals"), selection: $medicine.meal) {
                         ForEach(mealOptions, id: \.self) { meal in
-                            Text(meal.isEmpty ? "ไม่ระบุ · Not stated" : meal).tag(meal)
+                            Text(Medicine.mealName(meal, language)).tag(meal)
                         }
                     }
                 }
 
                 Section {
-                    TextField("คำเตือน · Warnings, one per line", text: $warningsText, axis: .vertical)
+                    TextField(language("คำเตือน บรรทัดละหนึ่งข้อ", "Warnings, one per line"), text: $warningsText, axis: .vertical)
                         .lineLimit(2...6)
                 } header: {
-                    Text("คำเตือน · Warnings")
+                    Text(language("คำเตือน", "Warnings"))
+                } footer: {
+                    Text(language("พิมพ์ตามที่เขียนบนฉลาก", "Type them as printed on the label."))
                 }
             }
             .tint(Theme.red)
-            .navigationTitle(isNew ? "เพิ่มยา · New medicine" : "แก้ไข · Edit medicine")
+            .navigationTitle(isNew ? language("เพิ่มยา", "New medicine") : language("แก้ไขยา", "Edit medicine"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(language("ยกเลิก", "Cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { save() }
+                    Button(language("บันทึก", "Save")) { save() }
                         .disabled(medicine.name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
@@ -186,4 +191,5 @@ struct MedicineEditorView: View {
 #Preview("By hand") {
     MedicineEditorView(medicine: .blank, isNew: true)
         .environment(MedicineStore.preview(empty: true))
+        .environment(\.language, .english)
 }

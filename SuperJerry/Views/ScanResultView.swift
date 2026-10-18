@@ -5,6 +5,7 @@ import UIKit
 /// and Jenny shows it big and reads it aloud. Then save it, edit it, or retake the photo.
 struct ScanResultView: View {
     @Environment(MedicineStore.self) private var store
+    @Environment(\.language) private var language
     @Environment(\.dismiss) private var dismiss
     @AppStorage("autoReadAloud") private var autoReadAloud = true
 
@@ -33,11 +34,11 @@ struct ScanResultView: View {
                         .scaledToFit()
                         .frame(maxHeight: 300)
                         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
-                        .accessibilityLabel("Your photo of the label")
+                        .accessibilityLabel(language("รูปฉลากยาของคุณ", "Your photo of the label"))
 
                     switch phase {
                     case .reading:
-                        ProgressView("กำลังอ่านฉลากยา… · Reading the label…")
+                        ProgressView(language("กำลังอ่านฉลากยา…", "Reading the label…"))
                             .controlSize(.large)
                             .frame(maxWidth: .infinity, minHeight: 160)
                     case .found(let reading):
@@ -51,10 +52,11 @@ struct ScanResultView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Theme.background)
-            .navigationTitle("ผลการอ่าน · Result")
+            .navigationTitle(language("ผลการอ่านฉลาก", "Label result"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(language("ยกเลิก", "Cancel")) { dismiss() }
                 }
             }
             .task { await read() }
@@ -77,7 +79,7 @@ struct ScanResultView: View {
             let lines = try await readText(from: image)
             if let reading = LabelReader.read(lines, saved: store.medicines) {
                 phase = .found(reading)
-                if autoReadAloud { SpeechReader.shared.speak(reading.medicine.spokenThai) }
+                if autoReadAloud { SpeechReader.shared.read(reading.medicine, in: language) }
                 if reading.medicine.group == nil { await groupWithAI(reading) }
             } else {
                 phase = .notFound(scannedText: lines.joined(separator: "\n"))
@@ -114,44 +116,46 @@ struct ScanResultView: View {
             groupLine(reading)
 
             if reading.nameSource == .guess {
-                checkNote("ชื่อยาเป็นการเดา · โปรดตรวจสอบ (name guessed, please check)")
+                checkNote(language("ชื่อยาเป็นการเดา โปรดตรวจสอบ", "The name is a guess. Please check it."))
             }
             if reading.unitGuessed {
-                checkNote("ไม่พบหน่วยยา ใช้ \"\(medicine.unit)\" ไว้ก่อน · โปรดตรวจสอบ (unit guessed, please check)")
+                checkNote(language("ไม่พบหน่วยยา จึงใช้ \"\(medicine.unit)\" ไว้ก่อน โปรดตรวจสอบ",
+                                   "No unit on the label, so Jenny used \"\(Medicine.unitName(medicine.unit, .english))\". Please check it."))
             }
             if reading.timesGuessed {
-                checkNote("เดาเวลาจาก \"วันละ … ครั้ง\" · โปรดตรวจสอบ (times guessed, please check)")
+                checkNote(language("เดาเวลาจาก \"วันละ … ครั้ง\" โปรดตรวจสอบ",
+                                   "The times are a guess from \"… times a day\". Please check them."))
             }
 
             VStack(spacing: 12) {
                 Button {
-                    SpeechReader.shared.speak(medicine.spokenThai)
+                    SpeechReader.shared.read(medicine, in: language)
                 } label: {
-                    BigButtonLabel(title: "อ่านออกเสียง · Read aloud", symbol: "speaker.wave.2.fill")
+                    BigButtonLabel(title: language("อ่านออกเสียง", "Read aloud"), symbol: "speaker.wave.2.fill")
                 }
                 if medicine.name.isEmpty {
                     Button {
                         editingMedicine = medicine
                     } label: {
-                        BigButtonLabel(title: "ใส่ชื่อยาแล้วบันทึก · Add the name, then save", symbol: "pencil", filled: true)
+                        BigButtonLabel(title: language("ใส่ชื่อยาแล้วบันทึก", "Add the name, then save"), symbol: "pencil", filled: true)
                     }
                 } else {
                     Button {
                         save(medicine)
                     } label: {
-                        BigButtonLabel(title: "บันทึกยา · Save medicine", symbol: "square.and.arrow.down.fill", filled: true)
+                        BigButtonLabel(title: language("บันทึกยา", "Save medicine"), symbol: "square.and.arrow.down.fill", filled: true)
                     }
                 }
                 HStack(spacing: 12) {
                     Button {
                         editingMedicine = medicine
                     } label: {
-                        BigButtonLabel(title: "แก้ไข · Edit", symbol: "pencil")
+                        BigButtonLabel(title: language("แก้ไข", "Edit"), symbol: "pencil")
                     }
                     Button {
                         retake()
                     } label: {
-                        BigButtonLabel(title: "ถ่ายใหม่ · Retake", symbol: "camera.fill")
+                        BigButtonLabel(title: language("ถ่ายใหม่", "Retake"), symbol: "camera.fill")
                     }
                 }
             }
@@ -159,7 +163,8 @@ struct ScanResultView: View {
 
             scannedTextBox(medicine.scannedText)
 
-            Label("ตรวจกับฉลากจริงทุกครั้ง · ไม่ใช่คำแนะนำทางการแพทย์\nAlways check the real label. Not medical advice.",
+            Label(language("ตรวจกับฉลากจริงทุกครั้ง ไม่ใช่คำแนะนำทางการแพทย์",
+                           "Always check the real label. Not medical advice."),
                   systemImage: "info.circle")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -173,23 +178,24 @@ struct ScanResultView: View {
 
     private func notFoundCard(_ scannedText: String) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("ไม่พบข้อมูลยา · Jenny couldn't find a medicine label", systemImage: "exclamationmark.triangle.fill")
+            Label(language("ไม่พบข้อมูลยาในรูปนี้", "Jenny couldn't find a medicine label"), systemImage: "exclamationmark.triangle.fill")
                 .font(.title3.bold())
                 .foregroundStyle(.orange)
-            Text("ลองถ่ายใหม่ในที่สว่าง ให้ฉลากเต็มรูป และเอียงเล็กน้อยไม่ให้แสงสะท้อน\nTry again in good light. Fill the photo with the label, and tilt it a little to avoid glare.")
+            Text(language("ลองถ่ายใหม่ในที่สว่าง ให้ฉลากเต็มรูป และเอียงเล็กน้อยไม่ให้แสงสะท้อน",
+                          "Try again in good light. Fill the photo with the label, and tilt it a little to avoid glare."))
                 .font(.body)
 
             Button {
                 retake()
             } label: {
-                BigButtonLabel(title: "ถ่ายใหม่ · Retake", symbol: "camera.fill", filled: true)
+                BigButtonLabel(title: language("ถ่ายใหม่", "Retake"), symbol: "camera.fill", filled: true)
             }
             Button {
                 var medicine = Medicine.blank
                 medicine.scannedText = scannedText
                 editingMedicine = medicine
             } label: {
-                BigButtonLabel(title: "พิมพ์เอง · Type it in", symbol: "keyboard")
+                BigButtonLabel(title: language("พิมพ์เอง", "Type it in"), symbol: "keyboard")
             }
 
             if !scannedText.isEmpty {
@@ -202,16 +208,16 @@ struct ScanResultView: View {
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
-    /// "กลุ่ม: หัวใจ หลอดเลือด และความดัน" and who grouped it (the name list, how it's used, or the AI).
+    /// "Group: Heart & blood pressure" and who grouped it (the name list, how it's used, or the AI).
     @ViewBuilder
     private func groupLine(_ reading: LabelReading) -> some View {
         if let group = reading.medicine.group {
             VStack(alignment: .leading, spacing: 2) {
-                Label("กลุ่ม: \(group.thai) · \(group.english)", systemImage: group.symbol)
+                Label(language("กลุ่ม: \(group.thai)", "Group: \(group.english)"), systemImage: group.symbol)
                     .font(.headline)
                     .foregroundStyle(Theme.red)
                 if let source = reading.groupSource {
-                    Text(source.label)
+                    Text(source.label(language))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -219,12 +225,12 @@ struct ScanResultView: View {
         } else if isGrouping {
             HStack(spacing: 8) {
                 ProgressView()
-                Text("กำลังจัดกลุ่มด้วย AI ในเครื่อง… · Grouping with on-device AI…")
+                Text(language("กำลังจัดกลุ่มด้วย AI ในเครื่อง…", "Grouping with on-device AI…"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
         } else {
-            Label("กลุ่ม: อื่น ๆ · Other (change it with Edit)", systemImage: MedicineGroup.other.symbol)
+            Label(language("กลุ่ม: อื่น ๆ (เปลี่ยนได้ที่ แก้ไข)", "Group: Other (change it with Edit)"), systemImage: MedicineGroup.other.symbol)
                 .font(.headline)
                 .foregroundStyle(.secondary)
         }
@@ -232,11 +238,11 @@ struct ScanResultView: View {
 
     @ViewBuilder
     private func badges(for reading: LabelReading) -> some View {
-        badge("อ่านในเครื่อง · Read on this device", symbol: "lock.shield.fill")
+        badge(language("อ่านในเครื่องนี้", "Read on this device"), symbol: "lock.shield.fill")
         if reading.nameSource == .nameList {
-            badge("พบในรายชื่อยา · In the medicine list", symbol: "checkmark.seal.fill")
+            badge(language("พบในรายชื่อยา", "In the medicine list"), symbol: "checkmark.seal.fill")
         } else if reading.nameSource == .saved {
-            badge("ชื่อที่เคยบันทึก · Saved before", symbol: "clock.arrow.circlepath")
+            badge(language("ชื่อที่เคยบันทึก", "Saved before"), symbol: "clock.arrow.circlepath")
         }
     }
 
@@ -256,7 +262,7 @@ struct ScanResultView: View {
     }
 
     private func scannedTextBox(_ text: String) -> some View {
-        DisclosureGroup("ดูข้อความที่อ่านได้ · Show scanned text", isExpanded: $showingScannedText) {
+        DisclosureGroup(language("ข้อความที่อ่านได้จากฉลาก", "Text read from the label"), isExpanded: $showingScannedText) {
             Text(text)
                 .font(.callout.monospaced())
                 .textSelection(.enabled)
@@ -284,4 +290,5 @@ struct ScanResultView: View {
 #Preview {
     ScanResultView(image: UIImage(systemName: "doc.text.image") ?? UIImage(), onRetake: {})
         .environment(MedicineStore.preview(empty: true))
+        .environment(\.language, .english)
 }

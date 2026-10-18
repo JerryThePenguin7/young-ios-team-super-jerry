@@ -54,10 +54,14 @@ final class MedicineStore {
 
     private func medicinesChanged() {
         save()
-        if remindersEnabled {
-            let current = medicines
-            Task { _ = await AppleReminders.sync(current) }
-        }
+        refreshReminders()
+    }
+
+    /// Rewrites Jenny's reminders, e.g. after the user switches between Thai and English.
+    func refreshReminders() {
+        guard remindersEnabled else { return }
+        let current = medicines
+        Task { _ = await AppleReminders.sync(current) }
     }
 
     // MARK: Groups
@@ -93,41 +97,98 @@ final class MedicineStore {
         save()
     }
 
-    // MARK: Taken today
+    // MARK: Taken or skipped
 
+    /// Today's status of one dose, for the chips on a medicine.
     func status(of medicine: Medicine, at time: DoseTime, now: Date) -> DoseStatus {
         let day = Calendar.current.startOfDay(for: now)
-        let takenAt = recordIndex(medicineID: medicine.id, time: time, day: day).map { records[$0].takenAt }
-        let status = DoseStatus.make(time: time, takenAt: takenAt, day: day, now: now)
+        let status = DoseStatus.make(time: time, record: record(for: medicine.id, at: time, on: day), day: day, now: now)
         // A medicine added after this time today didn't miss it: it starts tomorrow.
         if status == .missed && medicine.addedAt > time.date(on: day) { return .upcoming }
         return status
     }
 
-    /// Ticks a dose as taken today, or un-ticks it.
-    func toggleTaken(_ medicine: Medicine, at time: DoseTime, now: Date = Date()) {
-        let day = Calendar.current.startOfDay(for: now)
-        if let index = recordIndex(medicineID: medicine.id, time: time, day: day) {
-            records.remove(at: index)
-        } else {
-            records.append(DoseRecord(medicineID: medicine.id, time: time, day: day, takenAt: now))
+    /// What the user logged for one dose on one day, if anything.
+    func record(for medicineID: UUID, at time: DoseTime, on day: Date) -> DoseRecord? {
+        recordIndex(medicineID: medicineID, time: time, day: day).map { records[$0] }
+    }
+
+    /// Logs a dose as taken or skipped. nil clears the log.
+    func setLog(_ log: DoseLog?, for medicineID: UUID, at time: DoseTime, on day: Date) {
+        let day = Calendar.current.startOfDay(for: day)
+        let index = recordIndex(medicineID: medicineID, time: time, day: day)
+        if let index { records.remove(at: index) }
+        switch log {
+        case .taken(let date):
+            records.append(DoseRecord(medicineID: medicineID, time: time, day: day, takenAt: date))
+        case .skipped:
+            records.append(DoseRecord(medicineID: medicineID, time: time, day: day, takenAt: Date(), skipped: true))
+        case nil:
+            break
         }
         save()
     }
 
-    /// Every dose today, in time order.
-    func doses(now: Date) -> [ScheduledDose] {
-        var result: [ScheduledDose] = []
-        for medicine in medicines {
-            for time in medicine.times {
-                result.append(ScheduledDose(medicine: medicine, time: time,
-                                            status: status(of: medicine, at: time, now: now)))
+    /// Ticks a dose as taken today, or clears it.
+    func toggleTaken(_ medicine: Medicine, at time: DoseTime, now: Date = Date()) {
+        let logged = record(for: medicine.id, at: time, on: now) != nil
+        setLog(logged ? nil : .taken(at: now), for: medicine.id, at: time, on: now)
+    }
+
+    /// A "when needed" medicine taken now. Each one is a new log.
+    func logAsNeeded(_ medicine: Medicine, now: Date = Date()) {
+        let parts = Calendar.current.dateComponents([.hour, .minute], from: now)
+        let time = DoseTime(hour: parts.hour ?? 0, minute: parts.minute ?? 0)
+        guard record(for: medicine.id, at: time, on: now) == nil else { return }
+        setLog(.taken(at: now), for: medicine.id, at: time, on: now)
+    }
+
+    // MARK: A day's schedule
+
+    /// The medicines to take at each time on this day, in time order.
+    /// A medicine only counts from the day it was added.
+    func schedule(on day: Date) -> [DoseSlot] {
+        let calendar = Calendar.current
+        let day = calendar.startOfDay(for: day)
+        let active = medicines.filter { calendar.startOfDay(for: $0.addedAt) <= day }
+        let times = Set(active.flatMap(\.times)).sorted()
+        return times.map { time in
+            DoseSlot(time: time, medicines: active.filter { $0.times.contains(time) }.sorted(by: Self.byName))
+        }
+    }
+
+    /// Everything logged on this day, by time.
+    func logged(on day: Date) -> [LoggedTime] {
+        let dayRecords = records.filter { Calendar.current.isDate($0.day, inSameDayAs: day) }
+        let byTime = Dictionary(grouping: dayRecords) { $0.time }
+        return byTime.keys.sorted().compactMap { time in
+            let doses = (byTime[time] ?? []).compactMap { record in
+                medicine(id: record.medicineID).map { LoggedDose(medicine: $0, record: record) }
             }
+            return doses.isEmpty ? nil : LoggedTime(time: time, doses: doses.sorted { Self.byName($0.medicine, $1.medicine) })
         }
-        return result.sorted { first, second in
-            if first.time != second.time { return first.time < second.time }
-            return first.medicine.name < second.medicine.name
+    }
+
+    /// For the log sheet: the medicines due at this time, plus "when needed" ones logged at this time.
+    func medicines(at time: DoseTime, on day: Date) -> [Medicine] {
+        let scheduled = schedule(on: day).first { $0.time == time }?.medicines ?? []
+        let loggedOthers = (logged(on: day).first { $0.time == time }?.doses ?? [])
+            .map(\.medicine)
+            .filter { medicine in !scheduled.contains { $0.id == medicine.id } }
+        return scheduled + loggedOthers
+    }
+
+    /// How much of the day's schedule was taken, from 0 to 1. nil if nothing was due that day.
+    func progress(on day: Date) -> Double? {
+        let slots = schedule(on: day)
+        let total = slots.reduce(0) { $0 + $1.medicines.count }
+        guard total > 0 else { return nil }
+        let taken = slots.reduce(0) { sum, slot in
+            sum + slot.medicines.filter { medicine in
+                record(for: medicine.id, at: slot.time, on: day).map { !$0.isSkipped } ?? false
+            }.count
         }
+        return Double(taken) / Double(total)
     }
 
     private func recordIndex(medicineID: UUID, time: DoseTime, day: Date) -> Int? {
@@ -135,6 +196,10 @@ final class MedicineStore {
             record.medicineID == medicineID && record.time == time
                 && Calendar.current.isDate(record.day, inSameDayAs: day)
         }
+    }
+
+    private nonisolated static func byName(_ first: Medicine, _ second: Medicine) -> Bool {
+        first.name.localizedStandardCompare(second.name) == .orderedAscending
     }
 
     // MARK: Reminders
