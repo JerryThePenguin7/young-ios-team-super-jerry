@@ -24,6 +24,7 @@ struct ScanResultView: View {
     @State private var savedFromEditor = false
     @State private var showingScannedText = false
     @State private var isGrouping = false
+    @State private var duplicateCheck: DuplicateCheck?
 
     var body: some View {
         NavigationStack {
@@ -60,6 +61,9 @@ struct ScanResultView: View {
                 }
             }
             .task { await read() }
+            .duplicateMedicineAlert(check: $duplicateCheck) { medicine in
+                save(medicine, evenIfSaved: true)
+            }
             .onDisappear { SpeechReader.shared.stop() }
             .sheet(item: $editingMedicine, onDismiss: {
                 if savedFromEditor { dismiss() }
@@ -115,6 +119,13 @@ struct ScanResultView: View {
             DoseChips(medicine: medicine)
             groupLine(reading)
 
+            if let saved = store.duplicate(of: medicine) {
+                checkNote(language("มียานี้อยู่แล้ว: \(saved.displayName(.thai)) \(saved.strength) ระวังทานซ้ำ",
+                                   "You already have this medicine: \(saved.displayName(.english)) \(saved.strength). Careful not to take it twice."))
+            }
+            if medicine.isExpired() {
+                checkNote(language("ยานี้หมดอายุแล้ว อย่าใช้ ถามเภสัชกร", "This medicine has expired. Don't use it; ask your pharmacist."))
+            }
             if reading.nameSource == .guess {
                 checkNote(language("ชื่อยาเป็นการเดา โปรดตรวจสอบ", "The name is a guess. Please check it."))
             }
@@ -274,10 +285,15 @@ struct ScanResultView: View {
 
     // MARK: Actions
 
-    private func save(_ medicine: Medicine) {
-        var saved = medicine
-        saved.photoFile = PhotoStore.save(image)
-        store.add(saved)
+    /// Asks first if the same medicine is already saved (Add anyway / Cancel).
+    private func save(_ medicine: Medicine, evenIfSaved: Bool = false) {
+        if !evenIfSaved, let saved = store.duplicate(of: medicine) {
+            duplicateCheck = DuplicateCheck(saved: saved, new: medicine)
+            return
+        }
+        var newMedicine = medicine
+        newMedicine.photoFile = PhotoStore.save(image)
+        store.add(newMedicine)
         dismiss()
     }
 

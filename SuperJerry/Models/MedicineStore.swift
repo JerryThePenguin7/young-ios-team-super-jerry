@@ -25,6 +25,20 @@ final class MedicineStore {
 
     // MARK: Editing medicines
 
+    /// A saved medicine that's the same as this one: the same name (ignoring capitals, spaces and the
+    /// Thai name in brackets), or two names for the same medicine in Jenny's list (e.g. a brand and its generic).
+    func duplicate(of medicine: Medicine) -> Medicine? {
+        let key = MedicineNames.matchKey(medicine.displayName(.english))
+        guard !medicine.name.isEmpty, !key.isEmpty else { return nil }
+        let listName = MedicineNames.entry(named: medicine.name)?.name
+        return medicines.first { saved in
+            guard saved.id != medicine.id else { return false }
+            if MedicineNames.matchKey(saved.displayName(.english)) == key { return true }
+            guard let listName else { return false }
+            return MedicineNames.entry(named: saved.name)?.name == listName
+        }
+    }
+
     /// Newest first, so a medicine you just scanned is at the top.
     func add(_ medicine: Medicine) {
         medicines.insert(medicine, at: 0)
@@ -159,7 +173,7 @@ final class MedicineStore {
     private func changeStock(of medicineID: UUID, takingDose: Bool) {
         guard let index = medicines.firstIndex(where: { $0.id == medicineID }),
               let stock = medicines[index].stock else { return }
-        let dose = medicines[index].amount
+        let dose = medicines[index].unitsPerDose
         medicines[index].stock = takingDose ? stock - dose : stock + dose
     }
 

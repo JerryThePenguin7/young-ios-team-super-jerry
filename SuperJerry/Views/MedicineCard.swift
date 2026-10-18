@@ -100,6 +100,9 @@ struct MedicineCard: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            if medicine.isExpired() || medicine.expiresSoon() {
+                ExpiryLabel(medicine: medicine)
+            }
             if medicine.isLowStock {
                 // Dark words with an orange icon: orange text is too hard to read.
                 Label {

@@ -40,8 +40,9 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
 1. **Scan a label:** the first time, the big red box at the top has **Take photo** (allow the camera) and **Choose from Photos**.
    Once you have medicines, the scan button floats at the bottom of the screen: **Scan a medicine label**, plus a round Photos button.
    Fill the photo with the label, in good light.
-2. **Result:** Jenny reads the label aloud (turn this off in Settings). Tap **Read aloud** to hear it again.
-   Fix anything with **Edit**, or **Retake**. Then **Save medicine**.
+2. **Result:** Jenny shows and reads aloud the label's directions **word for word** (never shortened), plus the expiry date
+   if the label has one ("EXP" / "หมดอายุ"). Tap **Read aloud** to hear it again. Fix anything with **Edit**, or **Retake**.
+   Then **Save medicine**. If you already saved the same medicine, Jenny warns you first (**Add anyway** or **Cancel**).
 3. **Home** looks like the Health app's Medications page:
    - **Today, October 18** and a week strip. Each day's circle fills up green as you take that day's doses. Tap a day to see its log.
    - **Log:** one card per time (8:00 AM, 6:00 PM…) with the medicines still to take and a round **+**. Tap it, then **Taken** or **Skipped** for each

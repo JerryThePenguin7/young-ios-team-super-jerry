@@ -83,9 +83,15 @@ enum AppleReminders {
         let language = AppLanguage.current
         let reminder = EKReminder(eventStore: store)
         reminder.calendar = list
-        reminder.title = "💊 \(medicine.displayName(language)) · \(medicine.amountLine(language))"
+        // Thai: the label's own words. English: Jenny's summary, with the label's words in the notes.
+        let instruction = medicine.instruction(language).replacingOccurrences(of: "\n", with: " ")
+        reminder.title = "💊 \(medicine.displayName(language)) · \(instruction)"
 
         var notes = ["\(slot.name(language)) (\(slot.time.label(language)))"]
+        if let directions = medicine.directions {
+            notes.append(language("ฉลากเขียนว่า: ", "The label says: ") + directions)
+        }
+        if let expiry = medicine.expiryText(language) { notes.append(expiry) }
         if !medicine.meal.isEmpty { notes.append(Medicine.mealName(medicine.meal, language)) }
         if let purpose = medicine.purpose(language) { notes.append(purpose) }
         notes += medicine.warningLines(language)

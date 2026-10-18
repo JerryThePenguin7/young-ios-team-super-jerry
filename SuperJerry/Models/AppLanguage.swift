@@ -64,6 +64,12 @@ nonisolated enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
+    /// "31 Dec 2027" or "31 ธ.ค. 2570" (Thai uses the Buddhist year, like Thai medicine labels).
+    func date(_ date: Date) -> String {
+        let calendar = Calendar(identifier: self == .thai ? .buddhist : .gregorian)
+        return date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale, calendar: calendar))
+    }
+
     /// "Friday, September 23" or "วันศุกร์ที่ 23 กันยายน"
     func longDay(_ day: Date) -> String {
         let date = day.formatted(.dateTime.month(.wide).day().locale(locale))

@@ -22,19 +22,29 @@ nonisolated extension Medicine {
         return first
     }
 
-    /// "ครั้งละ 1 เม็ด" or "1 tablet each time"; with how it's used: "Both eyes: 1 drop each time".
+    /// Jenny's summary: "ครั้งละ 1 เม็ด" or "1 tablet each time"; with how it's used: "Both nostrils: 2 sprays in each".
+    /// Where the label's own words are known, show `directions` too: this summary can't hold everything.
     func amountLine(_ language: AppLanguage) -> String {
         guard language == .english else { return amountLine }
         guard !unit.isEmpty else { return route.map { Self.routeName($0, .english) } ?? "Use as directed" }
-        let each = "\(doseText(.english)) each time"
+        // doseText already ends with "in each" for per-side doses.
+        let each = perSide == true ? doseText(.english) : "\(doseText(.english)) each time"
         return route.map { "\(Self.routeName($0, .english)): \(each)" } ?? each
     }
 
-    /// "1 เม็ด" or "1 tablet", for "1 tablet at 8:00 AM".
+    /// The main instruction to show: the label's own words in Thai, or Jenny's English summary.
+    func instruction(_ language: AppLanguage) -> String {
+        if language == .thai, let directions { return directions }
+        return amountLine(language)
+    }
+
+    /// "1 เม็ด", "ข้างละ 2 ที" or "1 tablet", for "1 tablet at 8:00 AM".
     func doseText(_ language: AppLanguage) -> String {
         guard !unit.isEmpty else { return language("ใช้ยา", "Used") }
         let plural = (amountMax ?? amount) > 1
-        return "\(amountText(language)) \(Self.unitName(unit, language, plural: plural))"
+        let dose = "\(amountText(language)) \(Self.unitName(unit, language, plural: plural))"
+        guard perSide == true else { return dose }
+        return language("ข้างละ \(dose)", "\(dose) in each")
     }
 
     /// "ยาเม็ด" or "Tablet", from how it's used and its unit.
@@ -42,9 +52,9 @@ nonisolated extension Medicine {
         let route = route ?? ""
         let names: (String, String) =
             if route.hasPrefix("หยอดตา") { ("ยาหยอดตา", "Eye drops") }
-            else if route == "หยอดหู" { ("ยาหยอดหู", "Ear drops") }
-            else if route == "หยอดจมูก" { ("ยาหยอดจมูก", "Nose drops") }
-            else if route == "พ่นจมูก" { ("ยาพ่นจมูก", "Nasal spray") }
+            else if route.hasPrefix("หยอดหู") { ("ยาหยอดหู", "Ear drops") }
+            else if route.hasPrefix("หยอดจมูก") { ("ยาหยอดจมูก", "Nose drops") }
+            else if route.hasPrefix("พ่นจมูก") { ("ยาพ่นจมูก", "Nasal spray") }
             else if route == "สูด" || unit == "พัฟ" { ("ยาสูด", "Inhaler") }
             else if route.hasPrefix("ทา") || (unit.isEmpty && route.isEmpty) { ("ยาทา", "Cream") }
             else if route == "อม" { ("ยาอม", "Lozenge") }
@@ -67,8 +77,8 @@ nonisolated extension Medicine {
     var formSymbol: String {
         let route = route ?? ""
         if route.hasPrefix("หยอดตา") { return "eye.fill" }
-        if route == "หยอดหู" { return "ear.fill" }
-        if route == "สูด" || route == "พ่นจมูก" || unit == "พัฟ" { return "lungs.fill" }
+        if route.hasPrefix("หยอดหู") { return "ear.fill" }
+        if route == "สูด" || route.hasPrefix("พ่นจมูก") || unit == "พัฟ" { return "lungs.fill" }
         if route.hasPrefix("ทา") || unit.isEmpty { return "hand.raised.fill" }
         if route == "ฉีด" || unit == "ยูนิต" { return "syringe.fill" }
         if unit == "หยด" || ["ช้อนชา", "ช้อนโต๊ะ", "ml"].contains(unit) { return "drop.fill" }
@@ -120,6 +130,8 @@ nonisolated extension Medicine {
         if !meal.isEmpty { parts.append(Self.mealName(meal, .english)) }
         // Only the warnings Jenny could translate: an English voice can't read Thai.
         parts += warnings.compactMap(Self.englishWarning)
+        if directions != nil { parts.append("Please check the exact words on the label") }
+        if let expiry = expiryText(.english) { parts.append(expiry) }
         return parts.joined(separator: ". ")
     }
 
@@ -127,6 +139,28 @@ nonisolated extension Medicine {
     private static func englishList(_ items: [String]) -> String {
         guard items.count > 2, let last = items.last else { return items.joined(separator: " and ") }
         return items.dropLast().joined(separator: ", ") + ", and " + last
+    }
+
+    // MARK: Expiry date
+
+    func isExpired(now: Date = Date()) -> Bool {
+        guard let expiresOn else { return false }
+        return Calendar.current.startOfDay(for: expiresOn) < Calendar.current.startOfDay(for: now)
+    }
+
+    /// Expires within 30 days (but not yet).
+    func expiresSoon(now: Date = Date()) -> Bool {
+        guard let expiresOn, !isExpired(now: now) else { return false }
+        return expiresOn.timeIntervalSince(now) < 30 * 24 * 60 * 60
+    }
+
+    /// "หมดอายุ 31 ธ.ค. 2570", "หมดอายุแล้ว (31 ธ.ค. 2568)", or "Expires 31 Dec 2027", "Expired on 31 Dec 2025".
+    func expiryText(_ language: AppLanguage, now: Date = Date()) -> String? {
+        guard let expiresOn else { return nil }
+        let date = language.date(expiresOn)
+        return isExpired(now: now)
+            ? language("หมดอายุแล้ว (\(date))", "Expired on \(date)")
+            : language("หมดอายุ \(date)", "Expires \(date)")
     }
 
     // MARK: Words saved in Thai, shown in either language
@@ -137,7 +171,7 @@ nonisolated extension Medicine {
         let names: [String: (one: String, many: String)] = [
             "เม็ด": ("tablet", "tablets"), "แคปซูล": ("capsule", "capsules"), "หยด": ("drop", "drops"),
             "ช้อนชา": ("teaspoon", "teaspoons"), "ช้อนโต๊ะ": ("tablespoon", "tablespoons"), "ml": ("ml", "ml"),
-            "ซอง": ("sachet", "sachets"), "พัฟ": ("puff", "puffs"), "ครั้ง": ("spray", "sprays"),
+            "ซอง": ("sachet", "sachets"), "พัฟ": ("puff", "puffs"), "ที": ("spray", "sprays"), "ครั้ง": ("spray", "sprays"),
             "ยูนิต": ("unit", "units"),
         ]
         guard let name = names[unit] else { return unit }
@@ -154,9 +188,12 @@ nonisolated extension Medicine {
         case "หยอดตาซ้าย": "Left eye"
         case "หยอดตาทั้ง 2 ข้าง": "Both eyes"
         case "หยอดหู": "In the ear"
+        case "หยอดหูทั้ง 2 ข้าง": "Both ears"
         case "หยอดจมูก": "In the nose"
+        case "หยอดจมูกทั้ง 2 ข้าง": "Both nostrils"
         case "หยดใต้ลิ้น": "Under the tongue"
         case "พ่นจมูก": "Nasal spray"
+        case "พ่นจมูกทั้ง 2 ข้าง": "Spray in both nostrils"
         case "สูด": "Inhale"
         case "ทาบาง ๆ": "Apply a thin layer"
         case "อม": "Dissolve in the mouth"
