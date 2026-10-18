@@ -47,7 +47,7 @@ struct LogTimeCard: View {
         }
     }
 
-    /// One checklist row: an empty tick box, the pill icon, the name, and how much.
+    /// One checklist row: an empty tick box, the name, and how much.
     private func row(_ medicine: Medicine) -> some View {
         Button {
             tick(medicine)
@@ -57,7 +57,6 @@ struct LogTimeCard: View {
                     .font(.system(size: 30, weight: .regular))
                     .foregroundStyle(canLog ? Theme.green : Color.secondary)
                     .frame(width: 44, height: 44)
-                PillIcon(medicine: medicine)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(medicine.displayName(language))
                         .font(.title3)

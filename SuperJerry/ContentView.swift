@@ -55,13 +55,6 @@ struct ContentView: View {
     /// Groups in "Your Medications" that are folded closed.
     @State private var collapsedGroups: Set<MedicineGroup> = []
     @State private var tab = HomeTab.log
-    /// "Your Medications" starts as a stack of cards; tap it to spread them out.
-    @State private var isStacked = true
-    /// The medicine in front of the stack.
-    @State private var frontMedicine: UUID?
-    @Namespace private var medicinesNamespace
-    /// One card in the stack: grows with the text size so nothing is cut off.
-    @ScaledMetric(relativeTo: .title3) private var medicineCardHeight: CGFloat = 170
     @State private var medicineToDelete: Medicine?
     /// The medicine whose count is being set in Medicine Storage.
     @State private var stockMedicine: Medicine?
@@ -221,12 +214,19 @@ struct ContentView: View {
         return Button {
             withAnimation(.snappy) { tab = target }
         } label: {
-            Label(title, systemImage: symbol)
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 12)
-                .frame(maxWidth: .infinity, minHeight: 52)
+            // The icon above the words, both centered, so "Your Medications" fits on one line.
+            VStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.title3)
+                    .accessibilityHidden(true)
+                Text(title)
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, minHeight: 60)
                 .foregroundStyle(selected ? Color.white : Theme.red)
                 .background(selected ? Theme.card : Theme.fill,
                             in: RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -391,35 +391,20 @@ struct ContentView: View {
                     description: Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วถ่ายรูปซองยา",
                                                "Tap the red \"Scan a medicine label\" button at the bottom and take a photo of a medicine envelope."))
                 )
-            } else if isStacked && store.medicines.count > 1 {
-                CardStack(items: store.medicines, cardHeight: medicineCardHeight, current: $frontMedicine,
-                          namespace: medicinesNamespace,
-                          title: language("ยาของคุณ \(store.medicines.count) ตัว", "Your \(store.medicines.count) medicines"),
-                          itemName: { $0.displayName(language) }) { medicine in
-                    MedicineCard(medicine: medicine, height: medicineCardHeight)
-                } open: {
-                    withAnimation(stackAnimation) { isStacked = false }
-                }
-                .transition(.opacity)
             } else {
-                VStack(alignment: .leading, spacing: 16) {
-                    ForEach(sections) { section in
-                        let isOpen = !collapsedGroups.contains(section.group)
-                        VStack(alignment: .leading, spacing: 12) {
-                            sectionHeader(section, isOpen: isOpen)
-                            if isOpen {
-                                ForEach(section.medicines) { medicine in
-                                    MedicineCard(medicine: medicine, isEditing: isEditing) {
-                                        medicineToDelete = medicine
-                                    }
-                                    .matchedGeometryEffect(id: medicine.id, in: medicinesNamespace)
+                ForEach(sections) { section in
+                    let isOpen = !collapsedGroups.contains(section.group)
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionHeader(section, isOpen: isOpen)
+                        if isOpen {
+                            ForEach(section.medicines) { medicine in
+                                MedicineCard(medicine: medicine, isEditing: isEditing) {
+                                    medicineToDelete = medicine
                                 }
                             }
                         }
                     }
                 }
-                // The cards drop down out of the stack.
-                .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
             }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -430,32 +415,16 @@ struct ContentView: View {
             .font(.title.bold())
     }
 
-    /// "Stack" and "Edit", once the stack is spread out.
+    /// "Edit", to delete medicines.
     @ViewBuilder
     private var medicinesButtons: some View {
-        if !store.medicines.isEmpty && (!isStacked || store.medicines.count == 1) {
-            if store.medicines.count > 1 {
-                Button(language("ซ้อน", "Stack")) {
-                    withAnimation(stackAnimation) {
-                        isEditing = false
-                        isStacked = true
-                    }
-                }
-                .font(.title3)
-                .tint(Theme.red)
-                .padding(.trailing, 12)
-            }
+        if !store.medicines.isEmpty {
             Button(isEditing ? language("เสร็จ", "Done") : language("แก้ไข", "Edit")) {
                 withAnimation { isEditing.toggle() }
             }
             .font(.title3)
             .tint(Theme.red)
         }
-    }
-
-    /// A springy "drop down", like Apple's. A plain fade for people who turned on Reduce Motion.
-    private var stackAnimation: Animation {
-        reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.5, bounce: 0.25)
     }
 
     /// A group's header ("❤️ Heart & blood pressure  2  ⌄"). Tap it to fold the group open or closed.
