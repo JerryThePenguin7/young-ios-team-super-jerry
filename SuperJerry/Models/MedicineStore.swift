@@ -137,11 +137,11 @@ final class MedicineStore {
         records.filter { $0.medicineID == medicineID && !$0.isSkipped }.map(\.takenAt).max()
     }
 
-    /// How many times this medicine was taken on this day.
-    func takenCount(of medicineID: UUID, on day: Date) -> Int {
-        records.filter { record in
-            record.medicineID == medicineID && !record.isSkipped && Calendar.current.isDate(record.day, inSameDayAs: day)
-        }.count
+    /// When this medicine was taken since a moment (e.g. the last 24 hours), oldest first. For the "when needed" timeline.
+    func takenTimes(of medicineID: UUID, since start: Date) -> [Date] {
+        records.filter { $0.medicineID == medicineID && !$0.isSkipped && $0.takenAt >= start }
+            .map(\.takenAt)
+            .sorted()
     }
 
     /// Logs a dose as taken or skipped. nil clears the log.

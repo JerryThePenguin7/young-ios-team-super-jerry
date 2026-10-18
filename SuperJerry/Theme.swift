@@ -1,17 +1,24 @@
 import SwiftUI
 
 /// Jenny's colors. Each has a light and a dark version in Assets.xcassets, so the app still looks right in dark mode.
-/// Neutral grays and white carry the layout; red is only the accent (see DESIGN.md).
+/// Green first, with red and yellow as small accents (the team's reference: a Thai public-health app's green, red and yellow).
+/// Neutral gray-blue and white carry the layout (see DESIGN.md). Every text color passes WCAG AA (4.5:1) on its background.
 enum Theme {
-    /// Buttons, icons, and red text.
+    /// The main color: buttons, icons, links, and green text. A deep green, readable on white and on `fill`.
+    static let accent = Color("JennyAccent")
+    /// Filled buttons and big colored areas with white text on top (the chosen tab, the scan button, pill icons).
+    static let accentFill = Color("JennyAccentFill")
+    /// Red, only for things that need care: Skipped, expired, delete.
     static let red = Color("JennyRed")
-    /// Big red cards and filled buttons with white text on top (darker in dark mode, so white stays readable).
-    static let card = Color("JennyCard")
-    /// Page background: light gray (light) or black (dark), like the Health app.
+    /// The filled "Skipped" button, with white text on top.
+    static let redFill = Color("JennyRedFill")
+    /// Yellow, only behind text ("Time to take"): dark text in light mode, white in dark mode. Never yellow text.
+    static let yellow = Color("JennyYellow")
+    /// Page background: light gray-blue (light) or black (dark), like the Health app.
     static let background = Color("JennyBackground")
     /// Cards and list rows: white (light) or dark gray (dark).
     static let surface = Color("JennySurface")
-    /// Soft gray fill for secondary buttons and icon circles on a card. Red text on it still passes contrast.
+    /// Soft gray-blue fill for secondary buttons and icon circles on a card. Green or red text on it still passes contrast.
     static let fill = Color("JennyFill")
     /// "Taken": the ✓ marks, green text, and the week circles (brighter in dark mode, so it stays readable).
     static let green = Color("JennyGreen")

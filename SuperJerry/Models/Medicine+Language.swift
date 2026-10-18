@@ -191,6 +191,11 @@ nonisolated extension Medicine {
                         hoursApart == 1 ? "At least 1 hour apart" : "At least \(hours) hours apart")
     }
 
+    /// "ทาน" (eat) for medicines taken by mouth, "ใช้" (use) for drops, sprays, inhalers and creams: they aren't eaten.
+    var thaiVerb: String {
+        (route ?? "").isEmpty && !unit.isEmpty ? "ทาน" : "ใช้"
+    }
+
     /// When a "when needed" medicine may be taken again, or nil if the label gives no gap.
     func nextDose(after lastTaken: Date) -> Date? {
         guard asNeeded, let hoursApart, hoursApart > 0 else { return nil }

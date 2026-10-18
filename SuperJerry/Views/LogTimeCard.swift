@@ -43,7 +43,7 @@ struct LogTimeCard: View {
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(Theme.red, lineWidth: status == .dueNow ? 2 : 0)
+                .strokeBorder(Theme.accent, lineWidth: status == .dueNow ? 2 : 0)
         }
     }
 
@@ -98,7 +98,7 @@ struct LogTimeCard: View {
             Button(action: more) {
                 Image(systemName: "ellipsis")
                     .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(width: 44, height: 44)
                     .background(Theme.fill, in: Circle())
             }
@@ -111,7 +111,8 @@ struct LogTimeCard: View {
     private var badge: some View {
         switch status {
         case .dueNow:
-            badgeLabel(language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.red)
+            // Yellow behind the words, a green bell.
+            badgeLabel(language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.accent, background: Theme.yellow)
         case .missed:
             badgeLabel(language("เลยเวลาแล้ว", "Late"), symbol: "exclamationmark.circle.fill", color: .orange)
         default:
@@ -120,7 +121,8 @@ struct LogTimeCard: View {
     }
 
     /// Dark text on a light tint, with a colored icon: white on orange is too hard to read.
-    private func badgeLabel(_ title: String, symbol: String, color: Color) -> some View {
+    /// `background` replaces the light tint of `color` (yellow for "Time to take").
+    private func badgeLabel(_ title: String, symbol: String, color: Color, background: Color? = nil) -> some View {
         Label {
             Text(title)
                 .foregroundStyle(.primary)
@@ -131,7 +133,7 @@ struct LogTimeCard: View {
         .font(.subheadline.bold())
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
-        .background(color.opacity(0.18), in: Capsule())
+        .background(background ?? color.opacity(0.18), in: Capsule())
     }
 }
 

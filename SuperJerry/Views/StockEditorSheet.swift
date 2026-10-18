@@ -37,7 +37,7 @@ struct StockEditorSheet: View {
                     Stepper(value: $count, in: 0...9999, step: 1) {
                         Text(countText)
                             .font(.title.bold())
-                            .foregroundStyle(Theme.red)
+                            .foregroundStyle(Theme.accent)
                     }
                     TextField(language("พิมพ์จำนวน", "Type a number"), value: $count, format: .number)
                         .keyboardType(.decimalPad)
@@ -72,7 +72,7 @@ struct StockEditorSheet: View {
                     }
                 }
             }
-            .tint(Theme.red)
+            .tint(Theme.accent)
             .navigationTitle(language("จำนวนยาที่เหลือ", "How many are left"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

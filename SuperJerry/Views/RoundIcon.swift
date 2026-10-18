@@ -10,7 +10,7 @@ struct RoundIcon: View {
     var body: some View {
         Image(systemName: symbol)
             .font(.title3.bold())
-            .foregroundStyle(Theme.red)
+            .foregroundStyle(Theme.accent)
             .frame(width: size, height: size)
             .background(Theme.fill, in: Circle())
     }

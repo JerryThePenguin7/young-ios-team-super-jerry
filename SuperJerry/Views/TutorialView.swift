@@ -20,7 +20,7 @@ struct TutorialView: View {
                 if page < pageCount - 1 {
                     Button(language("ข้าม", "Skip")) { finish() }
                         .font(.title3)
-                        .tint(Theme.red)
+                        .tint(Theme.accent)
                         .frame(minWidth: 44, minHeight: 44)
                 }
             }
@@ -61,7 +61,7 @@ struct TutorialView: View {
     // MARK: Pages
 
     private var welcomePage: some View {
-        TutorialPage(symbol: "pills.fill", color: Theme.card,
+        TutorialPage(symbol: "pills.fill", color: Theme.accentFill,
                      title: language("ยินดีต้อนรับสู่ Jenny", "Welcome to Jenny"),
                      text: language("Jenny อ่านซองยาของคุณ อ่านออกเสียง และช่วยให้คุณทานยาได้ถูกต้อง เลือกภาษาที่ต้องการ",
                                     "Jenny reads your medicine envelopes, reads them aloud, and helps you take them on time. Choose your language.")) {
@@ -81,8 +81,8 @@ struct TutorialView: View {
                         }
                         .padding(.horizontal, 20)
                         .frame(maxWidth: .infinity, minHeight: 60)
-                        .foregroundStyle(option == appLanguage ? Color.white : Theme.red)
-                        .background(option == appLanguage ? Theme.card : Theme.surface,
+                        .foregroundStyle(option == appLanguage ? Color.white : Theme.accent)
+                        .background(option == appLanguage ? Theme.accentFill : Theme.surface,
                                     in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
@@ -94,7 +94,7 @@ struct TutorialView: View {
     }
 
     private var scanPage: some View {
-        TutorialPage(symbol: "camera.fill", color: Theme.card,
+        TutorialPage(symbol: "camera.fill", color: Theme.accentFill,
                      title: language("1. ถ่ายรูปซองยา", "1. Scan a medicine envelope"),
                      text: language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วเลือก ถ่ายรูป หรือ เลือกจากคลังภาพ ถ่ายฉลากให้เต็มรูปในที่สว่าง Jenny จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
                                     "Tap the red \"Scan a medicine label\" button at the bottom, then Take photo (or Choose from Photos). Take the photo in good light. Jenny reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
@@ -135,7 +135,7 @@ struct TutorialView: View {
     }
 
     private var remindersPage: some View {
-        TutorialPage(symbol: "bell.fill", color: Theme.card,
+        TutorialPage(symbol: "bell.fill", color: Theme.accentFill,
                      title: language("3. เตือนและนับยา", "3. Reminders and pill counts"),
                      text: language("Jenny ใส่เวลาทานยาไว้ในแอปเตือนความจำได้ ในหน้าของยาแต่ละตัว ใส่จำนวนยาที่มี แล้ว Jenny จะนับลดลงทุกครั้งที่ทานและเตือนเมื่อยาใกล้หมด",
                                     "Jenny can add your pill times to the Reminders app. On each medicine's page, type how many you have: Jenny counts down each time you take one and tells you when it's running low.")) {

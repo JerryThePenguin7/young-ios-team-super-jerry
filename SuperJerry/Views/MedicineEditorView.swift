@@ -54,7 +54,7 @@ struct MedicineEditorView: View {
                     Stepper(value: $medicine.amount, in: 0.5...20, step: 0.5) {
                         Text(medicine.amountLine(language))
                             .font(.title3.bold())
-                            .foregroundStyle(Theme.red)
+                            .foregroundStyle(Theme.accent)
                     }
                     .disabled(medicine.unit.isEmpty)
                     Toggle(language("จำนวนนี้ต่อข้าง (ข้างละ)", "This amount is for each side (each eye, ear or nostril)"),
@@ -129,7 +129,7 @@ struct MedicineEditorView: View {
                     Text(language("พิมพ์ตามที่เขียนบนฉลาก", "Type them as printed on the label."))
                 }
             }
-            .tint(Theme.red)
+            .tint(Theme.accent)
             .duplicateMedicineAlert(check: $duplicateCheck) { _ in
                 save(evenIfSaved: true)
             }

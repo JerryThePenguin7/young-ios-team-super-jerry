@@ -34,7 +34,7 @@ struct MedicineCard: View {
                 Button(role: .destructive, action: onDelete) {
                     Image(systemName: "minus.circle.fill")
                         .font(.title)
-                        .foregroundStyle(.white, .red)
+                        .foregroundStyle(.white, Theme.red)
                         .frame(width: 60, height: 60)
                 }
                 .buttonStyle(.plain)
@@ -62,7 +62,7 @@ struct MedicineCard: View {
         } label: {
             Image(systemName: "speaker.wave.2.fill")
                 .font(.title3)
-                .foregroundStyle(Theme.red)
+                .foregroundStyle(Theme.accent)
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
@@ -92,7 +92,7 @@ struct MedicineCard: View {
                     .font(.system(size: 44, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Theme.card.gradient)
+                    .background(Theme.accentFill.gradient)
             }
         }
         .frame(width: 120, height: 150)

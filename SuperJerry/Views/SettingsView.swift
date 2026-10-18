@@ -90,7 +90,7 @@ struct SettingsView: View {
                         .font(.callout)
                 }
             }
-            .tint(Theme.red)
+            .tint(Theme.accent)
             .navigationTitle(language("ตั้งค่า", "Settings"))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
