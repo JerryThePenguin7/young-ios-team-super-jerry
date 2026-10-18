@@ -69,7 +69,16 @@ struct MedicineEditorView: View {
 
                 Section {
                     Toggle(language("ใช้เมื่อมีอาการเท่านั้น", "Only when needed"), isOn: $medicine.asNeeded)
-                    if !medicine.asNeeded {
+                    if medicine.asNeeded {
+                        // "ห่างกันอย่างน้อย 6 ชม.": Jenny shows when the next dose is allowed.
+                        Picker(language("ทานห่างกันอย่างน้อย", "At least this long apart"), selection: $medicine.hoursApart) {
+                            Text(language("ไม่ระบุ", "Not set")).tag(Double?.none)
+                            ForEach(hourOptions, id: \.self) { hours in
+                                Text(language("\(String(format: "%g", hours)) ชั่วโมง", "\(String(format: "%g", hours)) hours"))
+                                    .tag(Double?.some(hours))
+                            }
+                        }
+                    } else {
                         ForEach(TimeSlot.allCases, id: \.self) { slot in
                             Toggle(isOn: slotBinding(slot)) {
                                 Label("\(slot.name(language)) (\(slot.time.label(language)))", systemImage: slot.symbol)
@@ -135,6 +144,13 @@ struct MedicineEditorView: View {
                 }
             }
         }
+    }
+
+    /// Common gaps between "when needed" doses, plus the label's own number if it's a different one.
+    private var hourOptions: [Double] {
+        var options: [Double] = [4, 6, 8, 12, 24]
+        if let hours = medicine.hoursApart, !options.contains(hours) { options.append(hours) }
+        return options.sorted()
     }
 
     /// The usual units, plus whatever the label said if it's something else.

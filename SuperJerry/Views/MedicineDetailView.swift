@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// One saved medicine: the label photo, how and when to take it, today's ticks, read aloud, edit, and delete.
+/// One saved medicine: the label photo, how and when to take it, today's ticks, how many are left, read aloud, edit, and delete.
 struct MedicineDetailView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -10,6 +10,8 @@ struct MedicineDetailView: View {
     @State private var editingMedicine: Medicine?
     @State private var showingDeleteConfirmation = false
     @State private var showingScannedText = false
+    /// The medicine whose count is being set or refilled.
+    @State private var stockMedicine: Medicine?
 
     var body: some View {
         if let medicine = store.medicine(id: medicineID) {
@@ -30,6 +32,9 @@ struct MedicineDetailView: View {
             }
             .sheet(item: $editingMedicine) { medicine in
                 MedicineEditorView(medicine: medicine, isNew: false)
+            }
+            .sheet(item: $stockMedicine) { medicine in
+                StockEditorSheet(medicine: medicine)
             }
             .confirmationDialog(language("ลบยานี้?", "Delete this medicine?"), isPresented: $showingDeleteConfirmation,
                                 titleVisibility: .visible) {
@@ -66,6 +71,15 @@ struct MedicineDetailView: View {
                     .font(.headline)
                     .foregroundStyle(.secondary)
                 DoseChips(medicine: medicine, now: now)
+            }
+
+            // How many are left (this used to be a separate "Medicine Storage" list on the home screen).
+            if medicine.canCountStock {
+                card(title: language("จำนวนยาที่เหลือ", "How many are left")) {
+                    StockCard(medicine: medicine) {
+                        stockMedicine = medicine
+                    }
+                }
             }
 
             Button {

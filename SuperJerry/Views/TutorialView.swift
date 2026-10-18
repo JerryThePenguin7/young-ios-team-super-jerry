@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A short welcome the first time Jenny opens: pick a language, then one page each on scanning,
-/// logging, and reminders with Medicine Storage. Skip it any time, or replay it from Settings.
+/// logging, and reminders with counting what's left. Skip it any time, or replay it from Settings.
 struct TutorialView: View {
     static let seenKey = "hasSeenTutorial"
 
@@ -136,9 +136,9 @@ struct TutorialView: View {
 
     private var remindersPage: some View {
         TutorialPage(symbol: "bell.fill", color: Theme.card,
-                     title: language("3. เตือนและนับยา", "3. Reminders and Medicine Storage"),
-                     text: language("Jenny ใส่เวลาทานยาไว้ในแอปเตือนความจำได้ ในคลังยา ใส่จำนวนยาที่มี แล้ว Jenny จะนับลดลงทุกครั้งที่ทานและเตือนเมื่อยาใกล้หมด",
-                                    "Jenny can add your pill times to the Reminders app. In Medicine Storage, type how many you have: Jenny counts down each time you take one and tells you when it's running low.")) {
+                     title: language("3. เตือนและนับยา", "3. Reminders and pill counts"),
+                     text: language("Jenny ใส่เวลาทานยาไว้ในแอปเตือนความจำได้ ในหน้าของยาแต่ละตัว ใส่จำนวนยาที่มี แล้ว Jenny จะนับลดลงทุกครั้งที่ทานและเตือนเมื่อยาใกล้หมด",
+                                    "Jenny can add your pill times to the Reminders app. On each medicine's page, type how many you have: Jenny counts down each time you take one and tells you when it's running low.")) {
             Label(language("Jenny ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง",
                            "Jenny is not medical advice. Always check the real label."),
                   systemImage: "info.circle")

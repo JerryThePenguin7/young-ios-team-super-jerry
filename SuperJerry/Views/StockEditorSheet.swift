@@ -73,7 +73,7 @@ struct StockEditorSheet: View {
                 }
             }
             .tint(Theme.red)
-            .navigationTitle(language("คลังยา", "Medicine Storage"))
+            .navigationTitle(language("จำนวนยาที่เหลือ", "How many are left"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

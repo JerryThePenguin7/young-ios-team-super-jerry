@@ -28,8 +28,11 @@ nonisolated enum LabelParser {
         info.bedtime = compact.contains("ก่อนนอน") || latin.contains(#/\bhs\b/#)
 
         // 4. Only when needed
-        let asNeededWords = ["เมื่อมีอาการ", "เวลามีอาการ", "เมื่อปวด", "เมื่อมีไข้", "ทุก4-6ชั่วโมง"]
+        let asNeededWords = ["เมื่อมีอาการ", "เวลามีอาการ", "หากมีอาการ", "ถ้ามีอาการ", "ขณะมีอาการ", "เมื่อปวด", "เวลาปวด",
+                             "เมื่อมีไข้", "เวลามีไข้", "เมื่อจำเป็น", "ทุก4-6ชั่วโมง", "ทุก4-6ชม"]
+        let englishAsNeeded = ["as needed", "when needed", "if needed", "when required"]
         info.asNeeded = asNeededWords.contains { compact.contains($0) } || latin.contains(#/\bprn\b/#)
+            || englishAsNeeded.contains { latin.contains($0) }
 
         // 5. Times per day: fill in times only if the label didn't name them
         var timesPerDay = 0
@@ -38,6 +41,10 @@ nonisolated enum LabelParser {
         if latin.contains(#/\bbid\b/#) { timesPerDay = 2 }
         if latin.contains(#/\btid\b/#) { timesPerDay = 3 }
         if latin.contains(#/\bqid\b/#) { timesPerDay = 4 }
+        // "ห่างกันอย่างน้อย 6 ชม." with no set times: take it when needed (paracetamol), not at fixed times.
+        if !info.asNeeded && !info.hasAnyTime && timesPerDay == 0 && compact.contains("ห่างกันอย่างน้อย") {
+            info.asNeeded = true
+        }
         if !info.hasAnyTime && !info.asNeeded {
             // These are a GUESS. The result card must say "please check".
             switch timesPerDay {
@@ -60,9 +67,16 @@ nonisolated enum LabelParser {
 
         // 7. Warnings: keep the whole line so nothing gets lost
         let warningWords = ["ง่วง", "ห้าม", "ระวัง", "ไม่ควร", "จนหมด", "ดื่มน้ำ"]
-        info.warnings = lines.filter { line in warningWords.contains { line.contains($0) } }
+        info.warnings = lines.filter { line in warningWords.contains { line.contains($0) } || isDailyLimit(line) }
                              .map { $0.trimmingCharacters(in: .whitespaces) }
         return info
+    }
+
+    /// "ไม่เกินวันละ 8 เม็ด" on a line of its own: the most a day, which matters as much as a warning.
+    static func isDailyLimit(_ line: String) -> Bool {
+        let compact = line.replacingOccurrences(of: " ", with: "")
+        return compact.contains("ไม่เกิน") && !compact.contains("ครั้งละ")
+            && (compact.contains("วันละ") || compact.contains("ต่อวัน") || compact.contains("ใน1วัน") || compact.contains("ใน24ชั่วโมง"))
     }
 
     /// Thai digits → 0-9, and fix สระอำ that OCR splits into two characters (ํ + า).

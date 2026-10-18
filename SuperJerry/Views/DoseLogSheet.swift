@@ -145,6 +145,15 @@ struct DoseLogSheet: View {
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
+                    // A "when needed" medicine whose gap since the last dose isn't over yet.
+                    if kind == .asNeeded, let last = store.lastTaken(medicine.id),
+                       let next = medicine.nextDose(after: last), next > Date() {
+                        Label(language("ยังไม่ครบเวลา ทานได้อีกครั้งหลัง \(language.time(next))",
+                                       "Too soon: next dose after \(language.time(next))"),
+                              systemImage: "hourglass")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                    }
                 }
                 Spacer(minLength: 0)
                 Button {
@@ -156,14 +165,16 @@ struct DoseLogSheet: View {
                 .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))
             }
 
-            if !medicine.meal.isEmpty || !medicine.warnings.isEmpty {
+            // The envelope's "หมายเหตุ" notes are left out of the log; they're on the medicine's own screen.
+            let warnings = medicine.warningLines(language, includeNotes: false)
+            if !medicine.meal.isEmpty || !warnings.isEmpty {
                 Divider()
                 if !medicine.meal.isEmpty {
                     Label(Medicine.mealName(medicine.meal, language), systemImage: "fork.knife")
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
-                ForEach(medicine.warningLines(language), id: \.self) { warning in
+                ForEach(warnings, id: \.self) { warning in
                     Label(warning, systemImage: "exclamationmark.triangle.fill")
                         .font(.headline)
                         .foregroundStyle(.orange)

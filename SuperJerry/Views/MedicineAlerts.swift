@@ -7,9 +7,11 @@ struct MedicineAlerts: View {
     @Environment(\.language) private var language
     let medicine: Medicine
     var now = Date()
+    /// false in the Log: the envelope's "หมายเหตุ" (Note) lines stay on the medicine's own screen.
+    var showsNotes = true
 
     var body: some View {
-        let warnings = medicine.warningLines(language)
+        let warnings = medicine.warningLines(language, includeNotes: showsNotes)
         let hasAlerts = medicine.isExpired(now: now) || medicine.expiresSoon(now: now)
             || medicine.isLowStock || !warnings.isEmpty
 

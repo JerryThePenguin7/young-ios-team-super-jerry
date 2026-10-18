@@ -4,7 +4,7 @@ name: Jenny
 description: >-
   Jenny's look, modeled on the Medications page of the Apple Health app. A calm light-gray canvas with
   white cards, red used only as the accent and green for "Taken", Health-style Log cards for each pill time, white medicine
-  cards in groups you can fold, Medicine Storage that counts pills down, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
+  cards in groups you can fold, pill counts that go down by themselves, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
   medicines a day, and for the family members who help them, without looking like a "special" app.
 
 colors:
@@ -126,16 +126,22 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 0. **Two big buttons at the top** switch the page: **บันทึกการทานยา · Log** and **ยาของคุณ · Your Medications** (the chosen one filled red). They stay pinned under the navigation bar.
 1. **Log ▸ the day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with green as doses are taken. Tap a day to see its log.
 2. **Log ▸ no medicines yet:** a `ContentUnavailableView` pointing to the red scan button at the bottom (the old red box is gone).
-3. **Log ▸ checklist:** one white card per pill time ("8:00 น.") listing the medicines still to take, each with a big tick box (and the label's instruction under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold a medicine to mark it skipped; the round **…** opens the full log sheet. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
+3. **Log ▸ checklist:** one white card per pill time ("8:00 น.") listing the medicines still to take, each with a big tick box (and Jenny's summary as bullets under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold a medicine to mark it skipped; the round **…** opens the full log sheet. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
+   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, under the checklist: medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
+     Each has a big green **ทานแล้ว · Taken** button instead of a tick box, "วันนี้ทานแล้ว 2 ครั้ง ล่าสุด 10:15 น.", and, while the label's gap
+     isn't over, "ทานได้อีกครั้งหลัง 16:15 น." (orange hourglass). Logging it too soon asks first ("ยังไม่ครบเวลา").
 4. **Log ▸ Taken (ทานแล้ว):** what was taken (green ✓) or skipped (⊖, struck through), by time. Tap a tick to undo it (back to the checklist); tap a time for its log sheet.
 5. **Your Medications ▸ the medicines:** white cards in groups by what they're for ("Heart & blood pressure", "Diabetes"…), always shown as a plain list (the swipe stack was removed: people preferred seeing every card). Each card has a read-aloud speaker next to the name. Tap a group's header to fold it. **Edit** deletes medicines.
-6. **Your Medications ▸ Medicine Storage:** a list (running low first), one row per medicine: how many are left, a bar, about how many days that lasts, and the warning level. Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets for each medicine (e.g. 10 or 5 left); until they set one, it's about a week's worth. Tap a row to set or refill the count and the level.
+6. **How many are left** (this used to be a separate Medicine Storage list): each medicine card shows "เหลือ 24 เม็ด", and the medicine's own screen has a
+   **จำนวนยาที่เหลือ · How many are left** card: the count, a bar, about how many days that lasts, the warning level, and a button to set or refill it.
+   Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets
+   for each medicine (e.g. 10 or 5 left); until they set one, it's about a week's worth.
 7. The disclaimer.
 8. **The scan bar** floats at the bottom in Liquid Glass from the very first launch, where a thumb can reach it: one big red **ถ่ายรูปซองยา · Scan a medicine label** button. Tapping it asks **ถ่ายรูป · Take photo** or **เลือกจากคลังภาพ · Choose from Photos** (with no camera, it goes straight to Photos).
 
 The page is one column on iPhone and iPad (at most 800 pt wide), since the two buttons switch between Log and Your Medications.
 
-**The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 4 big pages: choose the language, scan, log Taken or Skipped, Reminders and Medicine Storage. It has **Skip**, and Settings can show it again.
+**The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 4 big pages: choose the language, scan, log Taken or Skipped, Reminders and pill counts. It has **Skip**, and Settings can show it again.
 **Top left** is the light or dark theme button (`AppearanceMenu`): Automatic, Light (white) or Dark (black). The language is chosen on the first tutorial page or in Settings.
 
 **Who it's for.** Our main users are **older Thai adults (60+)** who take several medicines a day, plus the **family members** who set the app up and check on them.
@@ -208,10 +214,11 @@ Pill icons use a soft red gradient (`Theme.card.gradient`).
 | Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`) from the first launch. One `.glassProminent` red button; a `confirmationDialog` offers Take photo / Choose from Photos (`photosPicker(isPresented:)`). Max 560 pt wide |
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken |
 | Log checklist | `Views/LogTimeCard.swift` | A white card per time: time + badge + round **…** (full sheet), then one row per medicine: a 44 pt tick box (green ring), the name, Jenny's summary as bullets (`BulletList`), and alerts (`MedicineAlerts`: expired, running low, label warnings). Tap = taken; press and hold = Taken / Skipped menu |
+| When needed | `Views/AsNeededCard.swift` | A white card in Log: "ยาเมื่อมีอาการ", then per medicine the name, bullets (incl. "ห่างกันอย่างน้อย 6 ชั่วโมง"), alerts, taken today, "next dose after", and a full-width green **Taken** button. Too soon → an alert first |
 | Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
 | Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green. ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a time for the sheet |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
-| Medicine Storage | `Views/MedicineStorageSection.swift`, `Views/StockEditorSheet.swift` | A list. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge. The sheet sets or refills the count and the warning level (quick 5 / 10 / 20) |
+| How many are left | `Views/StockCard.swift`, `Views/StockEditorSheet.swift` | On the medicine's screen. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge, and a set / refill button. The sheet sets or refills the count and the warning level (quick 5 / 10 / 20) |
 | Directions | `Views/DirectionsView.swift` | The label's own words, big and red, under "วิธีใช้ตามฉลาก (ทุกคำ)". English adds Jenny's summary, marked "check it against the label" |
 | Expiry | `Views/ExpiryLabel.swift` | "หมดอายุ 31 ธ.ค. 2570" (Buddhist year in Thai). Expired: red icon and tint; within 30 days: orange. Shown on the card and log sheet only when expired or soon |
 | Same medicine twice | `Views/DuplicateMedicineAlert.swift` | Before saving a medicine that's already saved: "You already have this medicine", with **Add anyway** or **Cancel**. Mentions different strengths |
@@ -230,8 +237,12 @@ Pill icons use a soft red gradient (`Theme.card.gradient`).
   The summary must never drop a detail: "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must never become "พ่นจมูก 2 ครั้ง".
 - **Show what matters before the tick:** expired or expiring soon, running low, and the label's warnings appear under the medicine's
   name in the checklist and on its card (`MedicineAlerts`).
-- **Say what a foreign name is.** In Thai, lists show what the medicine is first, then its name in brackets:
-  "ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)" (`Medicine.title`, from the name list). Thai names like "ฟ้าทะลายโจร" stay as they are.
+- **Say what a foreign name is.** In Thai, lists show what the medicine is first, then its name in brackets (`Medicine.title`):
+  from the name list ("ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)"), else how it's used ("ยาหยอดตา (Poly)", "ยาพ่นจมูก (Otrivin)"),
+  else its group from the rules or the AI ("ยาเบาหวาน (Xyz)"). Thai names like "ฟ้าทะลายโจร" stay as they are.
+- **The envelope's "หมายเหตุ" notes stay out of the Log** (checklist, When needed, log sheet). They're on the medicine's own screen and card.
+- **"When needed" medicines keep their gap:** "ห่างกันอย่างน้อย 6 ชั่วโมง" is always one of their bullets, and Jenny never lets
+  a second dose be logged before the gap without asking.
 - **Bullets are in the main text color** (black, or white in dark mode), not gray, so they're easy to read. The envelope's
   "หมายเหตุ" heading is left out of warnings (`cleanWarnings`); the note itself is kept.
 

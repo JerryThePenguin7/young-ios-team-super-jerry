@@ -86,6 +86,7 @@ nonisolated enum LabelReader {
         reading.medicine.labelDirections = directions.isEmpty ? nil : directions.joined(separator: "\n")
         reading.medicine.perSide = compact.contains("ข้างละ") ? true : nil
         reading.medicine.expiresOn = expiryDate(in: text)
+        reading.medicine.hoursApart = info.asNeeded ? hoursApart(compact: compact, latin: latin) : nil
         if let group = entry?.group ?? savedMatch?.group {
             reading.medicine.group = group
             reading.groupSource = .nameList
@@ -365,8 +366,28 @@ nonisolated enum LabelReader {
             return count
         }
         if compact.contains("วันละครั้ง") || compact.contains("วันละหนึ่งครั้ง") { return 1 }
-        if let match = firstMatch("ทุก(\\d+)ชั่วโมง", in: compact), let hours = match[1].flatMap({ Int($0) }), hours > 0 {
+        if let match = firstMatch("ทุก(\\d+)(?:ชั่วโมง|ชม)", in: compact), let hours = match[1].flatMap({ Int($0) }), hours > 0 {
             return max(1, min(4, 24 / hours))
+        }
+        return nil
+    }
+
+    /// The least time between "when needed" doses: "ห่างกันอย่างน้อย 6 ชม." → 6, "ห่างกัน 6-8 ชั่วโมง" → 6,
+    /// "ทุก 4-6 ชั่วโมง" → 4, "every 6 hours" or "q6h" → 6.
+    static func hoursApart(compact: String, latin: String) -> Double? {
+        let patterns = [
+            "ห่างกัน(?:อย่างน้อย)?(\\d+(?:\\.\\d+)?)(?:-\\d+)?(?:ชั่วโมง|ชม)",
+            "ทุก(\\d+(?:\\.\\d+)?)(?:-\\d+)?(?:ชั่วโมง|ชม)",
+        ]
+        for pattern in patterns {
+            if let match = firstMatch(pattern, in: compact), let hours = match[1].flatMap({ Double($0) }), hours > 0 {
+                return hours
+            }
+        }
+        for pattern in ["every\\s*(\\d+)(?:\\s*-\\s*\\d+)?\\s*(?:hours?|hrs?)\\b", "\\bq\\s*(\\d+)(?:\\s*-\\s*\\d+)?\\s*h\\b"] {
+            if let match = firstMatch(pattern, in: latin), let hours = match[1].flatMap({ Double($0) }), hours > 0 {
+                return hours
+            }
         }
         return nil
     }

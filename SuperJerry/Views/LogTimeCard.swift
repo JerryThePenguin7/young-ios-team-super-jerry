@@ -64,7 +64,8 @@ struct LogTimeCard: View {
                     // The label's exact words are on the medicine's own screen.
                     BulletList(items: medicine.summaryBullets(language, includeTimes: false))
                     // Expired, running low, or a warning from the label: seen before ticking.
-                    MedicineAlerts(medicine: medicine)
+                    // The envelope's "หมายเหตุ" notes are left out here; they're on the medicine's own screen.
+                    MedicineAlerts(medicine: medicine, showsNotes: false)
                 }
                 Spacer(minLength: 0)
             }
