@@ -23,6 +23,9 @@ The theme is AI that runs on Apple devices.
   then our **Thai label rules** understand it ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"). It all works offline, and health data never leaves the device.
   We tested Apple's on-device language model (Foundation Models): it doesn't support Thai and it blocked medicine text as
   "sensitive content", so the rules do the understanding. See [docs/pill-reader/ai-explained.md](docs/pill-reader/ai-explained.md).
+  Names come from a **medicine name list** in the app (486 medicines: common hospital medicines, Thai herbal medicines like
+  มะแว้ง/MAWANG and ฟ้าทะลายโจร, eye drops, creams, inhalers). Vision gets the list as custom words, and Jenny matches it
+  against the label even with OCR spelling mistakes. Grow it from the official TMT list: see "Medicine names" below.
 - **Impact (numbers!):** _TODO: run the impact test in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 3.3 and put the numbers here._
 
 The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is named Jenny.
@@ -38,6 +41,16 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
 
 No camera (e.g. the simulator)? The big button picks a photo from the library instead. To test, print the 5 fake envelopes
 in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 10.1 (made-up data only, PDPA).
+
+### Medicine names (and how to add more)
+The list is [SuperJerry/Understanding/medicine-names.json](SuperJerry/Understanding/medicine-names.json). Each medicine has a
+`name`, other spellings in `aliases` (Thai or English), a short friendly Thai description in `thai` (general categories only),
+and an optional `form` (`eyeDrops`, `topical`, `inhaler`… which sets หยด, ทา, พัฟ).
+- **Add one by hand:** copy an entry in the JSON, change it, build again.
+- **Add thousands from TMT** (Thai Medicines Terminology, the official Thai drug list): make a free account at
+  [this.or.th](https://this.or.th/service/tmt/download/), download the latest release zip, unzip it, then run
+  `python3 tools/tmt_to_medicine_names.py ~/Downloads/TMTRF…` and build again. Check TMT's license before sharing the data.
+- **Jenny also learns:** a name you saved (or corrected) once is recognised the next time you scan that envelope.
 
 ## Team
 

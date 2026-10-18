@@ -14,7 +14,7 @@ struct ScanResultView: View {
 
     private enum Phase {
         case reading
-        case found(Medicine, timesGuessed: Bool)
+        case found(LabelReading)
         case notFound(scannedText: String)
     }
 
@@ -39,8 +39,8 @@ struct ScanResultView: View {
                         ProgressView("กำลังอ่านฉลากยา… · Reading the label…")
                             .controlSize(.large)
                             .frame(maxWidth: .infinity, minHeight: 160)
-                    case .found(let medicine, let timesGuessed):
-                        foundCard(medicine, timesGuessed: timesGuessed)
+                    case .found(let reading):
+                        foundCard(reading)
                     case .notFound(let scannedText):
                         notFoundCard(scannedText)
                     }
@@ -74,14 +74,11 @@ struct ScanResultView: View {
         guard case .reading = phase else { return }
         do {
             let lines = try await readText(from: image)
-            let scannedText = lines.joined(separator: "\n")
-            let info = LabelParser.parse(lines)
-            if info.isEmpty {
-                phase = .notFound(scannedText: scannedText)
+            if let reading = LabelReader.read(lines, saved: store.medicines) {
+                phase = .found(reading)
+                if autoReadAloud { SpeechReader.shared.speak(reading.medicine.spokenThai) }
             } else {
-                let medicine = info.makeMedicine(scannedText: scannedText)
-                phase = .found(medicine, timesGuessed: LabelParser.timesAreGuessed(in: lines))
-                if autoReadAloud { SpeechReader.shared.speak(medicine.spokenThai) }
+                phase = .notFound(scannedText: lines.joined(separator: "\n"))
             }
         } catch {
             phase = .notFound(scannedText: "")
@@ -90,23 +87,26 @@ struct ScanResultView: View {
 
     // MARK: Found a medicine
 
-    private func foundCard(_ medicine: Medicine, timesGuessed: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Label("อ่านในเครื่อง · Read on this device", systemImage: "lock.shield.fill")
-                .font(.caption.bold())
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .foregroundStyle(Theme.red)
-                .background(Theme.red.opacity(0.12), in: Capsule())
+    private func foundCard(_ reading: LabelReading) -> some View {
+        let medicine = reading.medicine
+        return VStack(alignment: .leading, spacing: 20) {
+            // Side by side on iPad, stacked on a narrow iPhone.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) { badges(for: reading) }
+                VStack(alignment: .leading, spacing: 8) { badges(for: reading) }
+            }
 
             MedicineInfoView(medicine: medicine)
             DoseChips(medicine: medicine)
 
-            if timesGuessed {
-                Label("เดาเวลาจาก \"วันละ … ครั้ง\" · โปรดตรวจสอบ (times guessed, please check)",
-                      systemImage: "exclamationmark.triangle.fill")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.orange)
+            if reading.nameSource == .guess {
+                checkNote("ชื่อยาเป็นการเดา · โปรดตรวจสอบ (name guessed, please check)")
+            }
+            if reading.unitGuessed {
+                checkNote("ไม่พบหน่วยยา ใช้ \"\(medicine.unit)\" ไว้ก่อน · โปรดตรวจสอบ (unit guessed, please check)")
+            }
+            if reading.timesGuessed {
+                checkNote("เดาเวลาจาก \"วันละ … ครั้ง\" · โปรดตรวจสอบ (times guessed, please check)")
             }
 
             VStack(spacing: 12) {
@@ -186,6 +186,31 @@ struct ScanResultView: View {
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    @ViewBuilder
+    private func badges(for reading: LabelReading) -> some View {
+        badge("อ่านในเครื่อง · Read on this device", symbol: "lock.shield.fill")
+        if reading.nameSource == .nameList {
+            badge("พบในรายชื่อยา · In the medicine list", symbol: "checkmark.seal.fill")
+        } else if reading.nameSource == .saved {
+            badge("ชื่อที่เคยบันทึก · Saved before", symbol: "clock.arrow.circlepath")
+        }
+    }
+
+    private func badge(_ title: String, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.caption.bold())
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .foregroundStyle(Theme.red)
+            .background(Theme.red.opacity(0.12), in: Capsule())
+    }
+
+    private func checkNote(_ text: String) -> some View {
+        Label(text, systemImage: "exclamationmark.triangle.fill")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.orange)
     }
 
     private func scannedTextBox(_ text: String) -> some View {

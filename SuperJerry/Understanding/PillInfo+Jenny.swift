@@ -1,6 +1,6 @@
 import Foundation
 
-/// Connects the label reader (PillInfo from LabelParser) to Jenny's saved medicines.
+/// Helpers on the Thai rules' result, used by LabelReader.
 nonisolated extension PillInfo {
     var slots: [TimeSlot] {
         TimeSlot.allCases.filter { slot in
@@ -11,24 +11,6 @@ nonisolated extension PillInfo {
             case .bedtime: bedtime
             }
         }
-    }
-
-    /// Nothing useful was read: a blurry photo, or not a medicine label.
-    var isEmpty: Bool { drugName.isEmpty && !hasAnyTime && !asNeeded }
-
-    func makeMedicine(scannedText: String) -> Medicine {
-        Medicine(
-            name: drugName,
-            strength: strength,
-            amount: amountPerDose,
-            unit: unit,
-            slots: slots,
-            meal: mealTiming.thai,
-            asNeeded: asNeeded,
-            warnings: warnings,
-            scannedText: scannedText,
-            photoFile: nil
-        )
     }
 }
 

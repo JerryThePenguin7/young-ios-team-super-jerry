@@ -32,14 +32,20 @@ struct MedicineEditorView: View {
                 }
 
                 Section("ครั้งละ · Each time") {
-                    Stepper(value: $medicine.amount, in: 0.5...10, step: 0.5) {
+                    Picker("วิธีใช้ · How it's used", selection: routeBinding) {
+                        ForEach(routeOptions, id: \.self) { route in
+                            Text(route.isEmpty ? "กิน · By mouth" : route).tag(route)
+                        }
+                    }
+                    Stepper(value: $medicine.amount, in: 0.5...20, step: 0.5) {
                         Text(medicine.amountLine)
                             .font(.title3.bold())
                             .foregroundStyle(Theme.red)
                     }
+                    .disabled(medicine.unit.isEmpty)
                     Picker("หน่วย · Unit", selection: $medicine.unit) {
                         ForEach(unitOptions, id: \.self) { unit in
-                            Text(unit).tag(unit)
+                            Text(unit.isEmpty ? "ไม่นับจำนวน · No count (cream)" : unit).tag(unit)
                         }
                     }
                 }
@@ -93,6 +99,34 @@ struct MedicineEditorView: View {
         Medicine.units.contains(medicine.unit) ? Medicine.units : [medicine.unit] + Medicine.units
     }
 
+    private var routeOptions: [String] {
+        let route = medicine.route ?? ""
+        return Medicine.routes.contains(route) ? Medicine.routes : Medicine.routes + [route]
+    }
+
+    /// Choosing how it's used also picks the usual unit: หยอดตา → หยด, สูด → พัฟ, ทา → no count.
+    private var routeBinding: Binding<String> {
+        Binding(
+            get: { medicine.route ?? "" },
+            set: { route in
+                medicine.route = route.isEmpty ? nil : route
+                if route.contains("หยอด") || route.contains("หยด") {
+                    medicine.unit = "หยด"
+                } else if route == "สูด" {
+                    medicine.unit = "พัฟ"
+                } else if route == "พ่นจมูก" {
+                    medicine.unit = "ครั้ง"
+                } else if route.hasPrefix("ทา") {
+                    medicine.unit = ""
+                } else if route == "ฉีด" {
+                    medicine.unit = "ยูนิต"
+                } else if medicine.unit.isEmpty || medicine.unit == "หยด" || medicine.unit == "พัฟ" {
+                    medicine.unit = "เม็ด"
+                }
+            }
+        )
+    }
+
     private var mealOptions: [String] {
         Medicine.meals.contains(medicine.meal) ? Medicine.meals : Medicine.meals + [medicine.meal]
     }
@@ -115,6 +149,7 @@ struct MedicineEditorView: View {
         result.name = medicine.name.trimmingCharacters(in: .whitespaces)
         result.strength = medicine.strength.trimmingCharacters(in: .whitespaces)
         result.slots = result.orderedSlots
+        if let amountMax = result.amountMax, amountMax <= result.amount { result.amountMax = nil }
         result.warnings = warningsText
             .split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespaces) }

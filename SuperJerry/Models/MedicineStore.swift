@@ -157,7 +157,7 @@ extension MedicineStore {
         let store = MedicineStore(inMemory: true)
         if !empty {
             for sample in SampleLabels.all.reversed() {
-                store.add(LabelParser.parse(sample.lines).makeMedicine(scannedText: sample.text))
+                if let reading = LabelReader.read(sample.lines) { store.add(reading.medicine) }
             }
         }
         return store

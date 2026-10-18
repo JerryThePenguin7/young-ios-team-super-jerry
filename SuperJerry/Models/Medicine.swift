@@ -17,9 +17,13 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var scannedText: String     // what the camera read, so family can compare it with the label
     var photoFile: String?      // photo of the label, kept on this device only
     var addedAt = Date()
+    var route: String?          // how it's used: "หยอดตา", "ทาบาง ๆ", "สูด"… nil = by mouth
+    var amountMax: Double?      // "ครั้งละ 1-2 เม็ด" → amount 1, amountMax 2
 
-    static let units = ["เม็ด", "แคปซูล", "ช้อนชา", "ช้อนโต๊ะ", "ซอง", "ml"]
+    static let units = ["เม็ด", "แคปซูล", "หยด", "ช้อนชา", "ช้อนโต๊ะ", "ml", "ซอง", "พัฟ", "ครั้ง", "ยูนิต", ""]
     static let meals = ["", "ก่อนอาหาร", "หลังอาหาร", "พร้อมอาหาร"]
+    static let routes = ["", "หยอดตา", "หยอดตาขวา", "หยอดตาซ้าย", "หยอดตาทั้ง 2 ข้าง", "หยอดหู", "หยอดจมูก",
+                         "หยดใต้ลิ้น", "พ่นจมูก", "สูด", "ทาบาง ๆ", "อม", "เหน็บ", "ฉีด"]
 
     /// An empty medicine for typing one in by hand.
     static var blank: Medicine {
@@ -36,12 +40,21 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
         TimeSlot.allCases.filter { slots.contains($0) }
     }
 
-    var amountText: String { amount == 0.5 ? "ครึ่ง" : String(format: "%g", amount) }
+    /// "1", "ครึ่ง" (half), or "1-2"
+    var amountText: String {
+        let first = amount == 0.5 ? "ครึ่ง" : String(format: "%g", amount)
+        if let amountMax, amountMax > amount { return "\(first)-\(String(format: "%g", amountMax))" }
+        return first
+    }
 
-    /// "ครั้งละ 1 เม็ด" (1 tablet each time)
-    var amountLine: String { "ครั้งละ \(amountText) \(unit)" }
+    /// "ครั้งละ 1 เม็ด", "หยอดตาทั้ง 2 ข้าง ครั้งละ 1 หยด", or "ทาบาง ๆ" for creams (no count).
+    var amountLine: String {
+        guard !unit.isEmpty else { return route ?? "ใช้ตามแพทย์สั่ง" }
+        let each = "ครั้งละ \(amountText) \(unit)"
+        return route.map { "\($0) \(each)" } ?? each
+    }
 
-    var friendlyName: String? { DrugDictionary.friendlyName(for: name) }
+    var friendlyName: String? { MedicineNames.friendlyName(for: name) }
 
     var mealEnglish: String {
         switch meal {
@@ -56,7 +69,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var spokenThai: String {
         var parts = ["ยา \(name.isEmpty ? "ไม่ทราบชื่อ" : name)"]
         if let friendlyName { parts.append(friendlyName) }
-        parts.append("กินครั้งละ \(amountText) \(unit)")
+        parts.append(route == nil && !unit.isEmpty ? "กิน\(amountLine)" : amountLine)
         if asNeeded {
             parts.append("เมื่อมีอาการ")
         } else if !orderedSlots.isEmpty {
