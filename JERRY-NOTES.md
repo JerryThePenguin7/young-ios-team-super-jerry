@@ -10,9 +10,10 @@ These are **only on this computer**. They are not on GitHub:
 
 | What | Where | What to do |
 |---|---|---|
-| **Research notes** (Thai medicine label datasets, OCR, synthetic data) | `research_notes/` (100 KB) | Copy the folder to the new PC (AirDrop or USB), or ask Claude to commit it |
+| ~~Research notes~~ | `research_notes/` | ✅ Now on GitHub, so nothing to copy |
 | **Claude's memory of how you like to work** | `~/.claude/projects/-Users-sccths-Documents-SuperJerry/memory/` | Optional. The same rules are in `AGENTS.md`, so a new PC is fine without it |
-| **This notes file** | `JERRY-NOTES.md` | It's only on GitHub if you commit it. Otherwise copy it too |
+| ~~This notes file~~ | `JERRY-NOTES.md` | ✅ Now on GitHub |
+| **Notes from your other Claude chat** (envelope test) | `SESSION-NOTES.md` | Not on GitHub. Copy it, or ask Claude to commit it |
 | Envelope test output (300 fake envelope photos) | `tools/envelope-test/out/` (31 MB) | Not needed: it can be regenerated. The test's code is on GitHub in PR #7 |
 | Old copy of the plan | `claude-plan/` | Not needed: the same plan is in `docs/pill-reader/plan.md` |
 
@@ -29,7 +30,7 @@ open young-ios-team-super-jerry/SuperJerry.xcodeproj
 
 - Use **Xcode 26 or 27**. If Xcode 27 asks to "update to recommended settings / project format", say **No**.
 - To run it on the iPad, set *your* Team in Signing & Capabilities, but **don't commit that change**.
-- Then copy `research_notes/` into the project folder.
+- `research_notes/` and these notes come with the clone. Copy `SESSION-NOTES.md` over if you want it.
 
 ## 3. Where things are right now
 
