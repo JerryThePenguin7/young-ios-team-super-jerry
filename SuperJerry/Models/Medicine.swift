@@ -23,11 +23,17 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var stock: Double?          // how many are left (Medicine Storage); nil = not counted
     var stockFull: Double?      // how many there were at the last refill, for the bar
     var lowAt: Double?          // "Running low" at this many left, set by the user; nil = about a week's worth
+    /// How to use it, word for word as printed on the label ("พ่นจมูก 2 ข้าง ข้างละ 2 ที").
+    /// Shown and read aloud instead of Jenny's own summary, because a summary can drop something important.
+    var labelDirections: String?
+    var perSide: Bool?          // "ข้างละ 2 ที": the amount is for each side (each eye, ear or nostril)
+    var expiresOn: Date?        // the expiry date printed on the label
 
-    static let units = ["เม็ด", "แคปซูล", "หยด", "ช้อนชา", "ช้อนโต๊ะ", "ml", "ซอง", "พัฟ", "ครั้ง", "ยูนิต", ""]
+    static let units = ["เม็ด", "แคปซูล", "หยด", "ช้อนชา", "ช้อนโต๊ะ", "ml", "ซอง", "พัฟ", "ที", "ครั้ง", "ยูนิต", ""]
     static let meals = ["", "ก่อนอาหาร", "หลังอาหาร", "พร้อมอาหาร"]
-    static let routes = ["", "หยอดตา", "หยอดตาขวา", "หยอดตาซ้าย", "หยอดตาทั้ง 2 ข้าง", "หยอดหู", "หยอดจมูก",
-                         "หยดใต้ลิ้น", "พ่นจมูก", "สูด", "ทาบาง ๆ", "อม", "เหน็บ", "ฉีด"]
+    static let routes = ["", "หยอดตา", "หยอดตาขวา", "หยอดตาซ้าย", "หยอดตาทั้ง 2 ข้าง", "หยอดหู", "หยอดหูทั้ง 2 ข้าง",
+                         "หยอดจมูก", "หยอดจมูกทั้ง 2 ข้าง", "หยดใต้ลิ้น", "พ่นจมูก", "พ่นจมูกทั้ง 2 ข้าง", "สูด",
+                         "ทาบาง ๆ", "อม", "เหน็บ", "ฉีด"]
 
     /// An empty medicine for typing one in by hand.
     static var blank: Medicine {
@@ -51,11 +57,23 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
         return first
     }
 
-    /// "ครั้งละ 1 เม็ด", "หยอดตาทั้ง 2 ข้าง ครั้งละ 1 หยด", or "ทาบาง ๆ" for creams (no count).
+    /// Jenny's short summary: "ครั้งละ 1 เม็ด", "พ่นจมูกทั้ง 2 ข้าง ข้างละ 2 ที", or "ทาบาง ๆ" for creams (no count).
+    /// When the label's own words are known (`labelDirections`), show those instead.
     var amountLine: String {
         guard !unit.isEmpty else { return route ?? "ใช้ตามแพทย์สั่ง" }
-        let each = "ครั้งละ \(amountText) \(unit)"
+        let each = "\(perSide == true ? "ข้างละ" : "ครั้งละ") \(amountText) \(unit)"
         return route.map { "\($0) \(each)" } ?? each
+    }
+
+    /// How much is used each time, for counting what's left: "ข้างละ 2 ที" in both nostrils is 4.
+    var unitsPerDose: Double {
+        amount * (perSide == true ? 2 : 1)
+    }
+
+    /// The label's own words, if Jenny read them.
+    var directions: String? {
+        guard let labelDirections, !labelDirections.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return labelDirections
     }
 
     var friendlyName: String? { MedicineNames.friendlyName(for: name) }
@@ -69,17 +87,23 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
         }
     }
 
-    /// What the Thai voice says, e.g. "ยา Metformin. ยาเบาหวาน. กินครั้งละ 1 เม็ด. ตอนเช้า และตอนเย็น. หลังอาหาร"
+    /// What the Thai voice says. With the label's words: "ยา Otrivin. พ่นจมูก 2 ข้าง ข้างละ 2 ที วันละ 2 ครั้ง เช้า เย็น".
+    /// Without them: "ยา Metformin. ยาเบาหวาน. กินครั้งละ 1 เม็ด. ตอนเช้า และตอนเย็น. หลังอาหาร"
     var spokenThai: String {
         var parts = ["ยา \(name.isEmpty ? "ไม่ทราบชื่อ" : name)"]
         if let friendlyName { parts.append(friendlyName) }
-        parts.append(route == nil && !unit.isEmpty ? "กิน\(amountLine)" : amountLine)
-        if asNeeded {
-            parts.append("เมื่อมีอาการ")
-        } else if !orderedSlots.isEmpty {
-            parts.append(orderedSlots.map(\.spokenThai).joined(separator: " และ"))
+        if let directions {
+            // Word for word, so nothing on the label is lost.
+            parts += directions.split(whereSeparator: \.isNewline).map(String.init)
+        } else {
+            parts.append(route == nil && !unit.isEmpty ? "กิน\(amountLine)" : amountLine)
+            if asNeeded {
+                parts.append("เมื่อมีอาการ")
+            } else if !orderedSlots.isEmpty {
+                parts.append(orderedSlots.map(\.spokenThai).joined(separator: " และ"))
+            }
+            if !meal.isEmpty { parts.append(meal) }
         }
-        if !meal.isEmpty { parts.append(meal) }
         parts += warnings
         return parts.joined(separator: ". ")
     }

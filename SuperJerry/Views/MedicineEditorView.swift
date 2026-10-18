@@ -14,6 +14,7 @@ struct MedicineEditorView: View {
 
     @State private var medicine: Medicine
     @State private var warningsText: String
+    @State private var duplicateCheck: DuplicateCheck?
 
     init(medicine: Medicine, isNew: Bool, photo: UIImage? = nil, onSaved: @escaping () -> Void = {}) {
         self.isNew = isNew
@@ -32,7 +33,19 @@ struct MedicineEditorView: View {
                     TextField(language("ขนาดยา เช่น 500 mg", "Strength, e.g. 500 mg"), text: $medicine.strength)
                 }
 
-                Section(language("ครั้งละ", "Each time")) {
+                Section {
+                    TextField(language("พิมพ์ให้ตรงกับฉลากทุกคำ", "Type it exactly as printed on the label"),
+                              text: directionsBinding, axis: .vertical)
+                        .font(.title3)
+                        .lineLimit(2...8)
+                } header: {
+                    Text(language("วิธีใช้ตามฉลาก (ทุกคำ)", "Directions, word for word from the label"))
+                } footer: {
+                    Text(language("Jenny แสดงและอ่านออกเสียงตามนี้ทุกคำ ไม่ย่อ แก้ให้ตรงกับฉลากถ้าอ่านผิด",
+                                  "Jenny shows and reads these exact words, never shortened. Fix them if the camera misread the label."))
+                }
+
+                Section(language("ครั้งละ (ใช้นับยาและเตือน)", "Each time (for counting and reminders)")) {
                     Picker(language("วิธีใช้", "How it's used"), selection: routeBinding) {
                         ForEach(routeOptions, id: \.self) { route in
                             Text(Medicine.routeName(route, language)).tag(route)
@@ -44,6 +57,8 @@ struct MedicineEditorView: View {
                             .foregroundStyle(Theme.red)
                     }
                     .disabled(medicine.unit.isEmpty)
+                    Toggle(language("จำนวนนี้ต่อข้าง (ข้างละ)", "This amount is for each side (each eye, ear or nostril)"),
+                           isOn: Binding(get: { medicine.perSide == true }, set: { medicine.perSide = $0 ? true : nil }))
                     Picker(language("หน่วย", "Unit"), selection: $medicine.unit) {
                         ForEach(unitOptions, id: \.self) { unit in
                             Text(unit.isEmpty ? language("ไม่นับจำนวน (ยาทา)", "No count (cream)")
@@ -85,6 +100,18 @@ struct MedicineEditorView: View {
                 }
 
                 Section {
+                    Toggle(language("มีวันหมดอายุ", "Has an expiry date"), isOn: hasExpiryBinding)
+                    if let expiresOn = medicine.expiresOn {
+                        DatePicker(language("หมดอายุ", "Expires"), selection: expiryBinding(default: expiresOn),
+                                   displayedComponents: .date)
+                    }
+                } header: {
+                    Text(language("วันหมดอายุ", "Expiry date"))
+                } footer: {
+                    Text(language("ดูจากฉลาก เช่น EXP หรือ หมดอายุ", "As printed on the label, e.g. after EXP."))
+                }
+
+                Section {
                     TextField(language("คำเตือน บรรทัดละหนึ่งข้อ", "Warnings, one per line"), text: $warningsText, axis: .vertical)
                         .lineLimit(2...6)
                 } header: {
@@ -94,6 +121,9 @@ struct MedicineEditorView: View {
                 }
             }
             .tint(Theme.red)
+            .duplicateMedicineAlert(check: $duplicateCheck) { _ in
+                save(evenIfSaved: true)
+            }
             .navigationTitle(isNew ? language("เพิ่มยา", "New medicine") : language("แก้ไขยา", "Edit medicine"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -127,7 +157,7 @@ struct MedicineEditorView: View {
                     medicine.unit = "หยด"
                 } else if route == "สูด" {
                     medicine.unit = "พัฟ"
-                } else if route == "พ่นจมูก" {
+                } else if route.hasPrefix("พ่นจมูก") {
                     medicine.unit = "ครั้ง"
                 } else if route.hasPrefix("ทา") {
                     medicine.unit = ""
@@ -148,6 +178,21 @@ struct MedicineEditorView: View {
         Medicine.meals.contains(medicine.meal) ? Medicine.meals : Medicine.meals + [medicine.meal]
     }
 
+    private var directionsBinding: Binding<String> {
+        Binding(get: { medicine.labelDirections ?? "" }, set: { medicine.labelDirections = $0 })
+    }
+
+    private var hasExpiryBinding: Binding<Bool> {
+        Binding(
+            get: { medicine.expiresOn != nil },
+            set: { medicine.expiresOn = $0 ? Calendar.current.date(byAdding: .year, value: 1, to: Date()) : nil }
+        )
+    }
+
+    private func expiryBinding(default date: Date) -> Binding<Date> {
+        Binding(get: { medicine.expiresOn ?? date }, set: { medicine.expiresOn = $0 })
+    }
+
     private func slotBinding(_ slot: TimeSlot) -> Binding<Bool> {
         Binding(
             get: { medicine.slots.contains(slot) },
@@ -161,7 +206,8 @@ struct MedicineEditorView: View {
         )
     }
 
-    private func save() {
+    /// Asks first if a new medicine is already saved (Add anyway / Cancel).
+    private func save(evenIfSaved: Bool = false) {
         var result = medicine
         result.name = medicine.name.trimmingCharacters(in: .whitespaces)
         result.strength = medicine.strength.trimmingCharacters(in: .whitespaces)
@@ -171,7 +217,13 @@ struct MedicineEditorView: View {
             .split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
+        let directions = (result.labelDirections ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        result.labelDirections = directions.isEmpty ? nil : directions
 
+        if isNew && !evenIfSaved, let saved = store.duplicate(of: result) {
+            duplicateCheck = DuplicateCheck(saved: saved, new: result)
+            return
+        }
         if isNew {
             if let photo { result.photoFile = PhotoStore.save(photo) }
             store.add(result)

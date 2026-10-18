@@ -124,6 +124,17 @@ struct DoseLogSheet: View {
                     Text(doseLine(medicine, choice: choice))
                         .font(.headline)
                         .foregroundStyle(doseLineColor(choice))
+                        .fixedSize(horizontal: false, vertical: true)
+                    // In English the line above is Jenny's summary, so show the label's own words too.
+                    if language == .english, choice == nil, let directions = medicine.directions {
+                        Text(directions)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if medicine.isExpired() || medicine.expiresSoon() {
+                        ExpiryLabel(medicine: medicine)
+                    }
                     if medicine.stock != nil && medicine.canCountStock {
                         Label(medicine.stockText(language), systemImage: "shippingbox")
                             .font(.subheadline)
@@ -179,7 +190,8 @@ struct DoseLogSheet: View {
         case .skipped:
             return language("ข้ามยานี้", "Skipped")
         case nil:
-            return medicine.amountLine(language)
+            // Thai: the label's own words. English: Jenny's summary (the label's words are shown below it).
+            return medicine.instruction(language)
         }
     }
 

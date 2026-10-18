@@ -49,9 +49,7 @@ struct MedicineDetailView: View {
             header(medicine)
 
             card(title: language("วิธีใช้", "How to take")) {
-                Text(medicine.amountLine(language))
-                    .font(.title.bold())
-                    .foregroundStyle(Theme.red)
+                DirectionsView(medicine: medicine)
                 if !medicine.meal.isEmpty {
                     Label(Medicine.mealName(medicine.meal, language), systemImage: "fork.knife")
                         .font(.title3.weight(.semibold))
@@ -137,6 +135,7 @@ struct MedicineDetailView: View {
                         .font(.headline)
                         .foregroundStyle(Theme.red)
                 }
+                ExpiryLabel(medicine: medicine)
             }
         }
         .frame(maxWidth: .infinity)

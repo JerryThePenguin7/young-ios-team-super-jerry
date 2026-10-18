@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// The big, easy-to-read facts about one medicine: what it is, how many each time, meals, warnings.
+/// The big, easy-to-read facts about one medicine: what it is, how to use it (in the label's own words),
+/// meals, warnings, and the expiry date.
 struct MedicineInfoView: View {
     @Environment(\.language) private var language
     let medicine: Medicine
-    @ScaledMetric(relativeTo: .largeTitle) private var amountSize: CGFloat = 42
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -19,11 +19,11 @@ struct MedicineInfoView: View {
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
+                ExpiryLabel(medicine: medicine)
+                    .padding(.top, 4)
             }
 
-            Text(medicine.amountLine(language))
-                .font(.system(size: amountSize, weight: .heavy, design: .rounded))
-                .foregroundStyle(Theme.red)
+            DirectionsView(medicine: medicine)
 
             if !medicine.meal.isEmpty {
                 Label(Medicine.mealName(medicine.meal, language), systemImage: "fork.knife")

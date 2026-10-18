@@ -1,7 +1,7 @@
 # Project status: Jenny (for new AI chats and teammates)
 
 **Read this first in any new chat**, then `AGENTS.md` (rules) and `DESIGN.md` (look).
-Last updated: 2026-10-18 (Day 2), after the swipeable stacks, the per-medicine "Running low" level, and the no-cut-off-text fixes. Update the "Last updated" line and the lists below whenever something big changes.
+Last updated: 2026-10-18 (Day 2), after the health professional's fixes: word-for-word directions, expiry dates, and the duplicate warning. Update the "Last updated" line and the lists below whenever something big changes.
 
 ## What we're building
 
@@ -26,6 +26,8 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 - **Everything works offline.** Health data never leaves the device (PDPA). Use only made-up envelopes in tests and screenshots (`Understanding/SampleLabels.swift`, `docs/pill-reader/plan.md` §10.1).
 - **One language at a time:** all Thai or all English, picked in Settings or on the first tutorial page. Write every string as `language("ไทย", "English")`.
 - **Reminders go through Apple Reminders**, not our own notifications.
+- **Directions are shown and read word for word from the label** (advice from a health professional). Never summarise them:
+  "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must not become "พ่นจมูก 2 ครั้ง". Jenny's summary is only used for counting and reminders.
 
 ## The app today (main)
 
@@ -37,6 +39,9 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - **Medicine Storage**, also a widget stack: pills left, counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine (`MedicineStorageSection`, `StockEditorSheet`).
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
 - **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
+- **Label reading also keeps:** the directions word for word (`labelDirections`), "ข้างละ" doses per side (`perSide`, counted ×2 in storage),
+  and the expiry date (`expiresOn`; "EXP 12/2027", "หมดอายุ 31/12/2569", "หมดอายุ 5 มี.ค. 70"…; Buddhist years converted).
+- **Same medicine twice:** saving a medicine that's already saved asks first (Add anyway / Cancel), on the scan result and when typing one in.
   - A disclaimer at the bottom.
 - **Camera:**
   - When there are no medicines yet, the big red box (`CameraCard`) is at the top.

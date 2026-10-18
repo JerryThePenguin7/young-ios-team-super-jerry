@@ -55,7 +55,7 @@ nonisolated enum LabelReader {
             unit = "เม็ด"
             unitGuessed = true
         }
-        let route = eyeSide(compact: compact, form: form) ?? form?.route ?? savedMatch?.route
+        let route = bothSides(compact: compact, form: form) ?? form?.route ?? savedMatch?.route
 
         // Times: the rules' slots, or "วันละ 3-4 ครั้ง" / "ทุก 6 ชั่วโมง" that the rules don't handle.
         var slots = info.slots
@@ -81,6 +81,11 @@ nonisolated enum LabelReader {
         )
         var reading = LabelReading(medicine: medicine, nameSource: nameSource, unitGuessed: unitGuessed,
                                    timesGuessed: timesGuessed)
+        // The label's own words for how to use it. Shown and read aloud word for word, never summarised.
+        let directions = directionLines(lines, warnings: info.warnings)
+        reading.medicine.labelDirections = directions.isEmpty ? nil : directions.joined(separator: "\n")
+        reading.medicine.perSide = compact.contains("ข้างละ") ? true : nil
+        reading.medicine.expiresOn = expiryDate(in: text)
         if let group = entry?.group ?? savedMatch?.group {
             reading.medicine.group = group
             reading.groupSource = .nameList
@@ -96,7 +101,7 @@ nonisolated enum LabelReader {
         let route = route ?? form?.route ?? ""
         if route.contains("หยอดตา") || route.contains("หยอดหู") { return .eyesEars }
         if route.hasPrefix("ทา") { return .skin }
-        if route == "สูด" || route == "พ่นจมูก" { return .breathing }
+        if route == "สูด" || route.hasPrefix("พ่นจมูก") { return .breathing }
         let thaiName = MedicineNames.thaiKey(name)
         let herbalWords = ["ยาหอม", "ยาแผนไทย", "สมุนไพร", "ยาธาตุ", "ยาเขียว", "ยาประสะ"]
         if herbalWords.contains(where: { thaiName.contains($0) }) { return .herbal }
@@ -189,7 +194,8 @@ nonisolated enum LabelReader {
         var unit: String?
     }
 
-    private static let thaiUnits = "เม็ด|แคปซูล|ช้อนชา|ช้อนโต๊ะ|ซอง|หยด|พัฟ|ครั้ง|มล\\.?|ml|ซีซี|cc|ยูนิต"
+    /// "ที" is a puff or spray: "ข้างละ 2 ที". It only counts right after ครั้งละ/ข้างละ/ทีละ and a number.
+    private static let thaiUnits = "เม็ด|แคปซูล|ช้อนชา|ช้อนโต๊ะ|ซอง|หยด|พัฟ|ครั้ง|มล\\.?|ml|ซีซี|cc|ยูนิต|ที"
 
     /// "ครั้งละ 1-2 เม็ด", "ข้างละ 1 หยด", "หยอดตา 2 หยด", "2 puffs", "1 tab".
     private static func findAmount(compact: String, latin: String) -> Amount? {
@@ -235,15 +241,115 @@ nonisolated enum LabelReader {
         return "ml"
     }
 
-    /// "หยอดตาขวา", "หยอดตาซ้าย", or "หยอดตาทั้ง 2 ข้าง" for eye drops.
-    private static func eyeSide(compact: String, form: DosageForm?) -> String? {
-        guard form == .eyeDrops else { return nil }
-        if compact.contains("ทั้ง2ข้าง") || compact.contains("ทั้งสองข้าง") || compact.contains("ข้างละ") {
-            return "หยอดตาทั้ง 2 ข้าง"
+    /// "หยอดตาทั้ง 2 ข้าง", "พ่นจมูกทั้ง 2 ข้าง", "หยอดหูทั้ง 2 ข้าง"…, or "หยอดตาขวา" / "หยอดตาซ้าย".
+    private static func bothSides(compact: String, form: DosageForm?) -> String? {
+        guard let form, [.eyeDrops, .earDrops, .noseDrops, .nasalSpray].contains(form), let route = form.route else { return nil }
+        let both = ["ทั้ง2ข้าง", "ทั้งสองข้าง", "2ข้าง", "สองข้าง", "ข้างละ"]
+        if both.contains(where: { compact.contains($0) }) { return "\(route)ทั้ง 2 ข้าง" }
+        if form == .eyeDrops {
+            if compact.contains("ตาขวา") { return "หยอดตาขวา" }
+            if compact.contains("ตาซ้าย") { return "หยอดตาซ้าย" }
         }
-        if compact.contains("ตาขวา") { return "หยอดตาขวา" }
-        if compact.contains("ตาซ้าย") { return "หยอดตาซ้าย" }
         return nil
+    }
+
+    // MARK: Directions, word for word
+
+    /// Words that mean a line says how to use the medicine.
+    private static let directionWords = [
+        "รับประทาน", "ครั้งละ", "วันละ", "ข้างละ", "ทีละ", "หยอด", "หยด", "พ่น", "สูด", "ทาบาง", "ทาบริเวณ", "ทาที่",
+        "ทาวันละ", "ทาแผล", "ทาผิว", "อมครั้งละ", "อมวันละ", "อมใต้ลิ้น", "อมช้า", "เหน็บ", "ฉีด", "ก่อนอาหาร",
+        "หลังอาหาร", "พร้อมอาหาร", "ก่อนนอน", "เช้า", "กลางวัน", "เที่ยง", "เย็น", "ชั่วโมง", "เมื่อมีอาการ",
+        "เวลามีอาการ", "ละลายน้ำ", "เขย่า", "เก็บ",
+    ]
+    private static let latinDirectionWords = [
+        "take ", " tab", " cap", "drop", "puff", "spray", "apply", "inhale", "times a day", "daily", "every ",
+        " hours", "before meal", "after meal", "bedtime", " bid", " tid", " qid", " prn", "shake",
+    ]
+
+    /// The lines that say how to use it, exactly as printed (just trimmed), in label order.
+    /// Warnings are left out: they're kept, word for word, in `warnings`.
+    static func directionLines(_ lines: [String], warnings: [String]) -> [String] {
+        lines.compactMap { line -> String? in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty, !warnings.contains(trimmed) else { return nil }
+            let compact = MedicineNames.thaiKey(trimmed)
+            let latin = " \(trimmed.lowercased())"
+            if skipThai.contains(where: { compact.contains($0) }) || expiryDate(in: trimmed) != nil { return nil }
+            let saysHow = directionWords.contains { compact.contains($0) }
+                || latinDirectionWords.contains { latin.contains($0) }
+            return saysHow ? trimmed : nil
+        }
+    }
+
+    // MARK: Expiry date
+
+    /// The expiry date after "EXP", "หมดอายุ", "ใช้ก่อน"…: "EXP 12/2027", "หมดอายุ 31/12/2569",
+    /// "Exp. Date: 2027-03", "EXP DEC 2026", "หมดอายุ 5 มี.ค. 70". Thai Buddhist years (2569, or "69") become 2026.
+    /// A month without a day means the end of that month.
+    static func expiryDate(in text: String) -> Date? {
+        let flat = LabelParser.normalize(text).replacingOccurrences(of: "\n", with: " ")
+        let keyword = "(?:\\bexp(?:iry|ires|ired|iration)?\\.?\\s*(?:date)?|\\buse\\s*by|\\bbest\\s*before|วันหมดอายุ|วันที่หมดอายุ|หมดอายุ|วันสิ้นอายุ|ควรใช้ก่อน|ใช้ก่อน|ใช้ได้ถึง)"
+        guard let regex = try? NSRegularExpression(pattern: keyword + "\\s*[:：.\\-]?\\s*", options: [.caseInsensitive]) else { return nil }
+        for match in regex.matches(in: flat, range: NSRange(flat.startIndex..., in: flat)) {
+            guard let end = Range(match.range, in: flat)?.upperBound else { continue }
+            let tail = String(flat[end...].prefix(30))
+            if let date = parseDate(tail) { return date }
+        }
+        return nil
+    }
+
+    private static let latinMonths = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    /// Full names first, so "มีนาคม" isn't read as "มี.ค." plus junk. Dots are removed before matching.
+    private static let thaiMonths: [(String, Int)] = [
+        ("มกราคม", 1), ("กุมภาพันธ์", 2), ("มีนาคม", 3), ("เมษายน", 4), ("พฤษภาคม", 5), ("มิถุนายน", 6),
+        ("กรกฎาคม", 7), ("สิงหาคม", 8), ("กันยายน", 9), ("ตุลาคม", 10), ("พฤศจิกายน", 11), ("ธันวาคม", 12),
+        ("มีค", 3), ("เมย", 4), ("มิย", 6), ("มค", 1), ("กพ", 2), ("พค", 5), ("กค", 7), ("สค", 8), ("กย", 9),
+        ("ตค", 10), ("พย", 11), ("ธค", 12),
+    ]
+
+    /// A date at the very start of `tail`.
+    private static func parseDate(_ tail: String) -> Date? {
+        let sep = "[/.\\-]"
+        // 2027-12-31 or 2027/12
+        if let m = firstMatch("^(\\d{4})\(sep)(\\d{1,2})(?:\(sep)(\\d{1,2}))?", in: tail) {
+            return makeDate(day: m[3].flatMap { Int($0) }, month: m[2].flatMap { Int($0) }, year: m[1].flatMap { Int($0) })
+        }
+        // 31/12/2026 or 31.12.69
+        if let m = firstMatch("^(\\d{1,2})\(sep)(\\d{1,2})\(sep)(\\d{2,4})", in: tail) {
+            return makeDate(day: m[1].flatMap { Int($0) }, month: m[2].flatMap { Int($0) }, year: m[3].flatMap { Int($0) })
+        }
+        // 12/2027 or 12-69
+        if let m = firstMatch("^(\\d{1,2})(?:\(sep)|\\s)(\\d{2,4})\\b", in: tail) {
+            return makeDate(day: nil, month: m[1].flatMap { Int($0) }, year: m[2].flatMap { Int($0) })
+        }
+        // DEC 2026, 31 Dec 2026, Dec. 31, 2026 is rare on Thai labels so it isn't handled.
+        if let m = firstMatch("^(\\d{1,2})?\\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?[\\s,\\-/]*(\\d{2,4})", in: tail),
+           let monthName = m[2]?.lowercased(), let month = latinMonths.firstIndex(of: String(monthName.prefix(3))) {
+            return makeDate(day: m[1].flatMap { Int($0) }, month: month + 1, year: m[3].flatMap { Int($0) })
+        }
+        // 5 มี.ค. 2570 or ธ.ค. 69
+        let thai = tail.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: " ", with: "")
+        if let m = firstMatch("^(\\d{1,2})?([^\\d]+?)(\\d{2,4})", in: thai), let word = m[2],
+           let month = thaiMonths.first(where: { word == $0.0 })?.1 {
+            return makeDate(day: m[1].flatMap { Int($0) }, month: month, year: m[3].flatMap { Int($0) })
+        }
+        return nil
+    }
+
+    /// Checks the numbers and turns Thai Buddhist years into ordinary ones. No day = the last day of the month.
+    private static func makeDate(day: Int?, month: Int?, year: Int?) -> Date? {
+        guard let month, (1...12).contains(month), var year else { return nil }
+        if year < 100 { year = year >= 60 ? 2500 + year - 543 : 2000 + year }   // "69" on a Thai label is 2569
+        if year > 2400 { year -= 543 }                                            // 2569 → 2026
+        guard (2000...2100).contains(year) else { return nil }
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
+        guard let firstOfMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
+              let daysInMonth = calendar.range(of: .day, in: .month, for: firstOfMonth)?.count else { return nil }
+        let day = day ?? daysInMonth
+        guard (1...daysInMonth).contains(day) else { return nil }
+        return calendar.date(from: DateComponents(year: year, month: month, day: day))
     }
 
     /// "0.5%" for eye drops and creams, which print a percentage instead of mg.

@@ -9,7 +9,7 @@ nonisolated extension Medicine {
     /// How much is used each day, or nil for "when needed" medicines.
     var usePerDay: Double? {
         guard !asNeeded, !times.isEmpty else { return nil }
-        return amount * Double(times.count)
+        return unitsPerDose * Double(times.count)
     }
 
     /// Whole days left at the usual dose.
@@ -23,7 +23,7 @@ nonisolated extension Medicine {
     var lowStockLevel: Double {
         if let lowAt { return lowAt }
         if let usePerDay { return usePerDay * 7 }
-        return amount * 3
+        return unitsPerDose * 3
     }
 
     var isLowStock: Bool {

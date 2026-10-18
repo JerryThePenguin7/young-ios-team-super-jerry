@@ -212,6 +212,9 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 | Widget stack | `Views/CardStack.swift` | Smart Stack style, used by Your Medications and Medicine Storage. A vertical paging scroll view, 2 cards peeking out behind (12 pt higher, 6% smaller and a little darker each), page dots on the right, a selection haptic. Tap opens it with `.spring(duration: 0.5, bounce: 0.25)` and `matchedGeometryEffect`, so each card glides into the list. VoiceOver: swipe up or down to change, double-tap to open |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Shown when the stack is spread out. Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
 | Medicine Storage | `Views/MedicineStorageSection.swift`, `Views/StockEditorSheet.swift` | A widget stack, then a list. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge. The sheet also sets the warning level (quick 5 / 10 / 20). The sheet sets or refills the count |
+| Directions | `Views/DirectionsView.swift` | The label's own words, big and red, under "วิธีใช้ตามฉลาก (ทุกคำ)". English adds Jenny's summary, marked "check it against the label" |
+| Expiry | `Views/ExpiryLabel.swift` | "หมดอายุ 31 ธ.ค. 2570" (Buddhist year in Thai). Expired: red icon and tint; within 30 days: orange. Shown on the card and log sheet only when expired or soon |
+| Same medicine twice | `Views/DuplicateMedicineAlert.swift` | Before saving a medicine that's already saved: "You already have this medicine", with **Add anyway** or **Cancel**. Mentions different strengths |
 | Tutorial | `Views/TutorialView.swift` | First launch only (`hasSeenTutorial`). Big icon, title and words per page, **Next** at the bottom, **Skip** at the top |
 | Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), name, kind and strength, schedule, meals, and a round read-aloud button |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a red circle |
@@ -220,6 +223,10 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 | Disclaimer | ContentView, detail, scan result | "ไม่ใช่คำแนะนำทางการแพทย์ · Not medical advice" in footnote style |
 
 ## Do's and Don'ts
+
+- **Never summarise the label's directions.** Show and read aloud the label's own words, word for word (`Medicine.labelDirections`, `DirectionsView`).
+  A summary can drop something important: "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must never become "พ่นจมูก 2 ครั้ง". Jenny's own summary is only for counting
+  pills and reminders, and in English it's labeled as a summary to check against the label.
 
 - Do write every string as `language("ไทย", "English")`, and check both languages.
 - Do pair every color with an SF Symbol or a word.
