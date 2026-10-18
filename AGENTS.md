@@ -1,12 +1,13 @@
 # AGENTS.md
 
 Rules for any coding agent (Xcode agents, OpenCode, Claude, Codex, or others) working in this project.
-Based on the YIDH26 handbook template. Read `ai/what-we-are-building.md` before suggesting features.
+Based on the YIDH26 handbook template. **New chat? Read `ai/project-status.md` first**: what Jenny is, what's done, decisions already made, and what's left.
+Read `ai/what-we-are-building.md` before suggesting features.
 
 ## About this app
 Team **Super Jerry**'s SwiftUI app for iPad/iPhone, built at the Young iOS Developer Hackathon 2026 (YIDH26) at Srinakharinwirot University.
-It solves one real problem for one real kind of person, using AI that runs on Apple devices.
-<!-- Team: once the idea is picked, replace the line above with one sentence: who it's for + what problem it solves. -->
+**Jenny** helps older Thai adults take their medicines correctly. You photograph a Thai medicine envelope, Jenny reads it on the device
+(Vision + our Thai label rules), reads it aloud, and keeps a Health-style daily log. Everything works offline.
 
 ## Our team uses TWO Xcode versions. Code must build in BOTH.
 - 1 M-chip Mac with **Xcode 27** (iOS 27 SDK).
@@ -54,6 +55,9 @@ The 3 options are a **menu, not a checklist**. Use the one that fits the problem
 - Work on the current feature branch. Never commit to `main`, never force-push, and never rewrite history.
 - After changing code, build it:
   `xcodebuild -project SuperJerry.xcodeproj -scheme SuperJerry -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`
+- Xcode 27's build can rewrite `project.pbxproj` and add entries to `SuperJerry/InfoPlist.xcstrings`. Don't commit those automatic edits:
+  `git checkout -- SuperJerry.xcodeproj/project.pbxproj SuperJerry/InfoPlist.xcstrings`
+- Before merging a PR, check that `main` hasn't moved, review the diff, scan for secrets, and do a fresh build.
 - Finish by listing what you changed and how the user can test it (Preview, Simulator, or iPad).
 
 ## Design
@@ -76,6 +80,9 @@ The 3 options are a **menu, not a checklist**. Use the one that fits the problem
 - Reply in the language the user writes in (Thai or English).
 
 ## More context
-- `ai/what-we-are-building.md`: the goal, the AI options, judging, and team workflow (**start here**)
+- `ai/project-status.md`: the app today, the AI choices, decisions made, how to build and check, and the to-do list (**start here**)
+- `ai/what-we-are-building.md`: the goal, the AI options, judging, and team workflow
+- `DESIGN.md` and `docs/design/`: the design system, the research behind it, and design reviews
+- `docs/pill-reader/`: the original plan, the pitch script, judge Q&A, the fake envelopes, and the AI explainer
 - `ai/context/competition-brief.md`: full rules, schedule, AI cluster models
 - `ai/prompts/`: ready-made prompts the team uses

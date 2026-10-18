@@ -4,7 +4,8 @@ Everything our AI tools (and we) need to stay on the same page.
 
 | File | What it's for |
 |---|---|
-| [what-we-are-building.md](what-we-are-building.md) | **Start here.** The goal, the 3 AI options (a menu, not a checklist), judging, team rules, and every source |
+| [project-status.md](project-status.md) | **Start here (new chats too).** What Jenny does today, the AI choices and why, how to build and check, and the to-do list |
+| [what-we-are-building.md](what-we-are-building.md) | The goal, the 3 AI options (a menu, not a checklist), judging, team rules, and every source |
 | [context/competition-brief.md](context/competition-brief.md) | Full rules, schedule, team kit, AI cluster models and setup |
 | [context/kickoff-transcript-th.txt](context/kickoff-transcript-th.txt) | Raw Thai transcript of the kickoff talk (noisy) |
 | [prompts/](prompts/) | Copy-paste prompts for Xcode agents, OpenCode, Claude, or ChatGPT |
