@@ -123,16 +123,17 @@ components:
 Jenny follows the **Medications page of the Apple Health app**, so it should feel just as calm and trustworthy.
 The home screen ("ยาของฉัน · Medications") reads top to bottom:
 
-1. **The day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with green as doses are taken. Tap a day to see its log.
-2. **The red box, only when there are no medicines yet:** it explains what Jenny does, with **ถ่ายรูป · Take photo** (white button) and **เลือกจากคลังภาพ · Choose from Photos** (outlined).
-3. **Log:** one white card per pill time ("8:00 น.") with the medicines still to take and a round **+**. Tap a card to log them as taken or skipped. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
-4. **Logged:** what was taken (✓) or skipped, by time. Tap a time to change it.
-5. **Your Medications:** starts as a **widget stack**, like the Smart Stack on the iPhone and iPad Home Screen: one card in front, the next two peeking out behind it. **Swipe up or down** to flip through them (dots on the right show where you are, with a light tap you can feel). **Tap** to spread them out: the front card springs into its place in the list and the rest drop down after it. The spread-out cards are in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button; tap a group's header to fold it. **Stack** packs them back up.
-6. **Medicine Storage:** the same kind of widget stack (running low first), one card per medicine: how many are left, a bar, about how many days that lasts, and the warning level. Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets for each medicine (e.g. 10 or 5 left); until they set one, it's about a week's worth. Tap to spread the stack out, then tap a row to set or refill the count and the level.
+0. **Two big buttons at the top** switch the page: **บันทึกการทานยา · Log** and **ยาของคุณ · Your Medications** (the chosen one filled red). They stay pinned under the navigation bar.
+1. **Log ▸ the day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with green as doses are taken. Tap a day to see its log.
+2. **Log ▸ no medicines yet:** a `ContentUnavailableView` pointing to the red scan button at the bottom (the old red box is gone).
+3. **Log ▸ checklist:** one white card per pill time ("8:00 น.") listing the medicines still to take, each with a big tick box (and the label's instruction under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold a medicine to mark it skipped; the round **…** opens the full log sheet. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
+4. **Log ▸ Taken (ทานแล้ว):** what was taken (green ✓) or skipped (⊖, struck through), by time. Tap a tick to undo it (back to the checklist); tap a time for its log sheet.
+5. **Your Medications ▸ the medicines:** starts as a **widget stack**, like the Smart Stack on the iPhone and iPad Home Screen: one card in front, the next two peeking out behind it. **Swipe up or down** to flip through them (dots on the right show where you are, with a light tap you can feel). **Tap** to spread them out: the front card springs into its place in the list and the rest drop down after it. The spread-out cards are in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button; tap a group's header to fold it. **Stack** packs them back up.
+6. **Your Medications ▸ Medicine Storage:** the same kind of widget stack (running low first), one card per medicine: how many are left, a bar, about how many days that lasts, and the warning level. Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets for each medicine (e.g. 10 or 5 left); until they set one, it's about a week's worth. Tap to spread the stack out, then tap a row to set or refill the count and the level.
 7. The disclaimer.
-8. **The scan bar** (once you have medicines) floats at the bottom in Liquid Glass, where a thumb can reach it: a big red **ถ่ายรูปซองยา** button and a round Photos button.
+8. **The scan bar** floats at the bottom in Liquid Glass from the very first launch, where a thumb can reach it: one big red **ถ่ายรูปซองยา · Scan a medicine label** button. Tapping it asks **ถ่ายรูป · Take photo** or **เลือกจากคลังภาพ · Choose from Photos** (with no camera, it goes straight to Photos).
 
-On iPad, Log and Your Medications (with Medicine Storage) sit side by side.
+The page is one column on iPhone and iPad (at most 800 pt wide), since the two buttons switch between Log and Your Medications.
 
 **The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 4 big pages: choose the language, scan, log Taken or Skipped, Reminders and Medicine Storage. It has **Skip**, and Settings can show it again.
 **Top left** is the light or dark theme button (`AppearanceMenu`): Automatic, Light (white) or Dark (black). The language is chosen on the first tutorial page or in Settings.
@@ -166,8 +167,8 @@ It never feels babyish or "for old people". Family members use it too, and nobod
   - small fills inside cards (`fill`, soft gray)
 
   Never use red tints as card or button backgrounds. They look washed out next to the red accent.
-- **Red** is Jenny's brand: the scan button and red box, pill icons, the + and ✓ marks, and group headers.
-  Use only **one big red call to action per screen**: the scan bar (or red box) on home, and **Taken** or **Done** in the log sheet.
+- **Red** is Jenny's brand: the scan button, the chosen home button, pill icons, and group headers.
+  Use only **one big red call to action per screen**: the scan bar on home, and **Taken** or **Done** in the log sheet.
 - A red **tint** is allowed only for a *state*: the "ถึงเวลา" chip or badge. The red border on a due Log card is a state too.
 - **Green** means taken: the filled **Taken** button (`Theme.greenFill`), ✓ marks, green words and the week-strip circles (`Theme.green`). It makes Taken easy to tell apart from Skipped (red) at a glance.
 - **Orange** means late. It always comes with a word ("เลยเวลาแล้ว · Late"). **Text on orange must be dark**, because white on orange is too hard to read.
@@ -183,7 +184,7 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 
 ## Layout
 
-- The page is one scrolling column, at most 1100 pt wide. On iPad (regular width), the Log column and the Your Medications column sit side by side.
+- The page is one scrolling column, at most 800 pt wide, on iPhone and iPad. The Log / Your Medications buttons switch what it shows.
 - Sections are 28 pt apart. Cards use 20 pt padding and 12–14 pt between rows.
 - **Never cut text off with "…".** Let it wrap (`.fixedSize(horizontal: false, vertical: true)`), use `ViewThatFits` to put things one above the other when they don't fit side by side, and size fixed things with `@ScaledMetric` so they grow with the text.
 - **At accessibility text sizes, rows stack vertically** (icon above text, time above "3 hr. ago") instead of squeezing. Check `dynamicTypeSize.isAccessibilitySize`.
@@ -192,23 +193,23 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 ## Elevation & Depth
 
 Flat, like Health. White cards sit on the light-gray background without shadows. Depth only comes from Liquid Glass: the navigation bar, sheets, and the floating scan bar.
-The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as the main feature, and pill icons use the same gradient.
+Pill icons use a soft red gradient (`Theme.card.gradient`).
 
 ## Shapes
 
-- The red box: 28 pt corners. Cards: 24 pt. Buttons: 16–18 pt. Pill icons, badges and the week-strip circles: fully round.
+- Cards: 24 pt. Buttons: 16–18 pt. Pill icons, badges and the week-strip circles: fully round.
 - Always `RoundedRectangle(cornerRadius:style: .continuous)`, the Apple squircle.
 
 ## Components
 
 | Component | File | Notes |
 |---|---|---|
-| Red box | `Views/CameraCard.swift` | Only shown when there are no medicines yet. White main button plus a white-outlined second button, stacked |
-| Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`). `.glassProminent` red button plus a `.glass` round Photos button. Max 560 pt wide |
+| Home buttons | `ContentView.swift` (`tabButtons`) | Log / Your Medications, 52 pt, side by side (stacked with very big text), pinned with `safeAreaInset(edge: .top)` on `.bar` |
+| Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`) from the first launch. One `.glassProminent` red button; a `confirmationDialog` offers Take photo / Choose from Photos (`photosPicker(isPresented:)`). Max 560 pt wide |
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken |
-| Log card | `Views/LogTimeCard.swift` | A white card. The whole card is the button. Time + badge + a round **+** (gray fill, red plus) + the medicines still to take |
+| Log checklist | `Views/LogTimeCard.swift` | A white card per time: time + badge + round **…** (full sheet), then one row per medicine: a 44 pt tick box (green ring), pill icon, name, the label's instruction. Tap = taken; press and hold = Taken / Skipped menu |
 | Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
-| Logged card | `Views/LoggedCard.swift` | ✓ or ⊖ per medicine, "3 hr. ago", tap a time to change it |
+| Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green. ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a time for the sheet |
 | Widget stack | `Views/CardStack.swift` | Smart Stack style, used by Your Medications and Medicine Storage. A vertical paging scroll view, 2 cards peeking out behind (12 pt higher, 6% smaller and a little darker each), page dots on the right, a selection haptic. Tap opens it with `.spring(duration: 0.5, bounce: 0.25)` and `matchedGeometryEffect`, so each card glides into the list. VoiceOver: swipe up or down to change, double-tap to open |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Shown when the stack is spread out. Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
 | Medicine Storage | `Views/MedicineStorageSection.swift`, `Views/StockEditorSheet.swift` | A widget stack, then a list. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge. The sheet also sets the warning level (quick 5 / 10 / 20). The sheet sets or refills the count |
@@ -216,7 +217,7 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 | Expiry | `Views/ExpiryLabel.swift` | "หมดอายุ 31 ธ.ค. 2570" (Buddhist year in Thai). Expired: red icon and tint; within 30 days: orange. Shown on the card and log sheet only when expired or soon |
 | Same medicine twice | `Views/DuplicateMedicineAlert.swift` | Before saving a medicine that's already saved: "You already have this medicine", with **Add anyway** or **Cancel**. Mentions different strengths |
 | Tutorial | `Views/TutorialView.swift` | First launch only (`hasSeenTutorial`). Big icon, title and words per page, **Next** at the bottom, **Skip** at the top |
-| Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), name, kind and strength, schedule, meals, and a round read-aloud button |
+| Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), the name with a plain red speaker right next to it (read aloud, no circle), kind and strength, schedule, meals, expiry and running-low warnings, and the › arrow centered on the right. The card is split into several links so the speaker can sit inside it |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a red circle |
 | Big button | `Views/BigButtonLabel.swift` | 60 pt, full width. `filled: true` for the main action |
 | Theme menu | `Views/AppearanceMenu.swift` | Top left: Automatic, Light (white), Dark (black). Also in Settings |
@@ -239,7 +240,7 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 - Don't use a symbol that could scare or mislead. For example, avoid a syringe for a diabetes **tablet**.
 - Don't hide features on iPhone that exist on iPad.
 - Don't use real people's health data in screenshots or previews. Use the made-up envelopes in `SampleLabels` (PDPA).
-- Don't add custom fonts, shadows, emoji icons or decorative gradients beyond the red box. Stay native, like Health.
+- Don't add custom fonts, shadows, emoji icons or decorative gradients beyond the pill icons. Stay native, like Health.
 
 ## Checking a design
 

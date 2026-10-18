@@ -15,6 +15,12 @@ struct MedicineSection: Identifiable {
     var id: MedicineGroup { group }
 }
 
+/// The two halves of the home screen, switched with the two big buttons at the top.
+enum HomeTab: Hashable {
+    case log           // the day's checklist
+    case medicines     // Your Medications and Medicine Storage
+}
+
 /// Which log sheet to open: one time's medicines, or the "when needed" ones.
 struct LogRequest: Identifiable {
     let id = UUID()
@@ -22,14 +28,14 @@ struct LogRequest: Identifiable {
     let day: Date
 }
 
-/// Home, laid out like the Health app's Medications page: the day and week at the top, then the camera
-/// (Jenny's main feature: photo → read the label → read aloud → save), the day's log, and your medicines.
-/// On iPad the log and your medicines sit side by side.
+/// Home, laid out like the Health app's Medications page. Two big buttons at the top switch between
+/// **Log** (the day and week, then a checklist for each pill time and what's been taken) and
+/// **Your Medications** (the medicine stack and Medicine Storage). The red scan button floats at the bottom:
+/// Jenny's main feature, photo → read the label → read aloud → save.
 struct ContentView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
     @Environment(\.openURL) private var openURL
-    @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -48,6 +54,7 @@ struct ContentView: View {
     @State private var isEditing = false
     /// Groups in "Your Medications" that are folded closed.
     @State private var collapsedGroups: Set<MedicineGroup> = []
+    @State private var tab = HomeTab.log
     /// "Your Medications" starts as a stack of cards; tap it to spread them out.
     @State private var isStacked = true
     /// The medicine in front of the stack.
@@ -153,22 +160,20 @@ struct ContentView: View {
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 28) {
-                WeekStrip(selectedDay: dayBinding(now: now), now: now)
-
-                // First time: the full red box explains what Jenny does. After that, the camera
-                // floats at the bottom (ScanBar) so the day's log comes first.
-                if store.medicines.isEmpty {
-                    CameraCard(photoItem: $photoItem, takePhoto: openCamera)
-                }
-
-                if sizeClass == .regular {
-                    HStack(alignment: .top, spacing: 28) {
-                        logColumn(day: day, now: now)
-                        medicinesColumn
+                switch tab {
+                case .log:
+                    WeekStrip(selectedDay: dayBinding(now: now), now: now)
+                    logSection(day: day, now: now)
+                    if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
+                        remindersCard
                     }
-                } else {
-                    logColumn(day: day, now: now)
-                    medicinesColumn
+                case .medicines:
+                    yourMedications
+                    if store.medicines.contains(where: \.canCountStock) {
+                        MedicineStorageSection { medicine in
+                            stockMedicine = medicine
+                        }
+                    }
                 }
 
                 Label(language("Jenny ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
@@ -178,15 +183,57 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
             }
             .padding()
-            .frame(maxWidth: 1100)
+            .frame(maxWidth: 800)
             .frame(maxWidth: .infinity)
         }
+        // The two big buttons stay at the top while the page scrolls.
+        .safeAreaInset(edge: .top) {
+            tabButtons
+        }
+        // The camera, from the very first launch.
         .safeAreaInset(edge: .bottom) {
-            if !store.medicines.isEmpty {
-                ScanBar(photoItem: $photoItem, takePhoto: openCamera)
-            }
+            ScanBar(photoItem: $photoItem, takePhoto: openCamera)
         }
         .sensoryFeedback(.success, trigger: store.records.count)
+    }
+
+    /// "Log" and "Your Medications": two big buttons that switch the page, the chosen one filled red.
+    private var tabButtons: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) { tabButtonList }
+            VStack(spacing: 8) { tabButtonList }
+        }
+        .frame(maxWidth: 800)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity)
+        .background(.bar)
+    }
+
+    @ViewBuilder
+    private var tabButtonList: some View {
+        tabButton(.log, title: language("บันทึกการทานยา", "Log"), symbol: "checklist")
+        tabButton(.medicines, title: language("ยาของคุณ", "Your Medications"), symbol: "pills.fill")
+    }
+
+    private func tabButton(_ target: HomeTab, title: String, symbol: String) -> some View {
+        let selected = tab == target
+        return Button {
+            withAnimation(.snappy) { tab = target }
+        } label: {
+            Label(title, systemImage: symbol)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .foregroundStyle(selected ? Color.white : Theme.red)
+                .background(selected ? Theme.card : Theme.fill,
+                            in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     /// Tapping today stores nil, so "today" moves on by itself after midnight.
@@ -198,16 +245,6 @@ struct ContentView: View {
     }
 
     // MARK: The camera and the log
-
-    private func logColumn(day: Date, now: Date) -> some View {
-        VStack(alignment: .leading, spacing: 28) {
-            logSection(day: day, now: now)
-            if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
-                remindersCard
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-    }
 
     private func logSection(day: Date, now: Date) -> some View {
         let calendar = Calendar.current
@@ -223,16 +260,15 @@ struct ContentView: View {
         let hasAsNeeded = store.medicines.contains { $0.asNeeded }
 
         return VStack(alignment: .leading, spacing: 14) {
-            Text(language("บันทึกการทานยา", "Log"))
-                .font(.title.bold())
-
             if store.medicines.isEmpty {
-                Text(language("ถ่ายรูปซองยาในกล่องสีแดงเพื่อเพิ่มยาตัวแรก",
-                              "Take a photo of a medicine envelope in the red box to add your first medicine."))
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                ContentUnavailableView {
+                    Label(language("ยังไม่มียา", "No medicines yet"), systemImage: "camera.fill")
+                } description: {
+                    Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง เพื่อเพิ่มยาตัวแรก",
+                                  "Tap the red \"Scan a medicine label\" button at the bottom to add your first medicine."))
+                }
             } else if toLog.isEmpty && !slots.isEmpty && !isFuture {
-                Label(language("บันทึกครบทุกเวลาแล้ว", "Everything is logged"), systemImage: "checkmark.seal.fill")
+                Label(language("ติ๊กครบทุกตัวแล้ว", "All checked off"), systemImage: "checkmark.seal.fill")
                     .font(.title3.bold())
                     .foregroundStyle(Theme.green)
             }
@@ -240,7 +276,13 @@ struct ContentView: View {
             ForEach(toLog) { slot in
                 LogTimeCard(time: slot.time, medicines: slot.medicines,
                             status: isToday ? status(of: slot, now: now) : .upcoming,
-                            canLog: !isFuture) {
+                            canLog: !isFuture) { medicine in
+                    // Today: taken now. An earlier day: taken at the time it was due.
+                    let takenAt = isToday ? now : slot.time.date(on: day)
+                    withAnimation(.snappy) { store.setLog(.taken(at: takenAt), for: medicine.id, at: slot.time, on: day) }
+                } skip: { medicine in
+                    withAnimation(.snappy) { store.setLog(.skipped, for: medicine.id, at: slot.time, on: day) }
+                } more: {
                     logRequest = LogRequest(kind: .time(slot.time), day: day)
                 }
             }
@@ -250,7 +292,9 @@ struct ContentView: View {
             }
 
             if !logged.isEmpty {
-                LoggedCard(logged: logged, now: now) { time in
+                LoggedCard(logged: logged, now: now) { dose in
+                    withAnimation(.snappy) { store.setLog(nil, for: dose.medicine.id, at: dose.record.time, on: day) }
+                } open: { time in
                     logRequest = LogRequest(kind: .time(time), day: day)
                 }
             }
@@ -325,18 +369,6 @@ struct ContentView: View {
 
     // MARK: Your medications
 
-    private var medicinesColumn: some View {
-        VStack(alignment: .leading, spacing: 28) {
-            yourMedications
-            if store.medicines.contains(where: \.canCountStock) {
-                MedicineStorageSection { medicine in
-                    stockMedicine = medicine
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-    }
-
     private var yourMedications: some View {
         VStack(alignment: .leading, spacing: 16) {
             // The title and its buttons side by side, or one above the other with very big text.
@@ -356,8 +388,8 @@ struct ContentView: View {
                 ContentUnavailableView(
                     language("ยังไม่มียา", "No medicines yet"),
                     systemImage: "pills",
-                    description: Text(language("แตะ \"ถ่ายรูป\" ในกล่องสีแดง แล้วถ่ายรูปซองยา",
-                                               "Tap \"Take photo\" in the red box and take a photo of a medicine envelope."))
+                    description: Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วถ่ายรูปซองยา",
+                                               "Tap the red \"Scan a medicine label\" button at the bottom and take a photo of a medicine envelope."))
                 )
             } else if isStacked && store.medicines.count > 1 {
                 CardStack(items: store.medicines, cardHeight: medicineCardHeight, current: $frontMedicine,
