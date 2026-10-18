@@ -17,6 +17,9 @@ struct DoseTimeline: View {
     let taken: [Date]
     let now: Date
 
+    /// The rail's icons grow with the text, so big text never overlaps them.
+    @ScaledMetric(relativeTo: .title2) private var railWidth: CGFloat = 32
+
     private enum Kind { case taken, now, next, ready }
 
     private struct Step {
@@ -98,7 +101,7 @@ struct DoseTimeline: View {
             VStack(spacing: 2) {
                 icon(step.kind)
                     .font(.title2)
-                    .frame(width: 32, height: 32)
+                    .frame(width: railWidth, height: railWidth)
                 if !isLast {
                     Capsule()
                         .fill(step.line)

@@ -6,6 +6,7 @@ import UIKit
 /// Tap it for details (and to refill the count).
 struct MedicineCard: View {
     @Environment(\.language) private var language
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let medicine: Medicine
     /// Edit mode on the home screen: show a delete button instead.
     var isEditing = false
@@ -95,7 +96,8 @@ struct MedicineCard: View {
                     .background(Theme.accentFill.gradient)
             }
         }
-        .frame(width: 120, height: 150)
+        // Narrower with very big text, so long names like "Dicloxacillin" still fit on a line.
+        .frame(width: dynamicTypeSize.isAccessibilitySize ? 84 : 120, height: dynamicTypeSize.isAccessibilitySize ? 120 : 150)
         .clipped()
         .accessibilityHidden(true)
     }

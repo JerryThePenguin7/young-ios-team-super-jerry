@@ -197,6 +197,8 @@ struct ContentView: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background(.bar)
+        // Pinned at the top: with the very biggest text they'd fill half the screen, so they stop growing here.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     }
 
     @ViewBuilder

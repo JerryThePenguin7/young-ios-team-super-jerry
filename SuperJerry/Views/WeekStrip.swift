@@ -2,18 +2,41 @@ import SwiftUI
 
 /// "Today, October 18", a week of days, and how the picked day went (like the Health and Fitness apps).
 /// Each day shows its short name ("Mon" / "จ."), its date, and a ring that fills up green as that day's
-/// doses are taken. Tap a day to see its summary and its log. Swipe right for earlier weeks.
+/// doses are taken. Tap a day to see its summary and its log. Swipe right for earlier weeks,
+/// or tap the date on top for a calendar by month (`MonthCalendarSheet`).
 struct WeekStrip: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
     @Binding var selectedDay: Date
     let now: Date
 
+    @State private var showingCalendar = false
+
     var body: some View {
         VStack(spacing: 14) {
-            Text(language.dayTitle(selectedDay, today: now))
-                .font(.title2.bold())
-                .frame(maxWidth: .infinity)
+            // The date drops down a month calendar (a sheet on iPhone).
+            Button {
+                showingCalendar = true
+            } label: {
+                HStack(spacing: 8) {
+                    Text(language.dayTitle(selectedDay, today: now))
+                        .font(.title2.bold())
+                        .multilineTextAlignment(.center)
+                    Image(systemName: "chevron.down.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(Theme.accent)
+                        .accessibilityHidden(true)
+                }
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(language("แตะเพื่อเปิดปฏิทินรายเดือน", "Opens a calendar by month"))
+            .popover(isPresented: $showingCalendar) {
+                MonthCalendarSheet(selectedDay: $selectedDay, now: now)
+                    .frame(minWidth: 360, idealWidth: 440, minHeight: 480, idealHeight: 640)
+                    .presentationCompactAdaptation(.sheet)
+            }
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(days, id: \.self) { day in
@@ -92,7 +115,7 @@ struct WeekStrip: View {
 
 /// One day's ring, like the Fitness app's: a gray track that fills green as doses are taken,
 /// a solid green circle with ✓ when everything was taken, and a faint dashed ring for days still to come.
-private struct DayRing: View {
+struct DayRing: View {
     /// 0...1, or nil when nothing was due that day (or it hasn't come yet).
     let progress: Double?
     let isFuture: Bool
