@@ -16,7 +16,7 @@ struct StatusBadge: View {
             Image(systemName: symbol)
                 .foregroundStyle(color)
         }
-        .font(.subheadline.bold())
+        .font(.callout.bold())
         .lineLimit(1)
         .fixedSize()
         .padding(.horizontal, 10)

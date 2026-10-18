@@ -82,6 +82,14 @@ nonisolated enum AppLanguage: String, CaseIterable, Identifiable {
         day.formatted(.dateTime.weekday(.narrow).locale(locale))
     }
 
+    /// "Fri" or "ศ.", so each day in the week strip is easy to recognise.
+    /// Thai uses the usual calendar abbreviations: the system's "short" Thai names are full words ("พฤหัส").
+    func weekdayShort(_ day: Date) -> String {
+        guard self == .thai else { return day.formatted(.dateTime.weekday(.abbreviated).locale(locale)) }
+        let thai = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."]
+        return thai[Calendar.current.component(.weekday, from: day) - 1]
+    }
+
     /// "1 hr. ago" or "1 ชม. ที่แล้ว"
     func timeAgo(_ date: Date, now: Date) -> String {
         if now.timeIntervalSince(date) < 60 { return self("เมื่อสักครู่", "Just now") }

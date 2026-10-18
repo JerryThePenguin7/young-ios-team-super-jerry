@@ -177,7 +177,7 @@ struct ScanResultView: View {
             Label(language("ตรวจกับฉลากจริงทุกครั้ง ไม่ใช่คำแนะนำทางการแพทย์",
                            "Always check the real label. Not medical advice."),
                   systemImage: "info.circle")
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .padding(24)
@@ -229,7 +229,7 @@ struct ScanResultView: View {
                     .foregroundStyle(Theme.red)
                 if let source = reading.groupSource {
                     Text(source.label(language))
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -237,7 +237,7 @@ struct ScanResultView: View {
             HStack(spacing: 8) {
                 ProgressView()
                 Text(language("กำลังจัดกลุ่มด้วย AI ในเครื่อง…", "Grouping with on-device AI…"))
-                    .font(.subheadline)
+                    .font(.callout)
                     .foregroundStyle(.secondary)
             }
         } else {
@@ -259,7 +259,7 @@ struct ScanResultView: View {
 
     private func badge(_ title: String, symbol: String) -> some View {
         Label(title, systemImage: symbol)
-            .font(.caption.bold())
+            .font(.subheadline.bold())
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .foregroundStyle(Theme.red)
@@ -268,7 +268,7 @@ struct ScanResultView: View {
 
     private func checkNote(_ text: String) -> some View {
         Label(text, systemImage: "exclamationmark.triangle.fill")
-            .font(.subheadline.weight(.semibold))
+            .font(.callout.weight(.semibold))
             .foregroundStyle(.orange)
     }
 

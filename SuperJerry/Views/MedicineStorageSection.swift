@@ -32,7 +32,7 @@ struct MedicineStorageSection: View {
             }
             Text(language("Jenny จะลดจำนวนยาให้เองทุกครั้งที่คุณบันทึกว่าทานแล้ว",
                           "Jenny counts down by itself every time you log Taken."))
-                .font(.subheadline)
+                .font(.callout)
                 .foregroundStyle(.secondary)
 
             if isStacked && medicines.count > 1 {
@@ -138,12 +138,12 @@ private struct StorageRow: View {
                     Text([medicine.daysLeftText(language), medicine.lowLevelText(language)]
                             .compactMap { $0 }
                             .joined(separator: " · "))
-                        .font(.subheadline)
+                        .font(.callout)
                         .foregroundStyle(.secondary)
                 } else {
                     Text(language("ยังไม่ได้นับ แตะเพื่อใส่จำนวนยาที่มี",
                                   "Not counted yet. Tap to add how many you have."))
-                        .font(.subheadline)
+                        .font(.callout)
                         .foregroundStyle(.secondary)
                 }
             }

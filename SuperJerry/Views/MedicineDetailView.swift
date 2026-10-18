@@ -102,7 +102,7 @@ struct MedicineDetailView: View {
             Label(language("ตรวจกับฉลากจริงทุกครั้ง ไม่ใช่คำแนะนำทางการแพทย์",
                            "Always check the real label. Not medical advice."),
                   systemImage: "info.circle")
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .padding()
