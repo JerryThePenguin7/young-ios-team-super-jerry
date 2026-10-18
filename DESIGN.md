@@ -207,7 +207,7 @@ Pill icons use a soft red gradient (`Theme.card.gradient`).
 | Home buttons | `ContentView.swift` (`tabButtons`) | Log / Your Medications, at least 60 pt: the icon above the words, both centered. Side by side (one above the other with very big text), pinned with `safeAreaInset(edge: .top)` on `.bar` |
 | Scan bar | `Views/ScanBar.swift` | Floats at the bottom (`safeAreaInset`) from the first launch. One `.glassProminent` red button; a `confirmationDialog` offers Take photo / Choose from Photos (`photosPicker(isPresented:)`). Max 560 pt wide |
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken |
-| Log checklist | `Views/LogTimeCard.swift` | A white card per time: time + badge + round **…** (full sheet), then one row per medicine: a 44 pt tick box (green ring), pill icon, name, the label's instruction. Tap = taken; press and hold = Taken / Skipped menu |
+| Log checklist | `Views/LogTimeCard.swift` | A white card per time: time + badge + round **…** (full sheet), then one row per medicine: a 44 pt tick box (green ring), the name, Jenny's summary as bullets (`BulletList`), and alerts (`MedicineAlerts`: expired, running low, label warnings). Tap = taken; press and hold = Taken / Skipped menu |
 | Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
 | Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green. ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a time for the sheet |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
@@ -216,7 +216,7 @@ Pill icons use a soft red gradient (`Theme.card.gradient`).
 | Expiry | `Views/ExpiryLabel.swift` | "หมดอายุ 31 ธ.ค. 2570" (Buddhist year in Thai). Expired: red icon and tint; within 30 days: orange. Shown on the card and log sheet only when expired or soon |
 | Same medicine twice | `Views/DuplicateMedicineAlert.swift` | Before saving a medicine that's already saved: "You already have this medicine", with **Add anyway** or **Cancel**. Mentions different strengths |
 | Tutorial | `Views/TutorialView.swift` | First launch only (`hasSeenTutorial`). Big icon, title and words per page, **Next** at the bottom, **Skip** at the top |
-| Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), the name with a plain red speaker right next to it (read aloud, no circle), kind and strength, schedule, meals, expiry and running-low warnings, and the › arrow centered on the right. The card is split into several links so the speaker can sit inside it |
+| Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), the name with a plain red speaker right next to it (read aloud, no circle), kind and strength, Jenny's summary as bullets (how much, when, meals), alerts (`MedicineAlerts`), and the › arrow centered on the right. The card is split into several links so the speaker can sit inside it |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a red circle |
 | Big button | `Views/BigButtonLabel.swift` | 60 pt, full width. `filled: true` for the main action |
 | Theme menu | `Views/AppearanceMenu.swift` | Top left: Automatic, Light (white), Dark (black). Also in Settings |
@@ -224,9 +224,12 @@ Pill icons use a soft red gradient (`Theme.card.gradient`).
 
 ## Do's and Don'ts
 
-- **Never summarise the label's directions.** Show and read aloud the label's own words, word for word (`Medicine.labelDirections`, `DirectionsView`).
-  A summary can drop something important: "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must never become "พ่นจมูก 2 ครั้ง". Jenny's own summary is only for counting
-  pills and reminders, and in English it's labeled as a summary to check against the label.
+- **Keep the label's directions word for word** (`Medicine.labelDirections`): the scan result and the medicine's own screen show them in full
+  (`DirectionsView`), and the voice reads them as printed. Short lists (the Log checklist, Your Medications) show Jenny's summary
+  as bullet points instead (`summaryBullets`, `BulletList`), e.g. "• พ่นจมูกทั้ง 2 ข้าง ข้างละ 2 ที • วันละ 2 ครั้ง: เช้า เย็น".
+  The summary must never drop a detail: "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must never become "พ่นจมูก 2 ครั้ง".
+- **Show what matters before the tick:** expired or expiring soon, running low, and the label's warnings appear under the medicine's
+  name in the checklist and on its card (`MedicineAlerts`).
 
 - Do write every string as `language("ไทย", "English")`, and check both languages.
 - Do pair every color with an SF Symbol or a word.

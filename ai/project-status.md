@@ -26,8 +26,10 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 - **Everything works offline.** Health data never leaves the device (PDPA). Use only made-up envelopes in tests and screenshots (`Understanding/SampleLabels.swift`, `docs/pill-reader/plan.md` §10.1).
 - **One language at a time:** all Thai or all English, picked in Settings or on the first tutorial page. Write every string as `language("ไทย", "English")`.
 - **Reminders go through Apple Reminders**, not our own notifications.
-- **Directions are shown and read word for word from the label** (advice from a health professional). Never summarise them:
-  "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must not become "พ่นจมูก 2 ครั้ง". Jenny's summary is only used for counting and reminders.
+- **Directions are kept word for word from the label** (advice from a health professional): shown in full on the scan result and the
+  medicine's screen, and read aloud as printed. Lists (Log checklist, Your Medications) show Jenny's summary as bullet points, which must
+  never drop a detail ("พ่นจมูก 2 ข้าง ข้างละ 2 ที" must not become "พ่นจมูก 2 ครั้ง").
+- **Important things show before ticking:** expired / expiring soon, running low, and label warnings, under each medicine's name.
 
 ## The app today (main)
 

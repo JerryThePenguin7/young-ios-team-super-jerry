@@ -47,7 +47,7 @@ struct LogTimeCard: View {
         }
     }
 
-    /// One checklist row: an empty tick box, the name, and how much.
+    /// One checklist row: an empty tick box, the name, how to take it in short bullets, and anything important.
     private func row(_ medicine: Medicine) -> some View {
         Button {
             tick(medicine)
@@ -57,13 +57,14 @@ struct LogTimeCard: View {
                     .font(.system(size: 30, weight: .regular))
                     .foregroundStyle(canLog ? Theme.green : Color.secondary)
                     .frame(width: 44, height: 44)
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(medicine.displayName(language))
                         .font(.title3)
-                    Text(medicine.instruction(language))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    // Jenny's summary as bullets (the time is already this card's title).
+                    // The label's exact words are on the medicine's own screen.
+                    BulletList(items: medicine.summaryBullets(language, includeTimes: false))
+                    // Expired, running low, or a warning from the label: seen before ticking.
+                    MedicineAlerts(medicine: medicine)
                 }
                 Spacer(minLength: 0)
             }

@@ -99,32 +99,14 @@ struct MedicineCard: View {
         .accessibilityHidden(true)
     }
 
-    /// Everything under the name: kind and strength, when, meals, and warnings about expiry or running low.
+    /// Everything under the name: kind and strength, the summary as bullets, and anything important.
     private var details: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(medicine.formLine(language))
                 .foregroundStyle(.secondary)
-            Label(medicine.scheduleText(language), systemImage: "calendar")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            if !medicine.meal.isEmpty {
-                Label(Medicine.mealName(medicine.meal, language), systemImage: "fork.knife")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            if medicine.isExpired() || medicine.expiresSoon() {
-                ExpiryLabel(medicine: medicine)
-            }
-            if medicine.isLowStock {
-                // Dark words with an orange icon: orange text is too hard to read.
-                Label {
-                    Text(language("ยาใกล้หมด", "Running low"))
-                } icon: {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
-                }
-                .font(.subheadline.bold())
-            }
+            // Jenny's summary as bullets: how much, when, meals. The label's exact words are on the detail screen.
+            BulletList(items: medicine.summaryBullets(language))
+            MedicineAlerts(medicine: medicine)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
