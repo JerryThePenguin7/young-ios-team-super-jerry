@@ -118,6 +118,15 @@ We design for them **quietly**: the app looks like a normal, modern Apple app, b
 
 The UI never feels babyish or "for old people". Family members use it too, and nobody likes an app that talks down to them.
 
+**Why these rules** (sources in [docs/design/research.md](docs/design/research.md)):
+- A review of 74 studies on health apps for older adults recommends large sans-serif text, high contrast, simple taps, labeled buttons, a flat structure with the main functions on the home screen, and audio alongside text.
+- Studies on iPads with people aged 62–84 point to about 18 pt text. Our `.body` is 17 pt and grows with Dynamic Type, and the key facts are bigger.
+- In a study of 1,100 Thai adults aged 45+, people with a chronic disease were *less* likely to want a health app. Fear of mistakes and privacy worries held people back.
+  So Jenny makes every action easy to undo, and it says that photos stay on the device.
+- Thai trials found pictograms on medicine labels helped elderly patients take their medicine correctly.
+  So every time and meal instruction gets an SF Symbol, not just words.
+- Apple Health's Medications feature is our model for logging doses: log from one place, and fix a mistake by tapping again.
+
 ## Colors
 
 - **Red (`primary`)** is Jenny's brand. Use it for the main action, card headers and the dose amount. Use only **one filled red button** per screen.
@@ -174,3 +183,9 @@ The camera hero card is the one exception: it uses a soft red gradient so it sta
 - Don't hide features on iPhone that exist on iPad.
 - Don't use real people's health data in screenshots or previews. Use the made-up envelopes in `SampleLabels` (PDPA).
 - Don't add custom fonts, shadows or decorative gradients. Stay native, like Health.
+
+## Checking a design
+
+- In Claude Code, say "use jenny-design-review on <screen>". With other tools, use [ai/prompts/08-design-review.md](ai/prompts/08-design-review.md).
+- Before the demo, run [ai/prompts/09-accessibility-check.md](ai/prompts/09-accessibility-check.md) and test with a real older person using [ai/prompts/10-user-test.md](ai/prompts/10-user-test.md).
+- Ideas the research suggests, ranked, are in [docs/design/research.md](docs/design/research.md) section 6. They include buttons on the reminder notification, a Skip option, and meal pictograms.

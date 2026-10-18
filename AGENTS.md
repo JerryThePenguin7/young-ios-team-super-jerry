@@ -58,8 +58,12 @@ The 3 options are a **menu, not a checklist**. Use the one that fits the problem
 
 ## Design
 - **Read `DESIGN.md` before any UI work.** It defines Jenny's Apple Health–style look, the colors in `Theme`, the button styles, and who we design for.
-- `.claude/skills/swiftui-pro/` is a third-party skill (Paul Hudson, MIT) for writing and reviewing SwiftUI. Don't edit its files.
-  **Our hard rules beat any skill:** the skill assumes iOS 27 and Swift 6.4, but we stay on iOS 26 and code that Xcode 26 can build.
+- The research behind it (older users, Apple Health, sources) is in `docs/design/research.md`.
+- Skills in `.claude/skills/`:
+  - `jenny-design-review` (ours): use it to review or critique any screen.
+  - Third-party, MIT: `swiftui-pro` (SwiftUI code), `ios-design-guidelines`, `ipados-design-guidelines` (Apple HIG rules). Don't edit their files.
+  - **Our rules beat any skill.** `swiftui-pro` assumes iOS 27 and Swift 6.4, but we stay on iOS 26 and code that Xcode 26 can build.
+    If a HIG skill disagrees with `DESIGN.md`, follow `DESIGN.md`.
 
 ## Code style
 - SwiftUI only (no UIKit unless needed). One main view per file.
