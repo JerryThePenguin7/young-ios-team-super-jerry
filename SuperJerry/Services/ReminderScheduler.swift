@@ -1,8 +1,8 @@
 import Foundation
 import UserNotifications
 
-/// Jenny's "nagging": a local notification at every pill time, repeating daily.
-/// Local notifications need no Info.plist key, and they work in the simulator too.
+/// Reminders: one notification per pill time, every day, listing every medicine due then.
+/// Local notifications need no Info.plist key.
 enum ReminderScheduler {
     static func requestPermission() async -> Bool {
         do {
@@ -13,54 +13,35 @@ enum ReminderScheduler {
         }
     }
 
-    /// Replaces all reminders with one per medicine per time.
+    /// Replaces all reminders, e.g. "ถึงเวลาทานยาเช้า: Metformin ครั้งละ 1 เม็ด, Amlodipine ครั้งละ 1 เม็ด".
     static func schedule(_ medicines: [Medicine]) async {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
 
+        var medicinesByTime: [DoseTime: [Medicine]] = [:]
         for medicine in medicines {
             for time in medicine.times {
-                let content = UNMutableNotificationContent()
-                content.title = "Time for \(medicine.name)"
-                content.body = medicine.details.isEmpty
-                    ? "Jenny here! Tap Taken in the app once you've had it."
-                    : "\(medicine.details). Tap Taken in the app once you've had it."
-                content.sound = .default
-
-                var components = DateComponents()
-                components.hour = time.hour
-                components.minute = time.minute
-                let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-                let request = UNNotificationRequest(
-                    identifier: "\(medicine.id.uuidString)-\(time.minutesFromMidnight)",
-                    content: content,
-                    trigger: trigger
-                )
-                try? await center.add(request)
+                medicinesByTime[time, default: []].append(medicine)
             }
+        }
+
+        for (time, due) in medicinesByTime {
+            let content = UNMutableNotificationContent()
+            content.title = "ถึงเวลาทานยา\(TimeSlot.at(time)?.thai ?? "") · Time for your medicine"
+            content.body = due.map { "\($0.name) \($0.amountLine)" }.joined(separator: ", ")
+            content.sound = .default
+
+            var components = DateComponents()
+            components.hour = time.hour
+            components.minute = time.minute
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+            let request = UNNotificationRequest(identifier: "jenny-\(time.minutesFromMidnight)",
+                                                content: content, trigger: trigger)
+            try? await center.add(request)
         }
     }
 
     static func cancelAll() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-    }
-
-    /// For the demo: a reminder 5 seconds from now. Returns false if notifications are off.
-    static func sendTest(for medicine: Medicine?) async -> Bool {
-        guard await requestPermission() else { return false }
-
-        let content = UNMutableNotificationContent()
-        content.title = "Time for \(medicine?.name ?? "your medicine")"
-        content.body = "Jenny here! This is a test reminder."
-        content.sound = .default
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-        let request = UNNotificationRequest(identifier: "jenny-test", content: content, trigger: trigger)
-        do {
-            try await UNUserNotificationCenter.current().add(request)
-            return true
-        } catch {
-            return false
-        }
     }
 }

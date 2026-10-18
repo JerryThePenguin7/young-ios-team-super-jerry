@@ -1,19 +1,70 @@
 import Foundation
 
 // These value types are `nonisolated` so they can be used anywhere,
-// including by Foundation Models and JSON saving (the app defaults to MainActor).
+// including by JSON saving (the app defaults to MainActor).
 
-/// One medicine the user takes, and the times of day to take it.
+/// One saved medicine: what its envelope label says, plus the label's photo and scanned text.
 nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var id = UUID()
-    var name: String
-    var dose: String
-    var note: String
-    var times: [DoseTime]
+    var name: String            // "Metformin"
+    var strength: String        // "500 mg"
+    var amount: Double          // 1, 0.5, 2
+    var unit: String            // "เม็ด"
+    var slots: [TimeSlot]       // morning, noon, evening, bedtime
+    var meal: String            // "หลังอาหาร", "ก่อนอาหาร", "พร้อมอาหาร", or ""
+    var asNeeded: Bool          // "เมื่อมีอาการ": no fixed times
+    var warnings: [String]
+    var scannedText: String     // what the camera read, so family can compare it with the label
+    var photoFile: String?      // photo of the label, kept on this device only
+    var addedAt = Date()
 
-    /// "500 mg · 1 tablet — After meals", skipping the empty parts.
-    var details: String {
-        [dose, note].filter { !$0.isEmpty }.joined(separator: " — ")
+    static let units = ["เม็ด", "แคปซูล", "ช้อนชา", "ช้อนโต๊ะ", "ซอง", "ml"]
+    static let meals = ["", "ก่อนอาหาร", "หลังอาหาร", "พร้อมอาหาร"]
+
+    /// An empty medicine for typing one in by hand.
+    static var blank: Medicine {
+        Medicine(name: "", strength: "", amount: 1, unit: "เม็ด", slots: [.morning], meal: "",
+                 asNeeded: false, warnings: [], scannedText: "", photoFile: nil)
+    }
+
+    /// The clock times Jenny reminds at. "When needed" medicines have none.
+    var times: [DoseTime] {
+        asNeeded ? [] : orderedSlots.map(\.time)
+    }
+
+    var orderedSlots: [TimeSlot] {
+        TimeSlot.allCases.filter { slots.contains($0) }
+    }
+
+    var amountText: String { amount == 0.5 ? "ครึ่ง" : String(format: "%g", amount) }
+
+    /// "ครั้งละ 1 เม็ด" (1 tablet each time)
+    var amountLine: String { "ครั้งละ \(amountText) \(unit)" }
+
+    var friendlyName: String? { DrugDictionary.friendlyName(for: name) }
+
+    var mealEnglish: String {
+        switch meal {
+        case "ก่อนอาหาร": "Before meals"
+        case "หลังอาหาร": "After meals"
+        case "พร้อมอาหาร": "With meals"
+        default: ""
+        }
+    }
+
+    /// What the Thai voice says, e.g. "ยา Metformin. ยาเบาหวาน. กินครั้งละ 1 เม็ด. ตอนเช้า และตอนเย็น. หลังอาหาร"
+    var spokenThai: String {
+        var parts = ["ยา \(name.isEmpty ? "ไม่ทราบชื่อ" : name)"]
+        if let friendlyName { parts.append(friendlyName) }
+        parts.append("กินครั้งละ \(amountText) \(unit)")
+        if asNeeded {
+            parts.append("เมื่อมีอาการ")
+        } else if !orderedSlots.isEmpty {
+            parts.append(orderedSlots.map(\.spokenThai).joined(separator: " และ"))
+        }
+        if !meal.isEmpty { parts.append(meal) }
+        parts += warnings
+        return parts.joined(separator: ". ")
     }
 }
 
@@ -42,15 +93,6 @@ nonisolated struct DoseTime: Codable, Hashable, Comparable {
         date(on: Date()).formatted(date: .omitted, time: .shortened)
     }
 
-    var periodName: String {
-        switch hour {
-        case ..<11: "Morning"
-        case ..<15: "Afternoon"
-        case ..<19: "Evening"
-        default: "Night"
-        }
-    }
-
     var periodSymbol: String {
         switch hour {
         case ..<11: "sunrise.fill"
@@ -65,7 +107,6 @@ nonisolated struct DoseTime: Codable, Hashable, Comparable {
 nonisolated struct DoseRecord: Identifiable, Codable, Hashable {
     var id = UUID()
     var medicineID: UUID
-    var medicineName: String
     var time: DoseTime
     /// Start of the day the dose belongs to.
     var day: Date
@@ -93,24 +134,11 @@ nonisolated enum DoseStatus: Hashable {
     }
 }
 
-/// One medicine at one time on one day, shown as a card on the Today screen.
+/// One medicine at one time today.
 nonisolated struct ScheduledDose: Identifiable, Hashable {
     var medicine: Medicine
     var time: DoseTime
     var status: DoseStatus
 
     var id: String { "\(medicine.id.uuidString)-\(time.minutesFromMidnight)" }
-}
-
-/// How many doses were taken on one day, for the History screen.
-nonisolated struct DaySummary: Identifiable, Hashable {
-    var date: Date
-    var taken: Int
-    var total: Int
-
-    var id: Date { date }
-
-    var percent: Double {
-        total == 0 ? 0 : Double(taken) / Double(total) * 100
-    }
 }

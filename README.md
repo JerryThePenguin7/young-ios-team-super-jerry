@@ -11,33 +11,33 @@ The theme is AI that runs on Apple devices.
 
 ## The idea: Jenny 💊
 
-> Jenny is a medicine reminder that "nags" you (kindly) until you've taken your pills.
+> Take a photo of a medicine envelope, and Jenny reads it out loud in big, clear Thai, then remembers it for you.
 
 - **Who has the problem:** older people (e.g. our grandparents) who take several medicines every day.
-- **The problem:** they forget whether they've already taken a pill, or miss a dose completely.
-- **Our solution (one core feature):** point the iPad at a Thai medicine envelope (ซองยา). Jenny shows **huge text**
-  (what, how many, when), **reads it aloud in Thai**, and adds it to **today's list**. Tap a big button when you take one.
-  Jenny reminds you at each pill time and points out anything missed.
-- **AI we use and why:** Apple's **Vision** reads the envelope text on the device (a neural network on the Neural Engine),
-  then our **Thai label rules** understand it ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"). Everything works offline, and health data never leaves the device.
+- **The problem:** the labels are tiny, the drug names are in English, and every envelope looks the same,
+  so they take the wrong pill, at the wrong time, or forget it.
+- **Our solution (one core feature): the camera.** Open Jenny and tap the big **ถ่ายรูปซองยา** button.
+  Take a photo of a Thai medicine envelope, and Jenny shows **huge text** (what, how many, when) and **reads it aloud in Thai**.
+  Tap **Save**, and the medicine is kept with its label photo. Jenny reminds you at each pill time, and you tick each dose when you take it.
+- **AI we use and why:** Apple's **Vision** reads the label text on the device (a neural network on the Neural Engine),
+  then our **Thai label rules** understand it ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"). It all works offline, and health data never leaves the device.
   We tested Apple's on-device language model (Foundation Models): it doesn't support Thai and it blocked medicine text as
   "sensitive content", so the rules do the understanding. See [docs/pill-reader/ai-explained.md](docs/pill-reader/ai-explained.md).
-  Typed English instructions can still try Foundation Models first ("Add with Jenny"), with an offline reader as the backup.
-  The app always shows who read it.
 - **Impact (numbers!):** _TODO: run the impact test in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 3.3 and put the numbers here._
 
-The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is now named Jenny.
+The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is named Jenny.
 
-### How to try it
-1. **Today ▸ สแกนซองยา · Scan a medicine envelope:** take a photo (iPad), choose a photo, or **Try a sample** (works in the simulator).
-   On the big card, tap **อ่านออกเสียง · Read aloud**, then **เพิ่มในยาของฉัน · Add to my medicines**.
-2. **Today:** tap **Mark as taken** on a card. Missed doses turn red. Sample (made-up) medicines load on first launch.
-3. **Medicines:** scan, **Add with Jenny** (type or paste), add by hand, edit, or swipe to delete.
-4. **History:** this week's percent of doses taken.
-5. **Settings (gear on Today):** reminders, **Send a test reminder in 5 seconds** for the demo, and the **spike test**.
+### How to use it (on the iPad)
+1. **ถ่ายรูปซองยา · Take a photo:** the first time, allow the camera. Fill the photo with the label, in good light.
+2. **Result:** Jenny reads the label aloud (turn this off in Settings). Tap **อ่านออกเสียง** to hear it again.
+   Fix anything with **แก้ไข · Edit**, or **ถ่ายใหม่ · Retake**. Then **บันทึกยา · Save medicine**.
+3. **Home ▸ ยาของฉัน · My medicines:** each medicine shows its label photo. Tap a time chip (เช้า, เย็น…) to tick it as taken today.
+   **ถึงเวลาทานยา · Time to take** appears at the top when a dose is due.
+4. **Reminders:** tap **ให้ Jenny เตือนเวลาทานยา**, or use Settings. One notification per pill time: เช้า 08:00, กลางวัน 12:00, เย็น 18:00, ก่อนนอน 21:00.
+5. **Tap a medicine** to see the big photo, the scanned text, edit it, or delete it.
 
-> **Camera setup (once):** target ▸ Info ▸ add `Privacy - Camera Usage Description` = `ใช้กล้องเพื่ออ่านฉลากซองยา`.
-> Until then, the **Take photo** button stays hidden (so the app can't crash) and **Choose photo** still works.
+No camera (e.g. the simulator)? The big button picks a photo from the library instead. To test, print the 5 fake envelopes
+in [docs/pill-reader/plan.md](docs/pill-reader/plan.md) section 10.1 (made-up data only, PDPA).
 
 ## Team
 

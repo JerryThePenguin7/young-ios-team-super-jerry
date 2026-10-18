@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import AVFoundation
 
 /// Opens the camera and returns one photo. Only show it when `CameraPicker.isAvailable`.
 struct CameraPicker: UIViewControllerRepresentable {
@@ -11,6 +12,15 @@ struct CameraPicker: UIViewControllerRepresentable {
     static var isAvailable: Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
             && Bundle.main.object(forInfoDictionaryKey: "NSCameraUsageDescription") != nil
+    }
+
+    /// Asks for camera permission the first time. False if the user said no (fix it in the Settings app).
+    static func requestAccess() async -> Bool {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: return true
+        case .notDetermined: return await AVCaptureDevice.requestAccess(for: .video)
+        default: return false
+        }
     }
 
     func makeUIViewController(context: Context) -> UIImagePickerController {

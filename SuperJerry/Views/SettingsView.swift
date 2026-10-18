@@ -1,14 +1,13 @@
 import SwiftUI
 
-/// Reminders, a test notification for the demo, sample data, and the disclaimer.
+/// Reminders, read-aloud, erase everything, and the disclaimer.
 struct SettingsView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("autoReadAloud") private var autoReadAloud = true
 
     @State private var showingNotificationsOffAlert = false
     @State private var showingEraseConfirmation = false
-    @State private var showingSpikeTest = false
-    @State private var testMessage: String?
 
     var body: some View {
         @Bindable var store = store
@@ -16,49 +15,35 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("Remind me at pill times", isOn: $store.remindersEnabled)
-                    Button("Send a test reminder in 5 seconds", systemImage: "bell.badge") {
-                        Task { await sendTest() }
-                    }
+                    Toggle("เตือนเวลาทานยา · Remind me at pill times", isOn: $store.remindersEnabled)
                 } header: {
-                    Text("Jenny's reminders")
+                    Text("การเตือน · Reminders")
                 } footer: {
-                    Text(testMessage ?? "Jenny sends a notification at every pill time, every day.")
-                }
-
-                Section("Apple Intelligence") {
-                    LabeledContent("On this device",
-                                   value: PrescriptionReader.isAppleIntelligenceAvailable ? "Available" : "Not available")
+                    Text(reminderTimes)
                 }
 
                 Section {
-                    Button("Load sample medicines", systemImage: "tray.and.arrow.down") {
-                        store.loadSampleData()
-                    }
-                    Button("Erase all data", systemImage: "trash", role: .destructive) {
+                    Toggle("อ่านออกเสียงหลังถ่ายรูป · Read aloud after each photo", isOn: $autoReadAloud)
+                } header: {
+                    Text("เสียง · Voice")
+                } footer: {
+                    Text("Uses the Thai voice built into this device. If it sounds wrong, add the Thai voice in Settings ▸ Accessibility ▸ Spoken Content ▸ Voices.")
+                }
+
+                Section {
+                    Button("ลบข้อมูลทั้งหมด · Erase all medicines", systemImage: "trash", role: .destructive) {
                         showingEraseConfirmation = true
                     }
-                } header: {
-                    Text("Data")
                 } footer: {
-                    Text("Sample medicines and history are made up. Don't enter real patient data.")
+                    Text("Your medicines and label photos are saved on this device only.")
                 }
 
-                Section {
-                    Button("Run the spike test", systemImage: "testtube.2") {
-                        showingSpikeTest = true
-                    }
-                } header: {
-                    Text("Developer")
-                } footer: {
-                    Text("Temporary test from feature/pill-reader: what works on this device? Delete SuperJerry/Debug before submitting.")
-                }
-
-                Section("About") {
-                    Text("Jenny is a prototype by Team Super Jerry for YIDH26. Jenny is a reminder helper, not medical advice. Always follow your doctor or pharmacist.")
+                Section("เกี่ยวกับ · About") {
+                    Text("Jenny by Team Super Jerry (YIDH26). Jenny reads medicine labels to help you remember them. It is not medical advice: always check the real label, and ask your doctor or pharmacist if unsure.")
                         .font(.callout)
                 }
             }
+            .tint(Theme.red)
             .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -68,21 +53,23 @@ struct SettingsView: View {
             .onChange(of: store.remindersEnabled) {
                 Task { await applyReminders() }
             }
-            .sheet(isPresented: $showingSpikeTest) {
-                SpikeTestView()
-            }
             .alert("Notifications are off", isPresented: $showingNotificationsOffAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Turn on notifications for this app in the Settings app so Jenny can remind you.")
+                Text("Turn on notifications for Jenny in the Settings app so it can remind you.")
             }
-            .confirmationDialog("Erase all medicines and history?", isPresented: $showingEraseConfirmation,
-                                titleVisibility: .visible) {
-                Button("Erase everything", role: .destructive) {
+            .confirmationDialog("ลบยาและรูปทั้งหมด? · Erase all medicines and photos?",
+                                isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
+                Button("ลบทั้งหมด · Erase everything", role: .destructive) {
                     store.eraseAll()
                 }
             }
         }
+    }
+
+    /// "เช้า 8:00 AM · กลางวัน 12:00 PM · …"
+    private var reminderTimes: String {
+        TimeSlot.allCases.map { "\($0.thai) \($0.time.label)" }.joined(separator: " · ")
     }
 
     private func applyReminders() async {
@@ -91,17 +78,9 @@ struct SettingsView: View {
             showingNotificationsOffAlert = true
         }
     }
-
-    private func sendTest() async {
-        if await ReminderScheduler.sendTest(for: store.medicines.first) {
-            testMessage = "Sent! Go to the Home Screen or lock the screen to see it."
-        } else {
-            showingNotificationsOffAlert = true
-        }
-    }
 }
 
 #Preview {
     SettingsView()
-        .environment(MedicineStore(inMemory: true))
+        .environment(MedicineStore.preview())
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 /// The 4 times of day printed on Thai medicine envelopes, and the clock time Jenny uses for each.
-nonisolated enum TimeSlot: CaseIterable, Hashable {
+nonisolated enum TimeSlot: String, CaseIterable, Codable, Hashable {
     case morning, noon, evening, bedtime
 
     var thai: String {
@@ -22,6 +22,11 @@ nonisolated enum TimeSlot: CaseIterable, Hashable {
         }
     }
 
+    /// "ตอนเช้า", "ตอนกลางวัน", "ตอนเย็น", "ก่อนนอน"
+    var spokenThai: String {
+        self == .bedtime ? thai : "ตอน\(thai)"
+    }
+
     var time: DoseTime {
         switch self {
         case .morning: DoseTime(hour: 8)
@@ -32,4 +37,9 @@ nonisolated enum TimeSlot: CaseIterable, Hashable {
     }
 
     var symbol: String { time.periodSymbol }
+
+    /// The slot that reminds at this clock time, if any.
+    static func at(_ time: DoseTime) -> TimeSlot? {
+        allCases.first { $0.time == time }
+    }
 }

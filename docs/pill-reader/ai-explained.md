@@ -14,16 +14,16 @@ and adds it to **today's medicine list**.
 | Part | Status |
 |---|---|
 | Plan (idea, facts, schedule, pitch, Q&A) | ✅ Done ([plan.md](plan.md)) |
-| Spike test (a quick experiment: "what works on the iPad?") | ✅ Built, runs in the simulator (branch `feature/pill-reader`) |
+| Spike test (a quick experiment: "what works on the iPad?") | ✅ Done in the simulator (code kept on branch `feature/pill-reader`, removed from the app) |
 | **PillInfo**: the container for one medicine's info | ✅ Done |
 | **Thai rules (LabelParser)**: understands the label text | ✅ Done, **5/5** test labels correct |
-| Scan screen, result card, read-aloud, today's list | 🟡 **Built into Jenny** (scan → card → Thai voice → Today). Not yet tested in Xcode or on the iPad |
+| Camera → read label → big card → read aloud → save, plus today's ticks and reminders | 🟡 **Built (the Jenny app)**. Not yet tested in Xcode or on the iPad |
 | AI cluster helper | ❌ Not set up yet |
 | Spike test on the **real iPad** | ❌ Not done yet |
 | Build on an **Intel Mac (Xcode 26)** | ❌ Not checked yet |
 
-**Update:** the pill reader is now part of **Jenny** (red-and-white app): Today ▸ "สแกนซองยา · Scan a medicine envelope".
-The spike test moved to Settings ▸ Developer. Next: build it in Xcode and try it on the real iPad.
+**Update:** the pill reader is now the **Jenny** app (red and white). The camera is the main feature: the home screen is a big
+"ถ่ายรูปซองยา" button. The spike test was removed (its results are below). Next: build it in Xcode and try it on the real iPad.
 
 ---
 

@@ -2,6 +2,9 @@ import AVFoundation
 
 /// Reads Thai text aloud with the device's built-in Thai voice. Works offline.
 final class SpeechReader {
+    /// One voice for the whole app, so two things never talk at once.
+    static let shared = SpeechReader()
+
     private let synthesizer = AVSpeechSynthesizer()   // must stay alive, or speech stops instantly
 
     func speak(_ text: String) {

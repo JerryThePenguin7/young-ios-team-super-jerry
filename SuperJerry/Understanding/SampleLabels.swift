@@ -9,7 +9,8 @@ nonisolated struct SampleLabel: Identifiable {
     var lines: [String] { text.components(separatedBy: "\n") }
 }
 
-/// The 5 fake envelopes from the plan (section 10.1). Print these for the demo, and reuse them in Previews.
+/// The 5 fake envelopes from the plan (section 10.1). Print them to test the camera.
+/// In code they're only used by Xcode Previews and tests, never shown in the app.
 nonisolated enum SampleLabels {
     static let all: [SampleLabel] = [
         SampleLabel(
