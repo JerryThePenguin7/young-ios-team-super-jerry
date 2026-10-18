@@ -48,7 +48,13 @@ struct ContentView: View {
     @State private var isEditing = false
     /// Groups in "Your Medications" that are folded closed.
     @State private var collapsedGroups: Set<MedicineGroup> = []
+    /// "Your Medications" starts as a stack of cards; tap it to spread them out.
+    @State private var isStacked = true
     @State private var medicineToDelete: Medicine?
+    /// The medicine whose count is being set in Medicine Storage.
+    @State private var stockMedicine: Medicine?
+    @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
+    @State private var showingTutorial = false
 
     var body: some View {
         NavigationStack {
@@ -64,7 +70,7 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    LanguageMenu()
+                    AppearanceMenu()
                 }
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button(language("เพิ่มยาเอง", "Add by hand"), systemImage: "square.and.pencil") {
@@ -102,9 +108,16 @@ struct ContentView: View {
                 guard let item else { return }
                 Task { await loadPhoto(item) }
             }
-            .sheet(isPresented: $showingSettings) {
+            .sheet(isPresented: $showingSettings, onDismiss: showTutorialIfNeeded) {
                 SettingsView()
             }
+            .sheet(item: $stockMedicine) { medicine in
+                StockEditorSheet(medicine: medicine)
+            }
+            .fullScreenCover(isPresented: $showingTutorial) {
+                TutorialView()
+            }
+            .onAppear(perform: showTutorialIfNeeded)
             .sheet(isPresented: $showingNewMedicine) {
                 MedicineEditorView(medicine: .blank, isNew: true)
             }
@@ -216,7 +229,7 @@ struct ContentView: View {
             } else if toLog.isEmpty && !slots.isEmpty && !isFuture {
                 Label(language("บันทึกครบทุกเวลาแล้ว", "Everything is logged"), systemImage: "checkmark.seal.fill")
                     .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.green)
             }
 
             ForEach(toLog) { slot in
@@ -308,17 +321,39 @@ struct ContentView: View {
     // MARK: Your medications
 
     private var medicinesColumn: some View {
+        VStack(alignment: .leading, spacing: 28) {
+            yourMedications
+            if store.medicines.contains(where: \.canCountStock) {
+                MedicineStorageSection { medicine in
+                    stockMedicine = medicine
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    private var yourMedications: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .firstTextBaseline) {
                 Text(language("ยาของคุณ", "Your Medications"))
                     .font(.title.bold())
                 Spacer()
-                if !store.medicines.isEmpty {
+                if !store.medicines.isEmpty && !isStacked {
+                    Button(language("ซ้อน", "Stack"), systemImage: "square.stack.3d.down.right") {
+                        withAnimation(reduceMotion ? nil : .snappy) {
+                            isEditing = false
+                            isStacked = true
+                        }
+                    }
+                    .labelStyle(.titleOnly)
+                    .font(.title3)
+                    .tint(Theme.red)
                     Button(isEditing ? language("เสร็จ", "Done") : language("แก้ไข", "Edit")) {
                         withAnimation { isEditing.toggle() }
                     }
                     .font(.title3)
                     .tint(Theme.red)
+                    .padding(.leading, 12)
                 }
             }
 
@@ -329,6 +364,11 @@ struct ContentView: View {
                     description: Text(language("แตะ \"ถ่ายรูป\" ในกล่องสีแดง แล้วถ่ายรูปซองยา",
                                                "Tap \"Take photo\" in the red box and take a photo of a medicine envelope."))
                 )
+            } else if isStacked {
+                MedicineStack(medicines: store.medicines) {
+                    withAnimation(reduceMotion ? nil : .snappy) { isStacked = false }
+                }
+                .transition(.opacity)
             } else {
                 ForEach(sections) { section in
                     let isOpen = !collapsedGroups.contains(section.group)
@@ -387,6 +427,12 @@ struct ContentView: View {
             let medicines = store.medicines.filter { ($0.group ?? .other) == group }
             return medicines.isEmpty ? nil : MedicineSection(group: group, medicines: medicines)
         }
+    }
+
+    /// First launch, or "Show the tutorial again" in Settings. Not in Xcode Previews, so they show the home screen.
+    private func showTutorialIfNeeded() {
+        let inPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+        if !hasSeenTutorial && !inPreview { showingTutorial = true }
     }
 
     private var deleteDialogShown: Binding<Bool> {

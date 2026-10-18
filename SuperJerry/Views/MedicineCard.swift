@@ -97,6 +97,16 @@ struct MedicineCard: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            if medicine.isLowStock {
+                // Dark words with an orange icon: orange text is too hard to read.
+                Label {
+                    Text(language("ยาใกล้หมด", "Running low"))
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+                .font(.subheadline.bold())
+            }
         }
         .padding(16)
     }

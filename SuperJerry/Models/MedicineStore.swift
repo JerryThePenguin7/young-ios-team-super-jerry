@@ -34,7 +34,11 @@ final class MedicineStore {
 
     func update(_ medicine: Medicine) {
         guard let index = medicines.firstIndex(where: { $0.id == medicine.id }) else { return }
-        medicines[index] = medicine
+        var updated = medicine
+        // The editor doesn't change the count; keep the latest one (doses may have been logged meanwhile).
+        updated.stock = medicines[index].stock
+        updated.stockFull = medicines[index].stockFull
+        medicines[index] = updated
         medicinesChanged()
     }
 
@@ -114,9 +118,13 @@ final class MedicineStore {
     }
 
     /// Logs a dose as taken or skipped. nil clears the log.
+    /// Medicine Storage follows along: taken takes a dose off, un-taking puts it back.
     func setLog(_ log: DoseLog?, for medicineID: UUID, at time: DoseTime, on day: Date) {
         let day = Calendar.current.startOfDay(for: day)
         let index = recordIndex(medicineID: medicineID, time: time, day: day)
+        let wasTaken = index.map { !records[$0].isSkipped } ?? false
+        let isTaken = log?.isTaken ?? false
+        if wasTaken != isTaken { changeStock(of: medicineID, takingDose: isTaken) }
         if let index { records.remove(at: index) }
         switch log {
         case .taken(let date):
@@ -127,6 +135,24 @@ final class MedicineStore {
             break
         }
         save()
+    }
+
+    // MARK: Medicine Storage
+
+    /// Sets how many are left, e.g. after a refill. nil stops counting this medicine.
+    func setStock(_ count: Double?, for medicineID: UUID) {
+        guard let index = medicines.firstIndex(where: { $0.id == medicineID }) else { return }
+        medicines[index].stock = count.map { max($0, 0) }
+        medicines[index].stockFull = medicines[index].stock
+        save()
+    }
+
+    /// One dose off (taken) or back on (un-taken). Not clamped at 0, so undoing always puts back what was taken.
+    private func changeStock(of medicineID: UUID, takingDose: Bool) {
+        guard let index = medicines.firstIndex(where: { $0.id == medicineID }),
+              let stock = medicines[index].stock else { return }
+        let dose = medicines[index].amount
+        medicines[index].stock = takingDose ? stock - dose : stock + dose
     }
 
     /// Ticks a dose as taken today, or clears it.

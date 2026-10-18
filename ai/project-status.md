@@ -1,7 +1,7 @@
 # Project status: Jenny (for new AI chats and teammates)
 
 **Read this first in any new chat**, then `AGENTS.md` (rules) and `DESIGN.md` (look).
-Last updated: 2026-10-18 (Day 2), after PR #3. Update the "Last updated" line and the lists below whenever something big changes.
+Last updated: 2026-10-18 (Day 2), after the stack, Medicine Storage, theme and tutorial changes. Update the "Last updated" line and the lists below whenever something big changes.
 
 ## What we're building
 
@@ -24,7 +24,7 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
 **Decisions already made. Don't redo them without asking the team:**
 - **No Foundation Models for understanding labels.** We tested it: it doesn't support Thai, and it blocked medicine text as "sensitive content". See `docs/pill-reader/ai-explained.md`.
 - **Everything works offline.** Health data never leaves the device (PDPA). Use only made-up envelopes in tests and screenshots (`Understanding/SampleLabels.swift`, `docs/pill-reader/plan.md` §10.1).
-- **One language at a time:** all Thai or all English, picked with the globe menu. Write every string as `language("ไทย", "English")`.
+- **One language at a time:** all Thai or all English, picked in Settings or on the first tutorial page. Write every string as `language("ไทย", "English")`.
 - **Reminders go through Apple Reminders**, not our own notifications.
 
 ## The app today (main)
@@ -33,7 +33,10 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - The day and a week strip (`WeekStrip`).
   - **Log** cards per pill time, each with a round **+** (`LogTimeCard`). Tapping one opens the log sheet with Taken / Skipped (`DoseLogSheet`).
   - **Logged** (`LoggedCard`).
-  - **Your Medications** in groups you can fold (tap a header).
+  - **Your Medications** as a stack of cards; tap it to spread them out into groups you can fold (`MedicineStack`).
+  - **Medicine Storage**: pills left, counted down by itself when a dose is logged Taken (`MedicineStorageSection`, `StockEditorSheet`).
+  - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
+- **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
   - A disclaimer at the bottom.
 - **Camera:**
   - When there are no medicines yet, the big red box (`CameraCard`) is at the top.

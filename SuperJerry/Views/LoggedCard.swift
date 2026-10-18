@@ -51,7 +51,7 @@ struct LoggedCard: View {
             ForEach(group.doses) { dose in
                 HStack(spacing: 10) {
                     Image(systemName: dose.record.isSkipped ? "minus.circle.fill" : "checkmark.circle.fill")
-                        .foregroundStyle(dose.record.isSkipped ? Color.secondary : Theme.red)
+                        .foregroundStyle(dose.record.isSkipped ? Color.secondary : Theme.green)
                     Text(dose.medicine.displayName(language))
                     if dose.record.isSkipped {
                         Text(language("ข้าม", "Skipped"))

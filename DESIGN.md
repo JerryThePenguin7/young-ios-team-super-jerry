@@ -3,8 +3,8 @@ version: alpha
 name: Jenny
 description: >-
   Jenny's look, modeled on the Medications page of the Apple Health app. A calm light-gray canvas with
-  white cards, red used only as the accent, Health-style Log cards for each pill time, white medicine cards
-  in groups you can fold, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
+  white cards, red used only as the accent and green for "Taken", Health-style Log cards for each pill time, white medicine
+  cards in a stack you tap to spread out, Medicine Storage that counts pills down, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
   medicines a day, and for the family members who help them, without looking like a "special" app.
 
 colors:
@@ -26,8 +26,13 @@ colors:
   fill: "#F5F5F7"
   fill-dark-mode: "#2C2C2E"
   on-surface: "#000000"
-  # "Late" state. Always with a word, never color alone.
+  # "Late" and "Running low" states. Always with a word, never color alone.
   late: "#FF9500"
+  # "Taken" (asset "JennyGreen"): ✓ marks, green words, week-strip circles. Dark mode: #30D158. 5.14:1 on white.
+  taken: "#1E7E34"
+  taken-dark-mode: "#30D158"
+  # The filled Taken button with white text (asset "JennyGreenFill"), both modes. White on it is 5.14:1.
+  taken-fill: "#1E7E34"
 
 typography:
   # Sizes are the iOS defaults at the standard text size. In SwiftUI always use the text style
@@ -118,22 +123,26 @@ components:
 Jenny follows the **Medications page of the Apple Health app**, so it should feel just as calm and trustworthy.
 The home screen ("ยาของฉัน · Medications") reads top to bottom:
 
-1. **The day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with red as doses are taken. Tap a day to see its log.
+1. **The day and the week:** "วันนี้ 18 ตุลาคม" and a strip of 7 days. Each day's circle fills with green as doses are taken. Tap a day to see its log.
 2. **The red box, only when there are no medicines yet:** it explains what Jenny does, with **ถ่ายรูป · Take photo** (white button) and **เลือกจากคลังภาพ · Choose from Photos** (outlined).
 3. **Log:** one white card per pill time ("8:00 น.") with the medicines still to take and a round **+**. Tap a card to log them as taken or skipped. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
 4. **Logged:** what was taken (✓) or skipped, by time. Tap a time to change it.
-5. **Your Medications:** white cards in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button. **Tap a group's header to fold it closed or open** (it shows how many medicines it has).
-6. The disclaimer.
-7. **The scan bar** (once you have medicines) floats at the bottom in Liquid Glass, where a thumb can reach it: a big red **ถ่ายรูปซองยา** button and a round Photos button.
+5. **Your Medications:** starts as a **stack of cards** (the newest in front, two peeking out behind, like a deck). Tap the stack to spread out the white cards, in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button. **Tap a group's header to fold it closed or open**. **Stack** piles them back up.
+6. **Medicine Storage:** how many of each medicine are left, a bar, and about how many days that lasts. Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). "Running low" shows at 7 days or less. Tap a row to set or refill the count.
+7. The disclaimer.
+8. **The scan bar** (once you have medicines) floats at the bottom in Liquid Glass, where a thumb can reach it: a big red **ถ่ายรูปซองยา** button and a round Photos button.
 
-On iPad, Log and Your Medications sit side by side.
+On iPad, Log and Your Medications (with Medicine Storage) sit side by side.
+
+**The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 4 big pages: choose the language, scan, log Taken or Skipped, Reminders and Medicine Storage. It has **Skip**, and Settings can show it again.
+**Top left** is the light or dark theme button (`AppearanceMenu`): Automatic, Light (white) or Dark (black). The language is chosen on the first tutorial page or in Settings.
 
 **Who it's for.** Our main users are **older Thai adults (60+)** who take several medicines a day, plus the **family members** who set the app up and check on them.
 We design for them **quietly**: Jenny looks like a normal Apple app, but every detail works for weaker eyes, shakier hands and less confidence with technology:
 
 - Text is big and grows with the iPhone/iPad text-size setting (Dynamic Type), up to the accessibility sizes.
 - Main tap targets are **60 pt** tall, and nothing you tap is smaller than **44 pt** (Apple's minimum). Aim for 52 pt or more.
-- **One language at a time**: all Thai or all English, picked with the globe menu. Write every string as `language("ไทย", "English")`.
+- **One language at a time**: all Thai or all English, picked in Settings (or the first tutorial page). Write every string as `language("ไทย", "English")`.
 - Each screen has **one** obvious next step.
 - Nothing relies on color alone. Every state has an icon **or** a word (✓ ทานแล้ว, ข้าม, เลยเวลาแล้ว).
 - Medicines can be **read aloud**.
@@ -160,8 +169,9 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 - **Red** is Jenny's brand: the scan button and red box, pill icons, the + and ✓ marks, and group headers.
   Use only **one big red call to action per screen**: the scan bar (or red box) on home, and **Taken** or **Done** in the log sheet.
 - A red **tint** is allowed only for a *state*: the "ถึงเวลา" chip or badge. The red border on a due Log card is a state too.
+- **Green** means taken: the filled **Taken** button (`Theme.greenFill`), ✓ marks, green words and the week-strip circles (`Theme.green`). It makes Taken easy to tell apart from Skipped (red) at a glance.
 - **Orange** means late. It always comes with a word ("เลยเวลาแล้ว · Late"). **Text on orange must be dark**, because white on orange is too hard to read.
-- In code, colors come from `Theme` (`Theme.red`, `Theme.card`, `Theme.background`, `Theme.surface`, `Theme.fill`). The light and dark versions live in `Assets.xcassets`. Never hard-code a hex value in Swift.
+- In code, colors come from `Theme` (`Theme.red`, `Theme.card`, `Theme.background`, `Theme.surface`, `Theme.fill`, `Theme.green`, `Theme.greenFill`). The light and dark versions live in `Assets.xcassets`. Never hard-code a hex value in Swift.
 
 ## Typography
 
@@ -198,11 +208,14 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 | Log card | `Views/LogTimeCard.swift` | A white card. The whole card is the button. Time + badge + a round **+** (gray fill, red plus) + the medicines still to take |
 | Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
 | Logged card | `Views/LoggedCard.swift` | ✓ or ⊖ per medicine, "3 hr. ago", tap a time to change it |
-| Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
+| Medicine stack | `Views/MedicineStack.swift` | Up to 3 medicine cards piled up, each one behind 16 pt higher, 6% smaller and a little darker. Tap to spread out |
+| Medicine groups | `ContentView.swift` (`sectionHeader`) | Shown when the stack is spread out. Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
+| Medicine Storage | `Views/MedicineStorageSection.swift`, `Views/StockEditorSheet.swift` | Count left, a green bar (orange when low), days left, "Running low" badge. The sheet sets or refills the count |
+| Tutorial | `Views/TutorialView.swift` | First launch only (`hasSeenTutorial`). Big icon, title and words per page, **Next** at the bottom, **Skip** at the top |
 | Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), name, kind and strength, schedule, meals, and a round read-aloud button |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a red circle |
 | Big button | `Views/BigButtonLabel.swift` | 60 pt, full width. `filled: true` for the main action |
-| Language menu | `Views/LanguageMenu.swift` | The globe in the toolbar: ภาษาไทย / English |
+| Theme menu | `Views/AppearanceMenu.swift` | Top left: Automatic, Light (white), Dark (black). Also in Settings |
 | Disclaimer | ContentView, detail, scan result | "ไม่ใช่คำแนะนำทางการแพทย์ · Not medical advice" in footnote style |
 
 ## Do's and Don'ts
