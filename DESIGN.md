@@ -4,7 +4,7 @@ name: Jenny
 description: >-
   Jenny's look, modeled on the Medications page of the Apple Health app. A calm light-gray canvas with
   white cards, red used only as the accent and green for "Taken", Health-style Log cards for each pill time, white medicine
-  cards in a stack you tap to spread out, Medicine Storage that counts pills down, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
+  cards in a swipeable widget stack you tap to spread out, Medicine Storage that counts pills down, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
   medicines a day, and for the family members who help them, without looking like a "special" app.
 
 colors:
@@ -127,8 +127,8 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 2. **The red box, only when there are no medicines yet:** it explains what Jenny does, with **ถ่ายรูป · Take photo** (white button) and **เลือกจากคลังภาพ · Choose from Photos** (outlined).
 3. **Log:** one white card per pill time ("8:00 น.") with the medicines still to take and a round **+**. Tap a card to log them as taken or skipped. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
 4. **Logged:** what was taken (✓) or skipped, by time. Tap a time to change it.
-5. **Your Medications:** starts as a **stack of cards** (the newest in front, two peeking out behind, like a deck). Tap the stack to spread out the white cards, in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button. **Tap a group's header to fold it closed or open**. **Stack** piles them back up.
-6. **Medicine Storage:** how many of each medicine are left, a bar, and about how many days that lasts. Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). "Running low" shows at 7 days or less. Tap a row to set or refill the count.
+5. **Your Medications:** starts as a **widget stack**, like the Smart Stack on the iPhone and iPad Home Screen: one card in front, the next two peeking out behind it. **Swipe up or down** to flip through them (dots on the right show where you are, with a light tap you can feel). **Tap** to spread them out: the front card springs into its place in the list and the rest drop down after it. The spread-out cards are in groups by what they're for ("Heart & blood pressure", "Diabetes"…), each with a read-aloud button; tap a group's header to fold it. **Stack** packs them back up.
+6. **Medicine Storage:** the same kind of widget stack (running low first), one card per medicine: how many are left, a bar, about how many days that lasts, and the warning level. Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets for each medicine (e.g. 10 or 5 left); until they set one, it's about a week's worth. Tap to spread the stack out, then tap a row to set or refill the count and the level.
 7. The disclaimer.
 8. **The scan bar** (once you have medicines) floats at the bottom in Liquid Glass, where a thumb can reach it: a big red **ถ่ายรูปซองยา** button and a round Photos button.
 
@@ -185,6 +185,7 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 
 - The page is one scrolling column, at most 1100 pt wide. On iPad (regular width), the Log column and the Your Medications column sit side by side.
 - Sections are 28 pt apart. Cards use 20 pt padding and 12–14 pt between rows.
+- **Never cut text off with "…".** Let it wrap (`.fixedSize(horizontal: false, vertical: true)`), use `ViewThatFits` to put things one above the other when they don't fit side by side, and size fixed things with `@ScaledMetric` so they grow with the text.
 - **At accessibility text sizes, rows stack vertically** (icon above text, time above "3 hr. ago") instead of squeezing. Check `dynamicTypeSize.isAccessibilitySize`.
 - Keep the main action where a thumb can reach it. In sheets, **Done** sits in a bar fixed at the bottom.
 
@@ -208,9 +209,9 @@ The red box uses a soft red gradient (`Theme.card.gradient`) so it stands out as
 | Log card | `Views/LogTimeCard.swift` | A white card. The whole card is the button. Time + badge + a round **+** (gray fill, red plus) + the medicines still to take |
 | Log sheet | `Views/DoseLogSheet.swift` | "Log All as Taken", then per medicine **Skipped / Taken**, then **Done** |
 | Logged card | `Views/LoggedCard.swift` | ✓ or ⊖ per medicine, "3 hr. ago", tap a time to change it |
-| Medicine stack | `Views/MedicineStack.swift` | Up to 3 medicine cards piled up, each one behind 16 pt higher, 6% smaller and a little darker. Tap to spread out |
+| Widget stack | `Views/CardStack.swift` | Smart Stack style, used by Your Medications and Medicine Storage. A vertical paging scroll view, 2 cards peeking out behind (12 pt higher, 6% smaller and a little darker each), page dots on the right, a selection haptic. Tap opens it with `.spring(duration: 0.5, bounce: 0.25)` and `matchedGeometryEffect`, so each card glides into the list. VoiceOver: swipe up or down to change, double-tap to open |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Shown when the stack is spread out. Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
-| Medicine Storage | `Views/MedicineStorageSection.swift`, `Views/StockEditorSheet.swift` | Count left, a green bar (orange when low), days left, "Running low" badge. The sheet sets or refills the count |
+| Medicine Storage | `Views/MedicineStorageSection.swift`, `Views/StockEditorSheet.swift` | A widget stack, then a list. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge. The sheet also sets the warning level (quick 5 / 10 / 20). The sheet sets or refills the count |
 | Tutorial | `Views/TutorialView.swift` | First launch only (`hasSeenTutorial`). Big icon, title and words per page, **Next** at the bottom, **Skip** at the top |
 | Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on red), name, kind and strength, schedule, meals, and a round read-aloud button |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a red circle |

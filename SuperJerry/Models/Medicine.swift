@@ -22,6 +22,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var group: MedicineGroup?   // what it's for; nil until Jenny (or the AI) has grouped it
     var stock: Double?          // how many are left (Medicine Storage); nil = not counted
     var stockFull: Double?      // how many there were at the last refill, for the bar
+    var lowAt: Double?          // "Running low" at this many left, set by the user; nil = about a week's worth
 
     static let units = ["เม็ด", "แคปซูล", "หยด", "ช้อนชา", "ช้อนโต๊ะ", "ml", "ซอง", "พัฟ", "ครั้ง", "ยูนิต", ""]
     static let meals = ["", "ก่อนอาหาร", "หลังอาหาร", "พร้อมอาหาร"]

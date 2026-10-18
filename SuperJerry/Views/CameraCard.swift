@@ -61,8 +61,9 @@ struct CameraCard: View {
     private func boxButton(title: String, symbol: String, main: Bool) -> some View {
         Label(title, systemImage: symbol)
             .font(.title3.bold())
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)   // wrap instead of "…"
+            .padding(.vertical, 8)
             .frame(maxWidth: .infinity, minHeight: 60)
             .padding(.horizontal, 12)
             .foregroundStyle(main ? Theme.card : Color.white)

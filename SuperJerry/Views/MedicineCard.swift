@@ -6,6 +6,8 @@ import UIKit
 struct MedicineCard: View {
     @Environment(\.language) private var language
     let medicine: Medicine
+    /// A fixed height, for the stack (all its cards are the same size). nil = as tall as the content.
+    var height: CGFloat? = nil
     /// Edit mode on the home screen: show a delete button instead.
     var isEditing = false
     var onDelete: () -> Void = {}
@@ -58,6 +60,7 @@ struct MedicineCard: View {
                 .padding(.trailing, 12)
             }
         }
+        .frame(height: height, alignment: .top)
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
@@ -77,7 +80,7 @@ struct MedicineCard: View {
                     .background(Theme.card.gradient)
             }
         }
-        .frame(width: 120, height: 150)
+        .frame(width: 120, height: height ?? 150)
         .clipped()
         .accessibilityHidden(true)
     }
@@ -86,7 +89,7 @@ struct MedicineCard: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(medicine.displayName(language))
                 .font(.title3.bold())
-                .lineLimit(2)
+                .lineLimit(height == nil ? nil : 2)   // in the stack every card is the same height
             Text(medicine.formLine(language))
                 .foregroundStyle(.secondary)
             Label(medicine.scheduleText(language), systemImage: "calendar")

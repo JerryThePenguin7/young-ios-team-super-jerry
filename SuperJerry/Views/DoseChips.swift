@@ -17,7 +17,8 @@ struct DoseChips: View {
                 .font(.headline)
                 .foregroundStyle(.orange)
         } else {
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 10, alignment: .leading)],
+            // Wide enough for "Morning · Taken" on one line; a chip wraps onto 2 lines rather than cutting words off.
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: chipWidth), spacing: 10, alignment: .leading)],
                       alignment: .leading, spacing: 10) {
                 ForEach(medicine.orderedSlots, id: \.self) { slot in
                     if let now {
@@ -38,6 +39,9 @@ struct DoseChips: View {
         }
     }
 
+    /// The narrowest a chip gets. Grows with the text size, so big text gets fewer chips per row.
+    @ScaledMetric(relativeTo: .title3) private var chipWidth: CGFloat = 210
+
     private enum ChipStyle { case plain, taken, due, missed }
 
     private func chip(for slot: TimeSlot, status: DoseStatus) -> some View {
@@ -54,15 +58,16 @@ struct DoseChips: View {
     private func chip(title: String, symbol: String, style: ChipStyle) -> some View {
         Label(title, systemImage: symbol)
             .font(.title3.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
             .foregroundStyle(foreground(style))
-            .background(background(style), in: Capsule())
+            // A rounded rectangle, not a capsule, so a chip that wraps onto 2 lines still looks right.
+            .background(background(style), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay {
-                Capsule().strokeBorder(border(style), lineWidth: 2)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(border(style), lineWidth: 2)
             }
     }
 

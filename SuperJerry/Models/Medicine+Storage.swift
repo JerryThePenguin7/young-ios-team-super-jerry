@@ -18,11 +18,25 @@ nonisolated extension Medicine {
         return Int(max(stock, 0) / usePerDay)
     }
 
-    /// A week or less left (or 3 doses or fewer for "when needed" medicines).
+    /// "Running low" at this many left: the user's own number, or else about a week's worth
+    /// (3 doses for "when needed" medicines).
+    var lowStockLevel: Double {
+        if let lowAt { return lowAt }
+        if let usePerDay { return usePerDay * 7 }
+        return amount * 3
+    }
+
     var isLowStock: Bool {
         guard let stock else { return false }
-        if let daysLeft { return daysLeft <= 7 }
-        return stock <= amount * 3
+        return stock <= lowStockLevel
+    }
+
+    /// "เตือนเมื่อเหลือ 10 เม็ด" or "Warns at 10 tablets left"
+    func lowLevelText(_ language: AppLanguage) -> String {
+        let level = lowStockLevel.rounded(.up)
+        let number = String(format: "%g", level)
+        return language("เตือนเมื่อเหลือ \(number) \(unit)",
+                        "Warns at \(number) \(Self.unitName(unit, .english, plural: level != 1)) left")
     }
 
     /// From 0 (empty) to 1 (just refilled), for the bar.
