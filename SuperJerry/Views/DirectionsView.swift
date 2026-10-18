@@ -12,7 +12,7 @@ struct DirectionsView: View {
             if let directions = medicine.directions {
                 Label(language("วิธีใช้ตามฉลาก (ทุกคำ)", "Directions, word for word from the label"),
                       systemImage: "doc.text.fill")
-                    .font(.subheadline.bold())
+                    .font(.callout.bold())
                     .foregroundStyle(.secondary)
                 Text(directions)
                     .font(.title.bold())
@@ -22,7 +22,7 @@ struct DirectionsView: View {
                 if language == .english {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Jenny's summary in English (check it against the label):")
-                            .font(.subheadline)
+                            .font(.callout)
                             .foregroundStyle(.secondary)
                         Text(medicine.amountLine(.english))
                             .font(.title3.bold())

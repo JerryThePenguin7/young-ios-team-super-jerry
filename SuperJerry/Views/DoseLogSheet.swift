@@ -54,7 +54,7 @@ struct DoseLogSheet: View {
                     Label(language("ตรวจกับฉลากจริงทุกครั้ง ไม่ใช่คำแนะนำทางการแพทย์",
                                    "Always check the real label. Not medical advice."),
                           systemImage: "info.circle")
-                        .font(.footnote)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
@@ -133,7 +133,7 @@ struct DoseLogSheet: View {
                     // In English the line above is Jenny's summary, so show the label's own words too.
                     if language == .english, choice == nil, let directions = medicine.directions {
                         Text(directions)
-                            .font(.subheadline)
+                            .font(.callout)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -142,7 +142,7 @@ struct DoseLogSheet: View {
                     }
                     if medicine.stock != nil && medicine.canCountStock {
                         Label(medicine.stockText(language), systemImage: "shippingbox")
-                            .font(.subheadline)
+                            .font(.callout)
                             .foregroundStyle(.secondary)
                     }
                 }
