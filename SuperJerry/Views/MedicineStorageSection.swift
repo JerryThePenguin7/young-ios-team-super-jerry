@@ -2,98 +2,40 @@ import SwiftUI
 
 /// "Medicine Storage" under Your Medications: how many of each medicine are left, and about how many days
 /// that lasts. Jenny counts down by itself when a dose is logged as Taken.
-/// It starts as a swipeable stack of cards (running low first); tap it to see them all,
-/// then tap a row to set or refill the count and the "Running low" level.
+/// Running low first. Tap a row to set or refill the count and the "Running low" level.
 struct MedicineStorageSection: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @ScaledMetric(relativeTo: .title3) private var cardHeight: CGFloat = 156
-    @Namespace private var namespace
-    @State private var isStacked = true
-    @State private var current: UUID?
     let edit: (Medicine) -> Void
 
     var body: some View {
         let medicines = countable
 
         VStack(alignment: .leading, spacing: 12) {
-            // The title and the Stack button side by side, or one above the other with very big text.
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline) {
-                    title
-                    Spacer(minLength: 8)
-                    stackButton
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    title
-                    stackButton
-                }
-            }
+            Text(language("คลังยา", "Medicine Storage"))
+                .font(.title.bold())
             Text(language("Jenny จะลดจำนวนยาให้เองทุกครั้งที่คุณบันทึกว่าทานแล้ว",
                           "Jenny counts down by itself every time you log Taken."))
                 .font(.callout)
                 .foregroundStyle(.secondary)
 
-            if isStacked && medicines.count > 1 {
-                CardStack(items: medicines, cardHeight: cardHeight, current: $current, namespace: namespace,
-                          title: language("คลังยา \(medicines.count) ตัว", "Medicine Storage, \(medicines.count) medicines"),
-                          itemName: { $0.displayName(language) }) { medicine in
-                    StorageRow(medicine: medicine)
-                        .padding(.horizontal, Theme.cardPadding)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                        .background(Theme.surface)
-                } open: {
-                    withAnimation(animation) { isStacked = false }
+            VStack(spacing: 0) {
+                ForEach(medicines) { medicine in
+                    if medicine.id != medicines.first?.id { Divider() }
+                    Button {
+                        edit(medicine)
+                    } label: {
+                        StorageRow(medicine: medicine)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(language("แตะเพื่อใส่หรือเติมจำนวนยา", "Tap to set or refill the count"))
                 }
-                .transition(.opacity)
-            } else {
-                list(medicines)
-                    .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
             }
+            .padding(.horizontal, 20)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var title: some View {
-        Text(language("คลังยา", "Medicine Storage"))
-            .font(.title.bold())
-    }
-
-    @ViewBuilder
-    private var stackButton: some View {
-        if !isStacked && countable.count > 1 {
-            Button(language("ซ้อน", "Stack")) {
-                withAnimation(animation) { isStacked = true }
-            }
-            .font(.title3)
-            .tint(Theme.red)
-        }
-    }
-
-    /// Every medicine in one card, each row tappable to set its count.
-    private func list(_ medicines: [Medicine]) -> some View {
-        VStack(spacing: 0) {
-            ForEach(medicines) { medicine in
-                if medicine.id != medicines.first?.id { Divider() }
-                Button {
-                    edit(medicine)
-                } label: {
-                    StorageRow(medicine: medicine)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.pressable)
-                .matchedGeometryEffect(id: medicine.id, in: namespace)
-                .accessibilityHint(language("แตะเพื่อใส่หรือเติมจำนวนยา", "Tap to set or refill the count"))
-            }
-        }
-        .padding(.horizontal, Theme.cardPadding)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
-    }
-
-    /// A springy "drop down", like Apple's. A plain fade for people who turned on Reduce Motion.
-    private var animation: Animation {
-        reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.5, bounce: 0.25)
     }
 
     /// Running low first, then the fewest days left, then the ones not counted yet.
@@ -114,8 +56,7 @@ private struct StorageRow: View {
     let medicine: Medicine
 
     var body: some View {
-        // Icons line up with the medicine's name at the top, like the Log cards.
-        HStack(alignment: .top, spacing: 14) {
+        HStack(spacing: 14) {
             PillIcon(medicine: medicine)
             VStack(alignment: .leading, spacing: 6) {
                 Text(medicine.displayName(language))
@@ -148,7 +89,11 @@ private struct StorageRow: View {
                 }
             }
             Spacer(minLength: 8)
-            RoundIcon(symbol: medicine.stock == nil ? "plus" : "pencil")
+            Image(systemName: medicine.stock == nil ? "plus" : "pencil")
+                .font(.title3.bold())
+                .foregroundStyle(Theme.red)
+                .frame(width: 44, height: 44)
+                .background(Theme.fill, in: Circle())
                 .accessibilityHidden(true)
         }
         .padding(.vertical, 14)
@@ -159,8 +104,18 @@ private struct StorageRow: View {
             .font(.headline)
     }
 
+    /// Dark words on a light orange tint with an orange icon: orange text is too hard to read.
     private var lowBadge: some View {
-        StatusBadge(title: language("ใกล้หมด", "Running low"), symbol: "exclamationmark.triangle.fill", color: .orange)
+        Label {
+            Text(language("ใกล้หมด", "Running low"))
+        } icon: {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+        }
+        .font(.subheadline.bold())
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Color.orange.opacity(0.18), in: Capsule())
     }
 }
 

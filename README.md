@@ -50,12 +50,11 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
      A card says **Time to take** when it's due and **Late** if it was missed.
    - **As Needed Medications:** log a "when needed" medicine (like Paracetamol) when you take it.
    - **Taken:** what you took (✓) or skipped, and how long ago. Tap a medicine to undo it.
-   - **Your Medications ▸** a stack of cards, like a widget stack on the Home Screen. **Swipe up or down** to flip through them,
-     and **tap** to spread them out: each medicine with its label photo, kind and strength, and
-     schedule, in groups (Heart, Diabetes, Eyes & ears…). Tap a group's header to fold it. The speaker next to a name reads it aloud.
-     **Edit** lets you delete medicines, and **Stack** piles them back up.
+   - **Your Medications ▸** each medicine with its label photo, kind and strength, and schedule, in groups (Heart,
+     Diabetes, Eyes & ears…). Tap a group's header to fold it. The speaker next to a name reads it aloud.
+     **Edit** lets you delete medicines.
    - **Your Medications ▸ Medicine Storage:** tap a medicine and type how many you have. Each time you log **Taken** (the green button), Jenny takes
-     one dose off by itself, and shows about how many days are left. It's also a swipeable stack. Set **when to warn** for each
+     one dose off by itself, and shows about how many days are left. Set **when to warn** for each
      medicine (e.g. at 10 or 5 left); until you do, "Running low" shows at about a week's worth.
 4. **Apple Reminders:** tap **Remind me in Reminders** (or Settings), and allow Full Access. Jenny makes a list
    called **Jenny Medicines** (ยา Jenny in Thai) with a repeating reminder per medicine per time (8:00, 12:00, 18:00, 21:00),

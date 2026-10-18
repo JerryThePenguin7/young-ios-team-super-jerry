@@ -36,8 +36,8 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
   - **Log**: a **checklist** per pill time (`LogTimeCard`): tap a medicine's tick box to mark it taken (press and hold to skip; **…** opens `DoseLogSheet`).
   - **Taken** (`LoggedCard`): ticked medicines, tap to undo.
-  - **Your Medications** as a Smart Stack–style widget stack you swipe up and down; tap it to spread the cards into groups you can fold (`CardStack`).
-  - **Medicine Storage**, also a widget stack: pills left, counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine (`MedicineStorageSection`, `StockEditorSheet`).
+  - **Your Medications**: a plain list of medicine cards in groups you can fold (the swipe stack was removed on request).
+  - **Medicine Storage**, a list: pills left, counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine (`MedicineStorageSection`, `StockEditorSheet`).
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
 - **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
 - **Label reading also keeps:** the directions word for word (`labelDirections`), "ข้างละ" doses per side (`perSide`, counted ×2 in storage),
