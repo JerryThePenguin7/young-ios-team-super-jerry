@@ -140,6 +140,18 @@ The Thai rules were always in the plan as the **backup**. The test showed Founda
 
 ---
 
+## 7b. Update (Day 2): names and units
+Testing on real envelopes found two problems: traditional medicines like **MAWANG (มะแว้ง)** were missed (the rules
+needed "Name + mg"), and **eye drops showed เม็ด instead of หยด**. The fix, all on the device:
+1. **A medicine name list** (`medicine-names.json`, 486 medicines incl. Thai herbal medicines and eye drops), matched against the
+   label with spelling tolerance, and given to Vision as custom words. It can grow from the official **TMT** list (see README).
+2. **Dosage-form words:** หยอดตา/หยอดหู → หยด, สูด/พ่น → พัฟ, ทาบาง ๆ/ครีม → no count, ช้อนชา, ซอง, อม, เหน็บ, plus "1-2" ranges,
+   "%" strengths, which eye (ขวา/ซ้าย/ทั้ง 2 ข้าง), "วันละ 3-4 ครั้ง" and "ทุก 6 ชั่วโมง".
+3. **Honesty on screen:** guessed names, units, or times show an orange "โปรดตรวจสอบ" (please check).
+4. **Learning:** names the user saved before are recognised next time.
+
+Your Thai rules (LabelParser) are unchanged and still pass 5/5; the new `LabelReader` runs them first and fills in the gaps.
+
 ## 8. Words to know
 
 | Word | Meaning |

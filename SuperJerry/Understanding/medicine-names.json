@@ -1,0 +1,2902 @@
+[
+ {
+  "name": "MAWANG (มะแว้ง)",
+  "aliases": [
+   "MAWANG",
+   "MAWAENG",
+   "MA WAENG",
+   "มะแว้ง",
+   "ยาแก้ไอมะแว้ง",
+   "ยาอมมะแว้ง",
+   "ยาประสะมะแว้ง",
+   "ยาเม็ดมะแว้ง"
+  ],
+  "thai": "ยาแก้ไอ ขับเสมหะ (สมุนไพรมะแว้ง)",
+  "group": "herbal"
+ },
+ {
+  "name": "ฟ้าทะลายโจร",
+  "aliases": [
+   "FA TALAI JONE",
+   "FAH TALAI JONE",
+   "FA THALAI CHON",
+   "FAH TALAI CHON",
+   "ANDROGRAPHIS",
+   "ANDROGRAPHIS PANICULATA",
+   "ยาฟ้าทะลายโจร"
+  ],
+  "thai": "บรรเทาอาการเจ็บคอ ไข้หวัด (สมุนไพร)",
+  "form": "capsule",
+  "group": "herbal"
+ },
+ {
+  "name": "ขมิ้นชัน",
+  "aliases": [
+   "KHAMIN CHAN",
+   "KAMIN CHAN",
+   "TURMERIC",
+   "CURCUMA",
+   "CURCUMA LONGA",
+   "ยาขมิ้นชัน",
+   "แคปซูลขมิ้นชัน"
+  ],
+  "thai": "บรรเทาอาการท้องอืด ท้องเฟ้อ อาหารไม่ย่อย (สมุนไพร)",
+  "form": "capsule",
+  "group": "herbal"
+ },
+ {
+  "name": "ขิง",
+  "aliases": [
+   "GINGER",
+   "ZINGIBER OFFICINALE",
+   "ยาขิง",
+   "ขิงผง",
+   "แคปซูลขิง"
+  ],
+  "thai": "บรรเทาอาการคลื่นไส้ ท้องอืด (สมุนไพร)",
+  "form": "capsule",
+  "group": "herbal"
+ },
+ {
+  "name": "มะขามแขก",
+  "aliases": [
+   "ยามะขามแขก",
+   "SENNA ALEXANDRINA",
+   "MAKHAM KHAEK"
+  ],
+  "thai": "ยาระบาย (สมุนไพร)",
+  "group": "herbal"
+ },
+ {
+  "name": "ชุมเห็ดเทศ",
+  "aliases": [
+   "CASSIA ALATA",
+   "SENNA ALATA",
+   "ยาชุมเห็ดเทศ"
+  ],
+  "thai": "ยาระบาย (สมุนไพร)",
+  "group": "herbal"
+ },
+ {
+  "name": "เพชรสังฆาต",
+  "aliases": [
+   "CISSUS QUADRANGULARIS",
+   "PETCHSANGKHAT",
+   "PHET SANGKHAT",
+   "ยาผสมเพชรสังฆาต",
+   "ยาเพชรสังฆาต"
+  ],
+  "thai": "บรรเทาอาการริดสีดวงทวาร (สมุนไพร)",
+  "form": "capsule",
+  "group": "herbal"
+ },
+ {
+  "name": "ไพล",
+  "aliases": [
+   "PLAI",
+   "ZINGIBER CASSUMUNAR",
+   "ครีมไพล",
+   "เจลไพล",
+   "น้ำมันไพล",
+   "ยาไพล"
+  ],
+  "thai": "ยาทาบรรเทาปวดเมื่อย ฟกช้ำ (สมุนไพร)",
+  "form": "topical",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาประสะไพล",
+  "aliases": [
+   "PRASAPLAI",
+   "PRASA PLAI",
+   "ประสะไพล"
+  ],
+  "thai": "ยาแผนไทย บรรเทาอาการปวดประจำเดือน",
+  "group": "herbal"
+ },
+ {
+  "name": "บัวบก",
+  "aliases": [
+   "CENTELLA",
+   "CENTELLA ASIATICA",
+   "GOTU KOLA",
+   "ครีมบัวบก",
+   "เจลบัวบก"
+  ],
+  "thai": "สมานแผล (สมุนไพร)",
+  "group": "herbal"
+ },
+ {
+  "name": "พริก",
+  "aliases": [
+   "CAPSICUM",
+   "เจลพริก",
+   "ครีมพริก",
+   "ยาพริก"
+  ],
+  "thai": "ยาทาบรรเทาปวดกล้ามเนื้อ (สมุนไพร)",
+  "form": "topical",
+  "group": "herbal"
+ },
+ {
+  "name": "เถาวัลย์เปรียง",
+  "aliases": [
+   "DERRIS SCANDENS",
+   "THAO WAN PRIANG",
+   "ยาเถาวัลย์เปรียง"
+  ],
+  "thai": "บรรเทาอาการปวดกล้ามเนื้อ (สมุนไพร)",
+  "form": "capsule",
+  "group": "herbal"
+ },
+ {
+  "name": "พญายอ",
+  "aliases": [
+   "PHAYA YO",
+   "PHAYAYO",
+   "CLINACANTHUS NUTANS",
+   "ครีมพญายอ",
+   "โลชั่นพญายอ"
+  ],
+  "thai": "ยาทาบรรเทาผื่นคัน เริม งูสวัด (สมุนไพร)",
+  "form": "topical",
+  "group": "herbal"
+ },
+ {
+  "name": "ว่านหางจระเข้",
+  "aliases": [
+   "ALOE VERA",
+   "เจลว่านหางจระเข้"
+  ],
+  "thai": "ยาทาแผลไฟไหม้ น้ำร้อนลวก (สมุนไพร)",
+  "form": "topical",
+  "group": "herbal"
+ },
+ {
+  "name": "มะขามป้อม",
+  "aliases": [
+   "EMBLICA",
+   "MAKHAM POM",
+   "ยาแก้ไอมะขามป้อม",
+   "ยาแก้ไอผสมมะขามป้อม"
+  ],
+  "thai": "ยาแก้ไอ ชุ่มคอ (สมุนไพร)",
+  "form": "liquid",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาหอมนวโกฐ",
+  "aliases": [
+   "NAWAKOT",
+   "YA HOM NAWAKOT",
+   "หอมนวโกฐ"
+  ],
+  "thai": "ยาแผนไทย แก้ลมวิงเวียน",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาหอมเทพจิตร",
+  "aliases": [
+   "หอมเทพจิตร"
+  ],
+  "thai": "ยาแผนไทย แก้ลมวิงเวียน ใจสั่น",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาหอมอินทจักร์",
+  "aliases": [
+   "หอมอินทจักร์"
+  ],
+  "thai": "ยาแผนไทย แก้ลมวิงเวียน คลื่นไส้",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาหอมทิพโอสถ",
+  "aliases": [
+   "หอมทิพโอสถ"
+  ],
+  "thai": "ยาแผนไทย แก้ลมวิงเวียน",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาหอมแก้ลมวิงเวียน",
+  "thai": "ยาแผนไทย แก้ลมวิงเวียน",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาเขียวหอม",
+  "aliases": [
+   "YA KHIAO HOM",
+   "เขียวหอม"
+  ],
+  "thai": "ยาแผนไทย บรรเทาไข้ ร้อนใน",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาจันทน์ลีลา",
+  "aliases": [
+   "จันทน์ลีลา",
+   "CHANTALEELA"
+  ],
+  "thai": "ยาแผนไทย บรรเทาไข้ตัวร้อน",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาธาตุอบเชย",
+  "aliases": [
+   "ธาตุอบเชย"
+  ],
+  "thai": "ยาแผนไทย บรรเทาท้องอืด ท้องเฟ้อ",
+  "form": "liquid",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาประสะกานพลู",
+  "aliases": [
+   "ประสะกานพลู"
+  ],
+  "thai": "ยาแผนไทย บรรเทาปวดท้อง ท้องอืด",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาเหลืองปิดสมุทร",
+  "aliases": [
+   "เหลืองปิดสมุทร"
+  ],
+  "thai": "ยาแผนไทย บรรเทาอาการท้องเสีย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาตรีผลา",
+  "aliases": [
+   "ตรีผลา",
+   "TRIPHALA"
+  ],
+  "thai": "ยาแผนไทย (ตรีผลา)",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาริดสีดวงมหากาฬ",
+  "aliases": [
+   "ริดสีดวงมหากาฬ"
+  ],
+  "thai": "ยาแผนไทย บรรเทาริดสีดวงทวาร",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาสหัศธารา",
+  "aliases": [
+   "สหัศธารา"
+  ],
+  "thai": "ยาแผนไทย บรรเทาปวดเมื่อย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยากษัยเส้น",
+  "aliases": [
+   "กษัยเส้น"
+  ],
+  "thai": "ยาแผนไทย บรรเทาปวดเมื่อย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาธรณีสัณฑะฆาต",
+  "aliases": [
+   "ธรณีสัณฑะฆาต"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาประสะเจตพังคี",
+  "aliases": [
+   "ประสะเจตพังคี"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาเบญจกูล",
+  "aliases": [
+   "เบญจกูล"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาแก้ลมอัมพฤกษ์",
+  "aliases": [
+   "แก้ลมอัมพฤกษ์"
+  ],
+  "thai": "ยาแผนไทย บรรเทาปวดตามเส้นเอ็น",
+  "group": "herbal"
+ },
+ {
+  "name": "ยามันทธาตุ",
+  "aliases": [
+   "มันทธาตุ"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาไฟประลัยกัลป์",
+  "aliases": [
+   "ไฟประลัยกัลป์"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาไฟห้ากอง",
+  "aliases": [
+   "ไฟห้ากอง"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาปราบชมพูทวีป",
+  "aliases": [
+   "ปราบชมพูทวีป"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาทำลายพระสุเมรุ",
+  "aliases": [
+   "ทำลายพระสุเมรุ"
+  ],
+  "thai": "ยาแผนไทย",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาศุขไสยาศน์",
+  "aliases": [
+   "ศุขไสยาศน์"
+  ],
+  "thai": "ยาแผนไทยที่มีกัญชา (ใช้ตามแพทย์สั่ง)",
+  "group": "herbal"
+ },
+ {
+  "name": "น้ำมันกัญชา",
+  "aliases": [
+   "CANNABIS",
+   "CANNABIS OIL",
+   "ยาน้ำมันกัญชา",
+   "น้ำมันสารสกัดกัญชา"
+  ],
+  "thai": "ยาที่มีกัญชา (ใช้ตามแพทย์สั่ง)",
+  "form": "sublingualDrops",
+  "group": "herbal"
+ },
+ {
+  "name": "หญ้าดอกขาว",
+  "aliases": [
+   "VERNONIA CINEREA",
+   "ชาหญ้าดอกขาว"
+  ],
+  "thai": "ช่วยลดความอยากบุหรี่ (สมุนไพร)",
+  "group": "herbal"
+ },
+ {
+  "name": "รางจืด",
+  "aliases": [
+   "THUNBERGIA LAURIFOLIA",
+   "RANG CHUET",
+   "ชารางจืด"
+  ],
+  "thai": "สมุนไพร (รางจืด)",
+  "group": "herbal"
+ },
+ {
+  "name": "ยาหม่อง",
+  "aliases": [
+   "BALM",
+   "TIGER BALM",
+   "ANALGESIC BALM"
+  ],
+  "thai": "ยาทาแก้ปวดเมื่อย แมลงกัดต่อย",
+  "form": "topical",
+  "group": "herbal"
+ },
+ {
+  "name": "Amlodipine",
+  "aliases": [
+   "แอมโลดิปีน"
+  ],
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Nifedipine",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Felodipine",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Manidipine",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Losartan",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Valsartan",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Irbesartan",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Telmisartan",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Candesartan",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Enalapril",
+  "aliases": [
+   "อีนาลาพริล"
+  ],
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Lisinopril",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Ramipril",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Perindopril",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Hydrochlorothiazide",
+  "aliases": [
+   "HCTZ"
+  ],
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Atenolol",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Propranolol",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Metoprolol",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Bisoprolol",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Carvedilol",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Hydralazine",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Doxazosin",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Prazosin",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Methyldopa",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Diltiazem",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Verapamil",
+  "thai": "ยาลดความดันโลหิต",
+  "group": "heart"
+ },
+ {
+  "name": "Furosemide",
+  "thai": "ยาขับปัสสาวะ",
+  "group": "heart"
+ },
+ {
+  "name": "Spironolactone",
+  "thai": "ยาขับปัสสาวะ",
+  "group": "heart"
+ },
+ {
+  "name": "Metformin",
+  "aliases": [
+   "เมทฟอร์มิน"
+  ],
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Glipizide",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Glibenclamide",
+  "aliases": [
+   "Glyburide"
+  ],
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Gliclazide",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Glimepiride",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Pioglitazone",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Sitagliptin",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Vildagliptin",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Linagliptin",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Empagliflozin",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Dapagliflozin",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Acarbose",
+  "thai": "ยาเบาหวาน",
+  "group": "diabetes"
+ },
+ {
+  "name": "Insulin",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "Insulin glargine",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "Insulin aspart",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "Insulin NPH",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "Simvastatin",
+  "aliases": [
+   "ซิมวาสแตติน"
+  ],
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Atorvastatin",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Rosuvastatin",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Pravastatin",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Pitavastatin",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Fenofibrate",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Gemfibrozil",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Ezetimibe",
+  "thai": "ยาลดไขมันในเลือด",
+  "group": "cholesterol"
+ },
+ {
+  "name": "Aspirin",
+  "aliases": [
+   "แอสไพริน",
+   "ASA"
+  ],
+  "thai": "ยาต้านเกล็ดเลือด",
+  "group": "heart"
+ },
+ {
+  "name": "Clopidogrel",
+  "thai": "ยาต้านเกล็ดเลือด",
+  "group": "heart"
+ },
+ {
+  "name": "Cilostazol",
+  "thai": "ยาต้านเกล็ดเลือด",
+  "group": "heart"
+ },
+ {
+  "name": "Warfarin",
+  "thai": "ยาป้องกันเลือดแข็งตัว",
+  "group": "heart"
+ },
+ {
+  "name": "Rivaroxaban",
+  "thai": "ยาป้องกันเลือดแข็งตัว",
+  "group": "heart"
+ },
+ {
+  "name": "Apixaban",
+  "thai": "ยาป้องกันเลือดแข็งตัว",
+  "group": "heart"
+ },
+ {
+  "name": "Dabigatran",
+  "thai": "ยาป้องกันเลือดแข็งตัว",
+  "group": "heart"
+ },
+ {
+  "name": "Isosorbide dinitrate",
+  "aliases": [
+   "ISDN"
+  ],
+  "thai": "ยาขยายหลอดเลือดหัวใจ",
+  "group": "heart"
+ },
+ {
+  "name": "Isosorbide mononitrate",
+  "aliases": [
+   "ISMN"
+  ],
+  "thai": "ยาขยายหลอดเลือดหัวใจ",
+  "group": "heart"
+ },
+ {
+  "name": "Nitroglycerin",
+  "thai": "ยาขยายหลอดเลือดหัวใจ",
+  "group": "heart"
+ },
+ {
+  "name": "Trimetazidine",
+  "thai": "ยาขยายหลอดเลือดหัวใจ",
+  "group": "heart"
+ },
+ {
+  "name": "Digoxin",
+  "thai": "ยาโรคหัวใจ",
+  "group": "heart"
+ },
+ {
+  "name": "Amiodarone",
+  "thai": "ยาโรคหัวใจ",
+  "group": "heart"
+ },
+ {
+  "name": "Omeprazole",
+  "aliases": [
+   "โอเมพราโซล"
+  ],
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Pantoprazole",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Esomeprazole",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Lansoprazole",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Rabeprazole",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Ranitidine",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Famotidine",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Aluminium hydroxide",
+  "aliases": [
+   "Alum milk",
+   "อะลัมมิลค์"
+  ],
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Sodium bicarbonate",
+  "thai": "ยาลดกรดในกระเพาะอาหาร",
+  "group": "stomach"
+ },
+ {
+  "name": "Domperidone",
+  "thai": "ยาแก้คลื่นไส้ อาเจียน",
+  "group": "stomach"
+ },
+ {
+  "name": "Metoclopramide",
+  "thai": "ยาแก้คลื่นไส้ อาเจียน",
+  "group": "stomach"
+ },
+ {
+  "name": "Simethicone",
+  "aliases": [
+   "Simeticone"
+  ],
+  "thai": "ยาขับลม แก้ท้องอืด",
+  "group": "stomach"
+ },
+ {
+  "name": "Hyoscine",
+  "aliases": [
+   "Hyoscine butylbromide"
+  ],
+  "thai": "ยาแก้ปวดเกร็งท้อง",
+  "group": "stomach"
+ },
+ {
+  "name": "Bisacodyl",
+  "thai": "ยาระบาย",
+  "group": "stomach"
+ },
+ {
+  "name": "Senna",
+  "aliases": [
+   "Sennosides"
+  ],
+  "thai": "ยาระบาย",
+  "group": "stomach"
+ },
+ {
+  "name": "Lactulose",
+  "thai": "ยาระบาย",
+  "group": "stomach"
+ },
+ {
+  "name": "Psyllium",
+  "aliases": [
+   "Ispaghula"
+  ],
+  "thai": "ยาระบาย",
+  "group": "stomach"
+ },
+ {
+  "name": "Loperamide",
+  "thai": "ยาแก้ท้องเสีย",
+  "group": "stomach"
+ },
+ {
+  "name": "Activated charcoal",
+  "aliases": [
+   "Charcoal"
+  ],
+  "thai": "ยาแก้ท้องเสีย",
+  "group": "stomach"
+ },
+ {
+  "name": "ORS",
+  "aliases": [
+   "Oral rehydration salts",
+   "ผงเกลือแร่",
+   "เกลือแร่"
+  ],
+  "thai": "เกลือแร่ทดแทนการเสียน้ำ",
+  "form": "powder",
+  "group": "stomach"
+ },
+ {
+  "name": "Paracetamol",
+  "aliases": [
+   "พาราเซตามอล",
+   "Acetaminophen"
+  ],
+  "thai": "ยาแก้ปวด ลดไข้",
+  "group": "pain"
+ },
+ {
+  "name": "Ibuprofen",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Naproxen",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Diclofenac",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Mefenamic acid",
+  "aliases": [
+   "Mefenamic"
+  ],
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Celecoxib",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Etoricoxib",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Meloxicam",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Piroxicam",
+  "thai": "ยาแก้ปวด ลดอักเสบ",
+  "group": "pain"
+ },
+ {
+  "name": "Tramadol",
+  "thai": "ยาแก้ปวด",
+  "group": "pain"
+ },
+ {
+  "name": "Orphenadrine",
+  "thai": "ยาคลายกล้ามเนื้อ",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Tolperisone",
+  "thai": "ยาคลายกล้ามเนื้อ",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Eperisone",
+  "thai": "ยาคลายกล้ามเนื้อ",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Colchicine",
+  "thai": "ยารักษาโรคเกาต์",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Allopurinol",
+  "thai": "ยาลดกรดยูริก (โรคเกาต์)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Febuxostat",
+  "thai": "ยาลดกรดยูริก (โรคเกาต์)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Prednisolone",
+  "thai": "ยาสเตียรอยด์",
+  "group": "hormones"
+ },
+ {
+  "name": "Dexamethasone",
+  "thai": "ยาสเตียรอยด์",
+  "group": "hormones"
+ },
+ {
+  "name": "Levothyroxine",
+  "aliases": [
+   "L-thyroxine",
+   "Thyroxine"
+  ],
+  "thai": "ยาไทรอยด์ฮอร์โมน",
+  "group": "hormones"
+ },
+ {
+  "name": "Methimazole",
+  "aliases": [
+   "Thiamazole"
+  ],
+  "thai": "ยารักษาไทรอยด์เป็นพิษ",
+  "group": "hormones"
+ },
+ {
+  "name": "Propylthiouracil",
+  "aliases": [
+   "PTU"
+  ],
+  "thai": "ยารักษาไทรอยด์เป็นพิษ",
+  "group": "hormones"
+ },
+ {
+  "name": "Calcium carbonate",
+  "thai": "แคลเซียมเสริม",
+  "group": "vitamins"
+ },
+ {
+  "name": "Calcium citrate",
+  "thai": "แคลเซียมเสริม",
+  "group": "vitamins"
+ },
+ {
+  "name": "Ergocalciferol",
+  "aliases": [
+   "Vitamin D2",
+   "Calciferol"
+  ],
+  "thai": "วิตามินดี",
+  "group": "vitamins"
+ },
+ {
+  "name": "Cholecalciferol",
+  "aliases": [
+   "Vitamin D3"
+  ],
+  "thai": "วิตามินดี",
+  "group": "vitamins"
+ },
+ {
+  "name": "Vitamin B1-6-12",
+  "aliases": [
+   "Vitamin B complex",
+   "B complex",
+   "Neurobion"
+  ],
+  "thai": "วิตามินบี",
+  "group": "vitamins"
+ },
+ {
+  "name": "Vitamin B1",
+  "aliases": [
+   "Thiamine"
+  ],
+  "thai": "วิตามินบี",
+  "group": "vitamins"
+ },
+ {
+  "name": "Folic acid",
+  "aliases": [
+   "Folate"
+  ],
+  "thai": "วิตามินโฟลิก (บำรุงเลือด)",
+  "group": "vitamins"
+ },
+ {
+  "name": "Ferrous sulfate",
+  "aliases": [
+   "Ferrous sulphate",
+   "FBC"
+  ],
+  "thai": "ธาตุเหล็ก (บำรุงเลือด)",
+  "group": "vitamins"
+ },
+ {
+  "name": "Ferrous fumarate",
+  "thai": "ธาตุเหล็ก (บำรุงเลือด)",
+  "group": "vitamins"
+ },
+ {
+  "name": "Vitamin C",
+  "aliases": [
+   "Ascorbic acid"
+  ],
+  "thai": "วิตามินซี",
+  "group": "vitamins"
+ },
+ {
+  "name": "Multivitamin",
+  "aliases": [
+   "MTV"
+  ],
+  "thai": "วิตามินรวม",
+  "group": "vitamins"
+ },
+ {
+  "name": "Potassium chloride",
+  "aliases": [
+   "Elixir KCl",
+   "KCl"
+  ],
+  "thai": "เกลือแร่โพแทสเซียม",
+  "group": "vitamins"
+ },
+ {
+  "name": "Amoxicillin",
+  "aliases": [
+   "อะม็อกซีซิลลิน",
+   "Amoxycillin"
+  ],
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Amoxicillin clavulanate",
+  "aliases": [
+   "Co-amoxiclav"
+  ],
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Cephalexin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Cefuroxime",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Cefdinir",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Cefixime",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Dicloxacillin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Cloxacillin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Azithromycin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Roxithromycin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Clarithromycin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Erythromycin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Ciprofloxacin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Levofloxacin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Norfloxacin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Ofloxacin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Doxycycline",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Tetracycline",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Metronidazole",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Co-trimoxazole",
+  "aliases": [
+   "Cotrimoxazole",
+   "Sulfamethoxazole"
+  ],
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Nitrofurantoin",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)",
+  "group": "infection"
+ },
+ {
+  "name": "Acyclovir",
+  "aliases": [
+   "Aciclovir"
+  ],
+  "thai": "ยาต้านไวรัส (เริม งูสวัด)",
+  "group": "infection"
+ },
+ {
+  "name": "Valacyclovir",
+  "thai": "ยาต้านไวรัส (เริม งูสวัด)",
+  "group": "infection"
+ },
+ {
+  "name": "Oseltamivir",
+  "thai": "ยาต้านไวรัสไข้หวัดใหญ่",
+  "group": "infection"
+ },
+ {
+  "name": "Fluconazole",
+  "thai": "ยาต้านเชื้อรา",
+  "group": "infection"
+ },
+ {
+  "name": "Itraconazole",
+  "thai": "ยาต้านเชื้อรา",
+  "group": "infection"
+ },
+ {
+  "name": "Chlorpheniramine",
+  "aliases": [
+   "Chlorphenamine",
+   "CPM"
+  ],
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Cetirizine",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Levocetirizine",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Loratadine",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Desloratadine",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Fexofenadine",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Hydroxyzine",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Bromhexine",
+  "thai": "ยาละลายเสมหะ",
+  "group": "breathing"
+ },
+ {
+  "name": "Ambroxol",
+  "thai": "ยาละลายเสมหะ",
+  "group": "breathing"
+ },
+ {
+  "name": "Acetylcysteine",
+  "aliases": [
+   "N-acetylcysteine",
+   "NAC"
+  ],
+  "thai": "ยาละลายเสมหะ",
+  "group": "breathing"
+ },
+ {
+  "name": "Carbocysteine",
+  "thai": "ยาละลายเสมหะ",
+  "group": "breathing"
+ },
+ {
+  "name": "Guaifenesin",
+  "thai": "ยาขับเสมหะ",
+  "group": "breathing"
+ },
+ {
+  "name": "Dextromethorphan",
+  "thai": "ยาแก้ไอ",
+  "group": "breathing"
+ },
+ {
+  "name": "Brown mixture",
+  "aliases": [
+   "ยาแก้ไอน้ำดำ"
+  ],
+  "thai": "ยาแก้ไอ",
+  "group": "breathing"
+ },
+ {
+  "name": "Pseudoephedrine",
+  "thai": "ยาลดน้ำมูก คัดจมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Phenylephrine",
+  "thai": "ยาลดน้ำมูก คัดจมูก",
+  "group": "breathing"
+ },
+ {
+  "name": "Salbutamol",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง)",
+  "group": "breathing"
+ },
+ {
+  "name": "Terbutaline",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง)",
+  "group": "breathing"
+ },
+ {
+  "name": "Theophylline",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง)",
+  "group": "breathing"
+ },
+ {
+  "name": "Montelukast",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง)",
+  "group": "breathing"
+ },
+ {
+  "name": "Tiotropium",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง)",
+  "group": "breathing"
+ },
+ {
+  "name": "Ipratropium",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง)",
+  "group": "breathing"
+ },
+ {
+  "name": "Lorazepam",
+  "thai": "ยานอนหลับ ยาคลายกังวล",
+  "group": "brain"
+ },
+ {
+  "name": "Alprazolam",
+  "thai": "ยานอนหลับ ยาคลายกังวล",
+  "group": "brain"
+ },
+ {
+  "name": "Clonazepam",
+  "thai": "ยานอนหลับ ยาคลายกังวล",
+  "group": "brain"
+ },
+ {
+  "name": "Diazepam",
+  "thai": "ยานอนหลับ ยาคลายกังวล",
+  "group": "brain"
+ },
+ {
+  "name": "Zolpidem",
+  "thai": "ยานอนหลับ ยาคลายกังวล",
+  "group": "brain"
+ },
+ {
+  "name": "Fluoxetine",
+  "thai": "ยาต้านซึมเศร้า",
+  "group": "brain"
+ },
+ {
+  "name": "Sertraline",
+  "thai": "ยาต้านซึมเศร้า",
+  "group": "brain"
+ },
+ {
+  "name": "Escitalopram",
+  "thai": "ยาต้านซึมเศร้า",
+  "group": "brain"
+ },
+ {
+  "name": "Paroxetine",
+  "thai": "ยาต้านซึมเศร้า",
+  "group": "brain"
+ },
+ {
+  "name": "Trazodone",
+  "thai": "ยาต้านซึมเศร้า",
+  "group": "brain"
+ },
+ {
+  "name": "Mirtazapine",
+  "thai": "ยาต้านซึมเศร้า",
+  "group": "brain"
+ },
+ {
+  "name": "Amitriptyline",
+  "thai": "ยาต้านซึมเศร้า / แก้ปวดปลายประสาท",
+  "group": "brain"
+ },
+ {
+  "name": "Nortriptyline",
+  "thai": "ยาต้านซึมเศร้า / แก้ปวดปลายประสาท",
+  "group": "brain"
+ },
+ {
+  "name": "Gabapentin",
+  "thai": "ยาแก้ปวดปลายประสาท",
+  "group": "brain"
+ },
+ {
+  "name": "Pregabalin",
+  "thai": "ยาแก้ปวดปลายประสาท",
+  "group": "brain"
+ },
+ {
+  "name": "Carbamazepine",
+  "thai": "ยากันชัก",
+  "group": "brain"
+ },
+ {
+  "name": "Phenytoin",
+  "thai": "ยากันชัก",
+  "group": "brain"
+ },
+ {
+  "name": "Sodium valproate",
+  "aliases": [
+   "Valproic acid",
+   "Valproate"
+  ],
+  "thai": "ยากันชัก",
+  "group": "brain"
+ },
+ {
+  "name": "Levetiracetam",
+  "thai": "ยากันชัก",
+  "group": "brain"
+ },
+ {
+  "name": "Phenobarbital",
+  "thai": "ยากันชัก",
+  "group": "brain"
+ },
+ {
+  "name": "Donepezil",
+  "thai": "ยารักษาอาการสมองเสื่อม",
+  "group": "brain"
+ },
+ {
+  "name": "Memantine",
+  "thai": "ยารักษาอาการสมองเสื่อม",
+  "group": "brain"
+ },
+ {
+  "name": "Rivastigmine",
+  "thai": "ยารักษาอาการสมองเสื่อม",
+  "group": "brain"
+ },
+ {
+  "name": "Levodopa",
+  "aliases": [
+   "Carbidopa",
+   "Benserazide"
+  ],
+  "thai": "ยารักษาโรคพาร์กินสัน",
+  "group": "brain"
+ },
+ {
+  "name": "Trihexyphenidyl",
+  "thai": "ยารักษาโรคพาร์กินสัน",
+  "group": "brain"
+ },
+ {
+  "name": "Quetiapine",
+  "thai": "ยารักษาอาการทางจิตเวช",
+  "group": "brain"
+ },
+ {
+  "name": "Risperidone",
+  "thai": "ยารักษาอาการทางจิตเวช",
+  "group": "brain"
+ },
+ {
+  "name": "Haloperidol",
+  "thai": "ยารักษาอาการทางจิตเวช",
+  "group": "brain"
+ },
+ {
+  "name": "Olanzapine",
+  "thai": "ยารักษาอาการทางจิตเวช",
+  "group": "brain"
+ },
+ {
+  "name": "Betahistine",
+  "thai": "ยาแก้เวียนศีรษะ บ้านหมุน",
+  "group": "brain"
+ },
+ {
+  "name": "Flunarizine",
+  "thai": "ยาแก้เวียนศีรษะ บ้านหมุน",
+  "group": "brain"
+ },
+ {
+  "name": "Cinnarizine",
+  "thai": "ยาแก้เวียนศีรษะ บ้านหมุน",
+  "group": "brain"
+ },
+ {
+  "name": "Dimenhydrinate",
+  "thai": "ยาแก้เมารถ คลื่นไส้",
+  "group": "brain"
+ },
+ {
+  "name": "Tamsulosin",
+  "thai": "ยารักษาต่อมลูกหมากโต",
+  "group": "urinary"
+ },
+ {
+  "name": "Finasteride",
+  "thai": "ยารักษาต่อมลูกหมากโต",
+  "group": "urinary"
+ },
+ {
+  "name": "Dutasteride",
+  "thai": "ยารักษาต่อมลูกหมากโต",
+  "group": "urinary"
+ },
+ {
+  "name": "Alfuzosin",
+  "thai": "ยารักษาต่อมลูกหมากโต",
+  "group": "urinary"
+ },
+ {
+  "name": "Oxybutynin",
+  "thai": "ยาลดปัสสาวะบ่อย กลั้นไม่อยู่",
+  "group": "urinary"
+ },
+ {
+  "name": "Tolterodine",
+  "thai": "ยาลดปัสสาวะบ่อย กลั้นไม่อยู่",
+  "group": "urinary"
+ },
+ {
+  "name": "Solifenacin",
+  "thai": "ยาลดปัสสาวะบ่อย กลั้นไม่อยู่",
+  "group": "urinary"
+ },
+ {
+  "name": "Alendronate",
+  "thai": "ยารักษากระดูกพรุน",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Risedronate",
+  "thai": "ยารักษากระดูกพรุน",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Glucosamine",
+  "thai": "บำรุงข้อ",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "NORVASC",
+  "thai": "ยาลดความดันโลหิต (amlodipine)",
+  "group": "heart"
+ },
+ {
+  "name": "ADALAT",
+  "thai": "ยาลดความดันโลหิต (nifedipine)",
+  "group": "heart"
+ },
+ {
+  "name": "PLENDIL",
+  "thai": "ยาลดความดันโลหิต (felodipine)",
+  "group": "heart"
+ },
+ {
+  "name": "MADIPLOT",
+  "thai": "ยาลดความดันโลหิต (manidipine)",
+  "group": "heart"
+ },
+ {
+  "name": "COZAAR",
+  "thai": "ยาลดความดันโลหิต (losartan)",
+  "group": "heart"
+ },
+ {
+  "name": "DIOVAN",
+  "thai": "ยาลดความดันโลหิต (valsartan)",
+  "group": "heart"
+ },
+ {
+  "name": "APROVEL",
+  "thai": "ยาลดความดันโลหิต (irbesartan)",
+  "group": "heart"
+ },
+ {
+  "name": "MICARDIS",
+  "thai": "ยาลดความดันโลหิต (telmisartan)",
+  "group": "heart"
+ },
+ {
+  "name": "BLOPRESS",
+  "thai": "ยาลดความดันโลหิต (candesartan)",
+  "group": "heart"
+ },
+ {
+  "name": "COVERSYL",
+  "thai": "ยาลดความดันโลหิต (perindopril)",
+  "group": "heart"
+ },
+ {
+  "name": "TENORMIN",
+  "thai": "ยาลดความดันโลหิต (atenolol)",
+  "group": "heart"
+ },
+ {
+  "name": "INDERAL",
+  "thai": "ยาลดความดันโลหิต (propranolol)",
+  "group": "heart"
+ },
+ {
+  "name": "BETALOC",
+  "thai": "ยาลดความดันโลหิต (metoprolol)",
+  "group": "heart"
+ },
+ {
+  "name": "CONCOR",
+  "thai": "ยาลดความดันโลหิต (bisoprolol)",
+  "group": "heart"
+ },
+ {
+  "name": "DILATREND",
+  "thai": "ยาลดความดันโลหิต (carvedilol)",
+  "group": "heart"
+ },
+ {
+  "name": "CARDURA",
+  "thai": "ยาลดความดันโลหิต (doxazosin)",
+  "group": "heart"
+ },
+ {
+  "name": "MINIPRESS",
+  "thai": "ยาลดความดันโลหิต (prazosin)",
+  "group": "heart"
+ },
+ {
+  "name": "ALDOMET",
+  "thai": "ยาลดความดันโลหิต (methyldopa)",
+  "group": "heart"
+ },
+ {
+  "name": "HERBESSER",
+  "thai": "ยาลดความดันโลหิต (diltiazem)",
+  "group": "heart"
+ },
+ {
+  "name": "ISOPTIN",
+  "thai": "ยาลดความดันโลหิต (verapamil)",
+  "group": "heart"
+ },
+ {
+  "name": "LASIX",
+  "thai": "ยาขับปัสสาวะ (furosemide)",
+  "group": "heart"
+ },
+ {
+  "name": "ALDACTONE",
+  "thai": "ยาขับปัสสาวะ (spironolactone)",
+  "group": "heart"
+ },
+ {
+  "name": "GLUCOPHAGE",
+  "thai": "ยาเบาหวาน (metformin)",
+  "group": "diabetes"
+ },
+ {
+  "name": "MINIDIAB",
+  "thai": "ยาเบาหวาน (glipizide)",
+  "group": "diabetes"
+ },
+ {
+  "name": "DAONIL",
+  "thai": "ยาเบาหวาน (glibenclamide)",
+  "group": "diabetes"
+ },
+ {
+  "name": "DIAMICRON",
+  "thai": "ยาเบาหวาน (gliclazide)",
+  "group": "diabetes"
+ },
+ {
+  "name": "AMARYL",
+  "thai": "ยาเบาหวาน (glimepiride)",
+  "group": "diabetes"
+ },
+ {
+  "name": "ACTOS",
+  "thai": "ยาเบาหวาน (pioglitazone)",
+  "group": "diabetes"
+ },
+ {
+  "name": "JANUVIA",
+  "thai": "ยาเบาหวาน (sitagliptin)",
+  "group": "diabetes"
+ },
+ {
+  "name": "GALVUS",
+  "thai": "ยาเบาหวาน (vildagliptin)",
+  "group": "diabetes"
+ },
+ {
+  "name": "TRAJENTA",
+  "thai": "ยาเบาหวาน (linagliptin)",
+  "group": "diabetes"
+ },
+ {
+  "name": "JARDIANCE",
+  "thai": "ยาเบาหวาน (empagliflozin)",
+  "group": "diabetes"
+ },
+ {
+  "name": "FORXIGA",
+  "thai": "ยาเบาหวาน (dapagliflozin)",
+  "group": "diabetes"
+ },
+ {
+  "name": "GLUCOBAY",
+  "thai": "ยาเบาหวาน (acarbose)",
+  "group": "diabetes"
+ },
+ {
+  "name": "MIXTARD",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด) (insulin)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "ACTRAPID",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด) (insulin)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "LANTUS",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด) (insulin glargine)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "NOVORAPID",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด) (insulin aspart)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "HUMULIN",
+  "thai": "อินซูลิน (ยาเบาหวานชนิดฉีด) (insulin)",
+  "form": "injection",
+  "group": "diabetes"
+ },
+ {
+  "name": "ZOCOR",
+  "thai": "ยาลดไขมันในเลือด (simvastatin)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "LIPITOR",
+  "thai": "ยาลดไขมันในเลือด (atorvastatin)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "CRESTOR",
+  "thai": "ยาลดไขมันในเลือด (rosuvastatin)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "LIVALO",
+  "thai": "ยาลดไขมันในเลือด (pitavastatin)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "LIPANTHYL",
+  "thai": "ยาลดไขมันในเลือด (fenofibrate)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "LOPID",
+  "thai": "ยาลดไขมันในเลือด (gemfibrozil)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "EZETROL",
+  "thai": "ยาลดไขมันในเลือด (ezetimibe)",
+  "group": "cholesterol"
+ },
+ {
+  "name": "PLAVIX",
+  "thai": "ยาต้านเกล็ดเลือด (clopidogrel)",
+  "group": "heart"
+ },
+ {
+  "name": "PLETAAL",
+  "thai": "ยาต้านเกล็ดเลือด (cilostazol)",
+  "group": "heart"
+ },
+ {
+  "name": "ORFARIN",
+  "thai": "ยาป้องกันเลือดแข็งตัว (warfarin)",
+  "group": "heart"
+ },
+ {
+  "name": "XARELTO",
+  "thai": "ยาป้องกันเลือดแข็งตัว (rivaroxaban)",
+  "group": "heart"
+ },
+ {
+  "name": "ELIQUIS",
+  "thai": "ยาป้องกันเลือดแข็งตัว (apixaban)",
+  "group": "heart"
+ },
+ {
+  "name": "PRADAXA",
+  "thai": "ยาป้องกันเลือดแข็งตัว (dabigatran)",
+  "group": "heart"
+ },
+ {
+  "name": "LANOXIN",
+  "thai": "ยาโรคหัวใจ (digoxin)",
+  "group": "heart"
+ },
+ {
+  "name": "CORDARONE",
+  "thai": "ยาโรคหัวใจ (amiodarone)",
+  "group": "heart"
+ },
+ {
+  "name": "ISORDIL",
+  "thai": "ยาโรคหัวใจ (isosorbide dinitrate)",
+  "group": "heart"
+ },
+ {
+  "name": "VASTAREL",
+  "thai": "ยาโรคหัวใจ (trimetazidine)",
+  "group": "heart"
+ },
+ {
+  "name": "LOSEC",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (omeprazole)",
+  "group": "stomach"
+ },
+ {
+  "name": "MIRACID",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (omeprazole)",
+  "group": "stomach"
+ },
+ {
+  "name": "CONTROLOC",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (pantoprazole)",
+  "group": "stomach"
+ },
+ {
+  "name": "NEXIUM",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (esomeprazole)",
+  "group": "stomach"
+ },
+ {
+  "name": "PREVACID",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (lansoprazole)",
+  "group": "stomach"
+ },
+ {
+  "name": "PARIET",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (rabeprazole)",
+  "group": "stomach"
+ },
+ {
+  "name": "ZANTAC",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (ranitidine)",
+  "group": "stomach"
+ },
+ {
+  "name": "PEPCID",
+  "thai": "ยาลดกรดในกระเพาะอาหาร (famotidine)",
+  "group": "stomach"
+ },
+ {
+  "name": "MOTILIUM",
+  "thai": "ยาแก้คลื่นไส้ อาเจียน (domperidone)",
+  "group": "stomach"
+ },
+ {
+  "name": "PLASIL",
+  "thai": "ยาแก้คลื่นไส้ อาเจียน (metoclopramide)",
+  "group": "stomach"
+ },
+ {
+  "name": "AIR-X",
+  "thai": "ยาขับลม แก้ท้องอืด (simethicone)",
+  "group": "stomach"
+ },
+ {
+  "name": "BUSCOPAN",
+  "thai": "ยาแก้ปวดเกร็งท้อง (hyoscine)",
+  "group": "stomach"
+ },
+ {
+  "name": "DULCOLAX",
+  "thai": "ยาระบาย (bisacodyl)",
+  "group": "stomach"
+ },
+ {
+  "name": "SENOKOT",
+  "thai": "ยาระบาย (senna)",
+  "group": "stomach"
+ },
+ {
+  "name": "DUPHALAC",
+  "thai": "ยาระบาย (lactulose)",
+  "group": "stomach"
+ },
+ {
+  "name": "MUCILIN",
+  "thai": "ยาระบาย (psyllium)",
+  "group": "stomach"
+ },
+ {
+  "name": "IMODIUM",
+  "thai": "ยาแก้ท้องเสีย (loperamide)",
+  "group": "stomach"
+ },
+ {
+  "name": "TYLENOL",
+  "thai": "ยาแก้ปวด ลดไข้ (paracetamol)",
+  "group": "pain"
+ },
+ {
+  "name": "SARA",
+  "thai": "ยาแก้ปวด ลดไข้ (paracetamol)",
+  "group": "pain"
+ },
+ {
+  "name": "CALPOL",
+  "thai": "ยาแก้ปวด ลดไข้ (paracetamol)",
+  "group": "pain"
+ },
+ {
+  "name": "BRUFEN",
+  "thai": "ยาแก้ปวด ลดอักเสบ (ibuprofen)",
+  "group": "pain"
+ },
+ {
+  "name": "NAPROSYN",
+  "thai": "ยาแก้ปวด ลดอักเสบ (naproxen)",
+  "group": "pain"
+ },
+ {
+  "name": "VOLTAREN",
+  "thai": "ยาแก้ปวด ลดอักเสบ (diclofenac)",
+  "group": "pain"
+ },
+ {
+  "name": "PONSTAN",
+  "thai": "ยาแก้ปวด ลดอักเสบ (mefenamic acid)",
+  "group": "pain"
+ },
+ {
+  "name": "CELEBREX",
+  "thai": "ยาแก้ปวด ลดอักเสบ (celecoxib)",
+  "group": "pain"
+ },
+ {
+  "name": "ARCOXIA",
+  "thai": "ยาแก้ปวด ลดอักเสบ (etoricoxib)",
+  "group": "pain"
+ },
+ {
+  "name": "MOBIC",
+  "thai": "ยาแก้ปวด ลดอักเสบ (meloxicam)",
+  "group": "pain"
+ },
+ {
+  "name": "FELDENE",
+  "thai": "ยาแก้ปวด ลดอักเสบ (piroxicam)",
+  "group": "pain"
+ },
+ {
+  "name": "TRAMAL",
+  "thai": "ยาแก้ปวด (tramadol)",
+  "group": "pain"
+ },
+ {
+  "name": "NORGESIC",
+  "thai": "ยาคลายกล้ามเนื้อ (orphenadrine + paracetamol)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "MYDOCALM",
+  "thai": "ยาคลายกล้ามเนื้อ (tolperisone)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "MYONAL",
+  "thai": "ยาคลายกล้ามเนื้อ (eperisone)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "ZYLORIC",
+  "thai": "ยาลดกรดยูริก (โรคเกาต์) (allopurinol)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "FEBURIC",
+  "thai": "ยาลดกรดยูริก (โรคเกาต์) (febuxostat)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "ELTROXIN",
+  "thai": "ยาไทรอยด์ฮอร์โมน (levothyroxine)",
+  "group": "hormones"
+ },
+ {
+  "name": "EUTHYROX",
+  "thai": "ยาไทรอยด์ฮอร์โมน (levothyroxine)",
+  "group": "hormones"
+ },
+ {
+  "name": "TAPAZOLE",
+  "thai": "ยารักษาไทรอยด์เป็นพิษ (methimazole)",
+  "group": "hormones"
+ },
+ {
+  "name": "CALTRATE",
+  "thai": "แคลเซียมเสริม (calcium + vitamin D)",
+  "group": "vitamins"
+ },
+ {
+  "name": "AUGMENTIN",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (amoxicillin + clavulanic acid)",
+  "group": "infection"
+ },
+ {
+  "name": "KEFLEX",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (cephalexin)",
+  "group": "infection"
+ },
+ {
+  "name": "ZITHROMAX",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (azithromycin)",
+  "group": "infection"
+ },
+ {
+  "name": "RULID",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (roxithromycin)",
+  "group": "infection"
+ },
+ {
+  "name": "KLACID",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (clarithromycin)",
+  "group": "infection"
+ },
+ {
+  "name": "CIPROBAY",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (ciprofloxacin)",
+  "group": "infection"
+ },
+ {
+  "name": "FLAGYL",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (metronidazole)",
+  "group": "infection"
+ },
+ {
+  "name": "BACTRIM",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด) (co-trimoxazole)",
+  "group": "infection"
+ },
+ {
+  "name": "CRAVIT",
+  "thai": "ยาฆ่าเชื้อแบคทีเรีย (levofloxacin) มีทั้งชนิดเม็ดและยาหยอดตา",
+  "group": "infection"
+ },
+ {
+  "name": "ZOVIRAX",
+  "thai": "ยาต้านไวรัส (เริม งูสวัด) (acyclovir)",
+  "group": "infection"
+ },
+ {
+  "name": "VALTREX",
+  "thai": "ยาต้านไวรัส (เริม งูสวัด) (valacyclovir)",
+  "group": "infection"
+ },
+ {
+  "name": "DIFLUCAN",
+  "thai": "ยาต้านเชื้อรา (fluconazole)",
+  "group": "infection"
+ },
+ {
+  "name": "TAMIFLU",
+  "thai": "ยาต้านไวรัสไข้หวัดใหญ่ (oseltamivir)",
+  "group": "infection"
+ },
+ {
+  "name": "ZYRTEC",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก (cetirizine)",
+  "group": "breathing"
+ },
+ {
+  "name": "CLARITYNE",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก (loratadine)",
+  "group": "breathing"
+ },
+ {
+  "name": "AERIUS",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก (desloratadine)",
+  "group": "breathing"
+ },
+ {
+  "name": "TELFAST",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก (fexofenadine)",
+  "group": "breathing"
+ },
+ {
+  "name": "ATARAX",
+  "thai": "ยาแก้แพ้ ลดน้ำมูก (hydroxyzine)",
+  "group": "breathing"
+ },
+ {
+  "name": "BISOLVON",
+  "thai": "ยาละลายเสมหะ (bromhexine)",
+  "group": "breathing"
+ },
+ {
+  "name": "MUCOSOLVAN",
+  "thai": "ยาละลายเสมหะ (ambroxol)",
+  "group": "breathing"
+ },
+ {
+  "name": "FLUIMUCIL",
+  "thai": "ยาละลายเสมหะ (acetylcysteine)",
+  "group": "breathing"
+ },
+ {
+  "name": "SUDAFED",
+  "thai": "ยาลดน้ำมูก คัดจมูก (pseudoephedrine)",
+  "group": "breathing"
+ },
+ {
+  "name": "SINGULAIR",
+  "thai": "ยาขยายหลอดลม (หอบหืด ถุงลมโป่งพอง) (montelukast)",
+  "group": "breathing"
+ },
+ {
+  "name": "VENTOLIN",
+  "thai": "ยาพ่นขยายหลอดลม (salbutamol)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "BERODUAL",
+  "thai": "ยาพ่นขยายหลอดลม (ipratropium + fenoterol)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "SPIRIVA",
+  "thai": "ยาพ่นขยายหลอดลม (tiotropium)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "SYMBICORT",
+  "thai": "ยาพ่นป้องกันหอบหืด (budesonide + formoterol)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "SERETIDE",
+  "thai": "ยาพ่นป้องกันหอบหืด (salmeterol + fluticasone)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "PULMICORT",
+  "thai": "ยาพ่นป้องกันหอบหืด (budesonide)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "FLIXOTIDE",
+  "thai": "ยาพ่นป้องกันหอบหืด (fluticasone)",
+  "form": "inhaler",
+  "group": "breathing"
+ },
+ {
+  "name": "FLIXONASE",
+  "thai": "ยาพ่นจมูก ลดจมูกอักเสบ ภูมิแพ้ (fluticasone)",
+  "form": "nasalSpray",
+  "group": "breathing"
+ },
+ {
+  "name": "NASONEX",
+  "thai": "ยาพ่นจมูก ลดจมูกอักเสบ ภูมิแพ้ (mometasone)",
+  "form": "nasalSpray",
+  "group": "breathing"
+ },
+ {
+  "name": "RHINOCORT",
+  "thai": "ยาพ่นจมูก ลดจมูกอักเสบ ภูมิแพ้ (budesonide)",
+  "form": "nasalSpray",
+  "group": "breathing"
+ },
+ {
+  "name": "AVAMYS",
+  "thai": "ยาพ่นจมูก ลดจมูกอักเสบ ภูมิแพ้ (fluticasone furoate)",
+  "form": "nasalSpray",
+  "group": "breathing"
+ },
+ {
+  "name": "ATIVAN",
+  "thai": "ยานอนหลับ ยาคลายกังวล (lorazepam)",
+  "group": "brain"
+ },
+ {
+  "name": "XANAX",
+  "thai": "ยานอนหลับ ยาคลายกังวล (alprazolam)",
+  "group": "brain"
+ },
+ {
+  "name": "RIVOTRIL",
+  "thai": "ยานอนหลับ ยาคลายกังวล (clonazepam)",
+  "group": "brain"
+ },
+ {
+  "name": "VALIUM",
+  "thai": "ยานอนหลับ ยาคลายกังวล (diazepam)",
+  "group": "brain"
+ },
+ {
+  "name": "STILNOX",
+  "thai": "ยานอนหลับ ยาคลายกังวล (zolpidem)",
+  "group": "brain"
+ },
+ {
+  "name": "PROZAC",
+  "thai": "ยาต้านซึมเศร้า (fluoxetine)",
+  "group": "brain"
+ },
+ {
+  "name": "ZOLOFT",
+  "thai": "ยาต้านซึมเศร้า (sertraline)",
+  "group": "brain"
+ },
+ {
+  "name": "LEXAPRO",
+  "thai": "ยาต้านซึมเศร้า (escitalopram)",
+  "group": "brain"
+ },
+ {
+  "name": "DESYREL",
+  "thai": "ยาต้านซึมเศร้า (trazodone)",
+  "group": "brain"
+ },
+ {
+  "name": "REMERON",
+  "thai": "ยาต้านซึมเศร้า (mirtazapine)",
+  "group": "brain"
+ },
+ {
+  "name": "NEURONTIN",
+  "thai": "ยาแก้ปวดปลายประสาท (gabapentin)",
+  "group": "brain"
+ },
+ {
+  "name": "LYRICA",
+  "thai": "ยาแก้ปวดปลายประสาท (pregabalin)",
+  "group": "brain"
+ },
+ {
+  "name": "TEGRETOL",
+  "thai": "ยากันชัก (carbamazepine)",
+  "group": "brain"
+ },
+ {
+  "name": "DILANTIN",
+  "thai": "ยากันชัก (phenytoin)",
+  "group": "brain"
+ },
+ {
+  "name": "DEPAKINE",
+  "thai": "ยากันชัก (sodium valproate)",
+  "group": "brain"
+ },
+ {
+  "name": "KEPPRA",
+  "thai": "ยากันชัก (levetiracetam)",
+  "group": "brain"
+ },
+ {
+  "name": "ARICEPT",
+  "thai": "ยารักษาอาการสมองเสื่อม (donepezil)",
+  "group": "brain"
+ },
+ {
+  "name": "EBIXA",
+  "thai": "ยารักษาอาการสมองเสื่อม (memantine)",
+  "group": "brain"
+ },
+ {
+  "name": "EXELON",
+  "thai": "ยารักษาอาการสมองเสื่อม (rivastigmine)",
+  "group": "brain"
+ },
+ {
+  "name": "SINEMET",
+  "thai": "ยารักษาโรคพาร์กินสัน (levodopa + carbidopa)",
+  "group": "brain"
+ },
+ {
+  "name": "MADOPAR",
+  "thai": "ยารักษาโรคพาร์กินสัน (levodopa + benserazide)",
+  "group": "brain"
+ },
+ {
+  "name": "SEROQUEL",
+  "thai": "ยารักษาอาการทางจิตเวช (quetiapine)",
+  "group": "brain"
+ },
+ {
+  "name": "RISPERDAL",
+  "thai": "ยารักษาอาการทางจิตเวช (risperidone)",
+  "group": "brain"
+ },
+ {
+  "name": "HALDOL",
+  "thai": "ยารักษาอาการทางจิตเวช (haloperidol)",
+  "group": "brain"
+ },
+ {
+  "name": "SERC",
+  "thai": "ยาแก้เวียนศีรษะ บ้านหมุน (betahistine)",
+  "group": "brain"
+ },
+ {
+  "name": "SIBELIUM",
+  "thai": "ยาแก้เวียนศีรษะ บ้านหมุน (flunarizine)",
+  "group": "brain"
+ },
+ {
+  "name": "STUGERON",
+  "thai": "ยาแก้เวียนศีรษะ บ้านหมุน (cinnarizine)",
+  "group": "brain"
+ },
+ {
+  "name": "DRAMAMINE",
+  "thai": "ยาแก้เมารถ คลื่นไส้ (dimenhydrinate)",
+  "group": "brain"
+ },
+ {
+  "name": "HARNAL",
+  "thai": "ยารักษาต่อมลูกหมากโต (tamsulosin)",
+  "group": "urinary"
+ },
+ {
+  "name": "PROSCAR",
+  "thai": "ยารักษาต่อมลูกหมากโต (finasteride)",
+  "group": "urinary"
+ },
+ {
+  "name": "AVODART",
+  "thai": "ยารักษาต่อมลูกหมากโต (dutasteride)",
+  "group": "urinary"
+ },
+ {
+  "name": "DITROPAN",
+  "thai": "ยาลดปัสสาวะบ่อย กลั้นไม่อยู่ (oxybutynin)",
+  "group": "urinary"
+ },
+ {
+  "name": "DETRUSITOL",
+  "thai": "ยาลดปัสสาวะบ่อย กลั้นไม่อยู่ (tolterodine)",
+  "group": "urinary"
+ },
+ {
+  "name": "VESICARE",
+  "thai": "ยาลดปัสสาวะบ่อย กลั้นไม่อยู่ (solifenacin)",
+  "group": "urinary"
+ },
+ {
+  "name": "FOSAMAX",
+  "thai": "ยารักษากระดูกพรุน (alendronate)",
+  "group": "bonesJoints"
+ },
+ {
+  "name": "Artificial tears",
+  "aliases": [
+   "น้ำตาเทียม",
+   "Natural tears"
+  ],
+  "thai": "น้ำตาเทียม (ยาหยอดตา)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Hypromellose",
+  "aliases": [
+   "HPMC"
+  ],
+  "thai": "น้ำตาเทียม (ยาหยอดตา)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Carboxymethylcellulose",
+  "thai": "น้ำตาเทียม (ยาหยอดตา)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Sodium hyaluronate",
+  "aliases": [
+   "Hyaluronic acid"
+  ],
+  "thai": "น้ำตาเทียม (ยาหยอดตา)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "TEARS NATURALE",
+  "thai": "น้ำตาเทียม (ยาหยอดตา) (artificial tears)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "SYSTANE",
+  "thai": "น้ำตาเทียม (ยาหยอดตา) (artificial tears)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "REFRESH",
+  "thai": "น้ำตาเทียม (ยาหยอดตา) (artificial tears)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "OPTIVE",
+  "thai": "น้ำตาเทียม (ยาหยอดตา) (artificial tears)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "VISCOTEARS",
+  "thai": "น้ำตาเทียม (ยาหยอดตา) (artificial tears)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Chloramphenicol",
+  "aliases": [
+   "คลอแรมเฟนิคอล"
+  ],
+  "thai": "ยาหยอดตาฆ่าเชื้อแบคทีเรีย",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Tobramycin",
+  "thai": "ยาหยอดตาฆ่าเชื้อแบคทีเรีย",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Moxifloxacin",
+  "thai": "ยาหยอดตาฆ่าเชื้อแบคทีเรีย",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Gentamicin",
+  "thai": "ยาหยอดตาฆ่าเชื้อแบคทีเรีย",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "TOBREX",
+  "thai": "ยาหยอดตาฆ่าเชื้อแบคทีเรีย (tobramycin)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "VIGAMOX",
+  "thai": "ยาหยอดตาฆ่าเชื้อแบคทีเรีย (moxifloxacin)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "TOBRADEX",
+  "thai": "ยาหยอดตาฆ่าเชื้อและลดการอักเสบ (tobramycin + dexamethasone)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Prednisolone acetate",
+  "aliases": [
+   "Pred acetate"
+  ],
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Fluorometholone",
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Loteprednol",
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "PRED FORTE",
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์) (prednisolone acetate)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "MAXIDEX",
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์) (dexamethasone)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "FML",
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์) (fluorometholone)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "LOTEMAX",
+  "thai": "ยาหยอดตาลดการอักเสบ (สเตียรอยด์) (loteprednol)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Timolol",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Latanoprost",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Travoprost",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Bimatoprost",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Brimonidine",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Dorzolamide",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Brinzolamide",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Pilocarpine",
+  "thai": "ยาหยอดตารักษาต้อหิน",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "TIMOPTOL",
+  "thai": "ยาหยอดตารักษาต้อหิน (timolol)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "XALATAN",
+  "thai": "ยาหยอดตารักษาต้อหิน (latanoprost)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "TRAVATAN",
+  "thai": "ยาหยอดตารักษาต้อหิน (travoprost)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "LUMIGAN",
+  "thai": "ยาหยอดตารักษาต้อหิน (bimatoprost)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "ALPHAGAN",
+  "thai": "ยาหยอดตารักษาต้อหิน (brimonidine)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "TRUSOPT",
+  "thai": "ยาหยอดตารักษาต้อหิน (dorzolamide)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "AZOPT",
+  "thai": "ยาหยอดตารักษาต้อหิน (brinzolamide)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "COSOPT",
+  "thai": "ยาหยอดตารักษาต้อหิน (dorzolamide + timolol)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "XALACOM",
+  "thai": "ยาหยอดตารักษาต้อหิน (latanoprost + timolol)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Ketotifen",
+  "thai": "ยาหยอดตาแก้แพ้ คันตา",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Olopatadine",
+  "thai": "ยาหยอดตาแก้แพ้ คันตา",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "ZADITEN",
+  "thai": "ยาหยอดตาแก้แพ้ คันตา (ketotifen)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "PATANOL",
+  "thai": "ยาหยอดตาแก้แพ้ คันตา (olopatadine)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Tropicamide",
+  "thai": "ยาหยอดตาขยายม่านตา",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Atropine",
+  "thai": "ยาหยอดตาขยายม่านตา",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "MYDRIACYL",
+  "thai": "ยาหยอดตาขยายม่านตา (tropicamide)",
+  "form": "eyeDrops",
+  "group": "eyesEars"
+ },
+ {
+  "name": "Triamcinolone",
+  "aliases": [
+   "TA cream",
+   "Triamcinolone acetonide"
+  ],
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Betamethasone",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Clobetasol",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Hydrocortisone",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Mometasone furoate cream",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "BETNOVATE",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์) (betamethasone)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "DERMOVATE",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์) (clobetasol)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "ELOCON",
+  "thai": "ยาทาแก้ผื่นคัน อักเสบ (สเตียรอยด์) (mometasone)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Clotrimazole",
+  "thai": "ยาทาฆ่าเชื้อรา",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Ketoconazole",
+  "thai": "ยาทาฆ่าเชื้อรา",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Miconazole",
+  "thai": "ยาทาฆ่าเชื้อรา",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "CANESTEN",
+  "thai": "ยาทาฆ่าเชื้อรา (clotrimazole)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "NIZORAL",
+  "thai": "ยาทาฆ่าเชื้อรา (ketoconazole)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "DAKTARIN",
+  "thai": "ยาทาฆ่าเชื้อรา (miconazole)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Calamine",
+  "aliases": [
+   "Calamine lotion",
+   "คาลาไมน์"
+  ],
+  "thai": "ยาทาแก้คัน",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Methyl salicylate",
+  "aliases": [
+   "Methyl salicylate cream"
+  ],
+  "thai": "ยาทาแก้ปวด",
+  "form": "topical",
+  "group": "pain"
+ },
+ {
+  "name": "Diclofenac gel",
+  "aliases": [
+   "Diclofenac emulgel"
+  ],
+  "thai": "ยาทาแก้ปวด",
+  "form": "topical",
+  "group": "pain"
+ },
+ {
+  "name": "COUNTERPAIN",
+  "thai": "ยาทาแก้ปวด (methyl salicylate)",
+  "form": "topical",
+  "group": "pain"
+ },
+ {
+  "name": "EMULGEL",
+  "thai": "ยาทาแก้ปวด (diclofenac)",
+  "form": "topical",
+  "group": "pain"
+ },
+ {
+  "name": "Silver sulfadiazine",
+  "aliases": [
+   "Silver sulphadiazine"
+  ],
+  "thai": "ยาทาแผลไฟไหม้ น้ำร้อนลวก",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "FLAMAZINE",
+  "thai": "ยาทาแผลไฟไหม้ น้ำร้อนลวก (silver sulfadiazine)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Mupirocin",
+  "thai": "ยาทาฆ่าเชื้อแบคทีเรียที่ผิวหนัง",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "Fusidic acid",
+  "thai": "ยาทาฆ่าเชื้อแบคทีเรียที่ผิวหนัง",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "BACTROBAN",
+  "thai": "ยาทาฆ่าเชื้อแบคทีเรียที่ผิวหนัง (mupirocin)",
+  "form": "topical",
+  "group": "skin"
+ },
+ {
+  "name": "FUCIDIN",
+  "thai": "ยาทาฆ่าเชื้อแบคทีเรียที่ผิวหนัง (fusidic acid)",
+  "form": "topical",
+  "group": "skin"
+ }
+]

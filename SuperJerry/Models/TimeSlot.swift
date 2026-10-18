@@ -22,9 +22,24 @@ nonisolated enum TimeSlot: String, CaseIterable, Codable, Hashable {
         }
     }
 
+    func name(_ language: AppLanguage) -> String {
+        language(thai, english)
+    }
+
     /// "ตอนเช้า", "ตอนกลางวัน", "ตอนเย็น", "ก่อนนอน"
     var spokenThai: String {
         self == .bedtime ? thai : "ตอน\(thai)"
+    }
+
+    /// For reading aloud: "ตอนเช้า" or "in the morning".
+    func spoken(_ language: AppLanguage) -> String {
+        switch (language, self) {
+        case (.thai, _): spokenThai
+        case (.english, .morning): "in the morning"
+        case (.english, .noon): "at noon"
+        case (.english, .evening): "in the evening"
+        case (.english, .bedtime): "at bedtime"
+        }
     }
 
     var time: DoseTime {

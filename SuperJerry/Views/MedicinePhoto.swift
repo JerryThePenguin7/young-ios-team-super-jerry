@@ -21,7 +21,7 @@ struct MedicinePhoto: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.buttonCornerRadius))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .accessibilityHidden(true)
     }
 }

@@ -8,12 +8,27 @@ struct ScanPhoto: Identifiable {
     let image: UIImage
 }
 
-/// Home. The camera is the main feature: take a photo of a medicine envelope, Jenny reads it, you save it.
-/// Saved medicines are listed below, with their label photo, read aloud, and today's ticks.
+/// One group of medicines in "Your Medications", e.g. "Diabetes".
+struct MedicineSection: Identifiable {
+    let group: MedicineGroup
+    let medicines: [Medicine]
+    var id: MedicineGroup { group }
+}
+
+/// Which log sheet to open: one time's medicines, or the "when needed" ones.
+struct LogRequest: Identifiable {
+    let id = UUID()
+    let kind: DoseLogSheet.Kind
+    let day: Date
+}
+
+/// Home, laid out like the Health app's Medications page: the day and week at the top, then the camera
+/// (Jenny's main feature: photo → read the label → read aloud → save), the day's log, and your medicines.
+/// On iPad the log and your medicines sit side by side.
 struct ContentView: View {
     @Environment(MedicineStore.self) private var store
+    @Environment(\.language) private var language
     @Environment(\.openURL) private var openURL
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     @State private var showingCamera = false
@@ -22,30 +37,37 @@ struct ContentView: View {
     @State private var scanPhoto: ScanPhoto?
     @State private var retakeRequested = false
     @State private var showingCameraDenied = false
-    @State private var showingNotificationsOff = false
+    @State private var remindersResult: AppleReminders.Result?
     @State private var showingSettings = false
     @State private var showingNewMedicine = false
+    /// The day shown in the log. nil means today (so it stays right after midnight).
+    @State private var selectedDay: Date?
+    @State private var logRequest: LogRequest?
+    @State private var isEditing = false
+    @State private var medicineToDelete: Medicine?
 
     var body: some View {
         NavigationStack {
-            // Redraws every minute so "time to take" and the chips stay up to date.
+            // Redraws every minute so "Time to take" and "1 hr ago" stay up to date.
             TimelineView(.everyMinute) { context in
                 content(now: context.date)
             }
             .background(Theme.background)
-            .navigationTitle("Jenny")
+            .navigationTitle(language("ยาของฉัน", "Medications"))
+            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: UUID.self) { id in
                 MedicineDetailView(medicineID: id)
             }
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Settings", systemImage: "gearshape") {
-                        showingSettings = true
-                    }
+                ToolbarItem(placement: .topBarLeading) {
+                    LanguageMenu()
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Add by hand", systemImage: "square.and.pencil") {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button(language("เพิ่มยาเอง", "Add by hand"), systemImage: "square.and.pencil") {
                         showingNewMedicine = true
+                    }
+                    Button(language("ตั้งค่า", "Settings"), systemImage: "gearshape") {
+                        showingSettings = true
                     }
                 }
             }
@@ -69,6 +91,9 @@ struct ContentView: View {
                     retakeRequested = true
                 }
             }
+            .sheet(item: $logRequest) { request in
+                DoseLogSheet(kind: request.kind, day: request.day)
+            }
             .onChange(of: photoItem) { _, item in
                 guard let item else { return }
                 Task { await loadPhoto(item) }
@@ -79,121 +104,240 @@ struct ContentView: View {
             .sheet(isPresented: $showingNewMedicine) {
                 MedicineEditorView(medicine: .blank, isNew: true)
             }
-            .alert("กล้องถูกปิดอยู่ · Camera is off", isPresented: $showingCameraDenied) {
-                Button("Open Settings") {
+            .alert(language("กล้องถูกปิดอยู่", "Camera is off"), isPresented: $showingCameraDenied) {
+                Button(language("เปิดการตั้งค่า", "Open Settings")) {
                     if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(language("ยกเลิก", "Cancel"), role: .cancel) {}
             } message: {
-                Text("Jenny needs the camera to read your medicine labels. Turn it on in Settings ▸ Jenny ▸ Camera.")
+                Text(language("Jenny ต้องใช้กล้องเพื่ออ่านฉลากยา เปิดได้ที่ การตั้งค่า ▸ Jenny ▸ กล้อง",
+                              "Jenny needs the camera to read your medicine labels. Turn it on in Settings ▸ Jenny ▸ Camera."))
             }
-            .alert("Notifications are off", isPresented: $showingNotificationsOff) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Turn on notifications for Jenny in the Settings app so it can remind you.")
+            .confirmationDialog(language("ลบยานี้?", "Delete this medicine?"),
+                                isPresented: deleteDialogShown, titleVisibility: .visible,
+                                presenting: medicineToDelete) { medicine in
+                Button(language("ลบ \(medicine.displayName(.thai))", "Delete \(medicine.displayName(.english))"),
+                       role: .destructive) {
+                    store.delete(medicine)
+                    if store.medicines.isEmpty { isEditing = false }
+                }
             }
+            .remindersAlert(result: $remindersResult)
         }
     }
 
-    /// Health-style order: Time to take (only when due) → camera → Today → My medicines → disclaimer.
     private func content(now: Date) -> some View {
-        let doses = store.doses(now: now)
-        let due = doses.filter { $0.status == .dueNow || $0.status == .missed }
+        let day = selectedDay ?? Calendar.current.startOfDay(for: now)
 
         return ScrollView {
-            VStack(alignment: .leading, spacing: Theme.sectionSpacing) {
-                if !due.isEmpty {
-                    DueNowCard(doses: due, now: now)
+            VStack(alignment: .leading, spacing: 28) {
+                WeekStrip(selectedDay: dayBinding(now: now), now: now)
+
+                if sizeClass == .regular {
+                    HStack(alignment: .top, spacing: 28) {
+                        logColumn(day: day, now: now)
+                        medicinesColumn
+                    }
+                } else {
+                    logColumn(day: day, now: now)
+                    medicinesColumn
                 }
 
-                cameraCard
-
-                if !doses.isEmpty {
-                    TodayScheduleCard(doses: doses, now: now)
-                }
-
-                if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
-                    remindersCard
-                }
-
-                medicinesSection
-
-                Label("Jenny helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device.",
+                Label(language("Jenny ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
+                               "Jenny helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device."),
                       systemImage: "info.circle")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
             .padding()
-            .frame(maxWidth: 1000)
+            .frame(maxWidth: 1100)
             .frame(maxWidth: .infinity)
         }
         .sensoryFeedback(.success, trigger: store.records.count)
     }
 
-    // MARK: The camera (main feature)
+    /// Tapping today stores nil, so "today" moves on by itself after midnight.
+    private func dayBinding(now: Date) -> Binding<Date> {
+        Binding(
+            get: { selectedDay ?? Calendar.current.startOfDay(for: now) },
+            set: { day in selectedDay = Calendar.current.isDate(day, inSameDayAs: now) ? nil : day }
+        )
+    }
 
-    @ViewBuilder
-    private var cameraCard: some View {
-        if CameraPicker.isAvailable {
-            VStack(spacing: 12) {
-                Button {
-                    openCamera()
-                } label: {
-                    cameraLabel(subtitle: "Take a photo of your medicine envelope. Jenny reads it out loud.")
-                }
-                .buttonStyle(.pressable)
+    // MARK: The camera and the log
 
-                PhotosPicker(selection: $photoItem, matching: .images) {
-                    Label("เลือกรูปจากคลังภาพ · Choose from Photos", systemImage: "photo.on.rectangle")
+    private func logColumn(day: Date, now: Date) -> some View {
+        VStack(alignment: .leading, spacing: 28) {
+            CameraCard(photoItem: $photoItem, takePhoto: openCamera)
+            logSection(day: day, now: now)
+            if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
+                remindersCard
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    private func logSection(day: Date, now: Date) -> some View {
+        let calendar = Calendar.current
+        let isToday = calendar.isDate(day, inSameDayAs: now)
+        let isFuture = !isToday && day > now
+        let slots = store.schedule(on: day)
+        // Each time's medicines that haven't been logged yet.
+        let toLog = slots.compactMap { slot -> DoseSlot? in
+            let open = slot.medicines.filter { store.record(for: $0.id, at: slot.time, on: day) == nil }
+            return open.isEmpty ? nil : DoseSlot(time: slot.time, medicines: open)
+        }
+        let logged = store.logged(on: day)
+        let hasAsNeeded = store.medicines.contains { $0.asNeeded }
+
+        return VStack(alignment: .leading, spacing: 14) {
+            Text(language("บันทึกการทานยา", "Log"))
+                .font(.title.bold())
+
+            if store.medicines.isEmpty {
+                Text(language("ถ่ายรูปซองยาในกล่องสีแดงเพื่อเพิ่มยาตัวแรก",
+                              "Take a photo of a medicine envelope in the red box to add your first medicine."))
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+            } else if toLog.isEmpty && !slots.isEmpty && !isFuture {
+                Label(language("บันทึกครบทุกเวลาแล้ว", "Everything is logged"), systemImage: "checkmark.seal.fill")
+                    .font(.title3.bold())
+                    .foregroundStyle(Theme.red)
+            }
+
+            ForEach(toLog) { slot in
+                LogTimeCard(time: slot.time, medicines: slot.medicines,
+                            status: isToday ? status(of: slot, now: now) : .upcoming,
+                            canLog: !isFuture) {
+                    logRequest = LogRequest(kind: .time(slot.time), day: day)
                 }
-                .buttonStyle(.big)
             }
-        } else {
-            // No camera (e.g. the simulator): the big card picks a photo instead.
-            PhotosPicker(selection: $photoItem, matching: .images) {
-                cameraLabel(subtitle: "No camera here. Tap to choose a photo of the label.")
+
+            if isToday && hasAsNeeded {
+                asNeededCard(day: day)
             }
-            .buttonStyle(.pressable)
+
+            if !logged.isEmpty {
+                LoggedCard(logged: logged, now: now) { time in
+                    logRequest = LogRequest(kind: .time(time), day: day)
+                }
+            }
         }
     }
 
-    private func cameraLabel(subtitle: String) -> some View {
-        let shape = RoundedRectangle(cornerRadius: Theme.heroCornerRadius)
-        // On iPhone, or with very big text, stack the icon above the words so nothing gets squeezed.
-        let stacked = sizeClass == .compact || dynamicTypeSize.isAccessibilitySize
-        let layout = stacked
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
-            : AnyLayout(HStackLayout(alignment: .center, spacing: 20))
+    /// "Time to take" if any medicine at this time is due now, "Late" if one was missed.
+    private func status(of slot: DoseSlot, now: Date) -> DoseStatus {
+        let statuses = slot.medicines.map { store.status(of: $0, at: slot.time, now: now) }
+        if statuses.contains(.dueNow) { return .dueNow }
+        if statuses.contains(.missed) { return .missed }
+        return .upcoming
+    }
 
-        return layout {
-            Image(systemName: "camera.fill")
-                .font(.system(size: 34, weight: .semibold))
-                .foregroundStyle(Theme.card)
-                .frame(width: 72, height: 72)
-                .background(.white, in: Circle())
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("ถ่ายรูปซองยา")
-                    .font(.largeTitle.bold())
-                Text(subtitle)
-                    .font(.title3.weight(.medium))
-                    .opacity(0.9)
+    private func asNeededCard(day: Date) -> some View {
+        Button {
+            logRequest = LogRequest(kind: .asNeeded, day: day)
+        } label: {
+            HStack {
+                Text(language("ยาเมื่อมีอาการ", "As Needed Medications"))
+                    .font(.title3)
+                Spacer(minLength: 8)
+                Image(systemName: "plus")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(Theme.red)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
+            .background(Theme.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
 
-            if !stacked {
-                Image(systemName: "chevron.right")
-                    .font(.title2.bold())
-                    .opacity(0.8)
+    private var remindersCard: some View {
+        Button {
+            store.remindersEnabled = true
+            Task { remindersResult = await store.applyReminderSetting() }
+        } label: {
+            HStack(spacing: 16) {
+                Image(systemName: "checklist")
+                    .font(.title2)
+                    .foregroundStyle(Theme.red)
+                    .frame(width: 48, height: 48)
+                    .background(Theme.red.opacity(0.12), in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(language("เตือนในแอปเตือนความจำ", "Remind me in Reminders"))
+                        .font(.headline)
+                    Text(language("Jenny จะใส่เวลาทานยาทุกเวลาไว้ในแอปเตือนความจำของ Apple",
+                                  "Jenny adds each pill time to Apple's Reminders app."))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Theme.red)
+            }
+            .padding(20)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Your medications
+
+    private var medicinesColumn: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(language("ยาของคุณ", "Your Medications"))
+                    .font(.title.bold())
+                Spacer()
+                if !store.medicines.isEmpty {
+                    Button(isEditing ? language("เสร็จ", "Done") : language("แก้ไข", "Edit")) {
+                        withAnimation { isEditing.toggle() }
+                    }
+                    .font(.title3)
+                    .tint(Theme.red)
+                }
+            }
+
+            if store.medicines.isEmpty {
+                ContentUnavailableView(
+                    language("ยังไม่มียา", "No medicines yet"),
+                    systemImage: "pills",
+                    description: Text(language("แตะ \"ถ่ายรูป\" ในกล่องสีแดง แล้วถ่ายรูปซองยา",
+                                               "Tap \"Take photo\" in the red box and take a photo of a medicine envelope."))
+                )
+            } else {
+                ForEach(sections) { section in
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label(section.group.name(language), systemImage: section.group.symbol)
+                            .font(.headline)
+                            .foregroundStyle(Theme.red)
+                        ForEach(section.medicines) { medicine in
+                            MedicineCard(medicine: medicine, isEditing: isEditing) {
+                                medicineToDelete = medicine
+                            }
+                        }
+                    }
+                }
             }
         }
-        .foregroundStyle(.white)
-        .padding(24)
-        .frame(maxWidth: .infinity, minHeight: 160)
-        .background(Theme.card.gradient, in: shape)
-        .contentShape(shape)
-        .accessibilityElement(children: .combine)
+        .frame(maxWidth: .infinity, alignment: .top)
     }
+
+    /// Medicines grouped by what they're for, in a fixed order. Not grouped yet → "Other".
+    private var sections: [MedicineSection] {
+        MedicineGroup.allCases.compactMap { group -> MedicineSection? in
+            let medicines = store.medicines.filter { ($0.group ?? .other) == group }
+            return medicines.isEmpty ? nil : MedicineSection(group: group, medicines: medicines)
+        }
+    }
+
+    private var deleteDialogShown: Binding<Bool> {
+        Binding(get: { medicineToDelete != nil }, set: { if !$0 { medicineToDelete = nil } })
+    }
+
+    // MARK: Photos
 
     private func openCamera() {
         Task {
@@ -211,63 +355,18 @@ struct ContentView: View {
               let image = UIImage(data: data) else { return }
         scanPhoto = ScanPhoto(image: image)
     }
-
-    // MARK: Reminders
-
-    private var remindersCard: some View {
-        SummaryCard(title: "การเตือน · Reminders", symbol: "bell.badge.fill") {
-            Text("ให้ Jenny เตือนเมื่อถึงเวลาทานยา\nJenny can remind you at each pill time.")
-                .font(.body)
-            Button("เปิดการเตือน · Turn on reminders", systemImage: "bell.fill") {
-                store.remindersEnabled = true
-                Task {
-                    if await !store.applyReminderSetting() {
-                        showingNotificationsOff = true
-                    }
-                }
-            }
-            .buttonStyle(.big)
-        }
-    }
-
-    // MARK: My medicines
-
-    private var medicinesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("ยาของฉัน · My medicines")
-                    .font(.title2.bold())
-                    .accessibilityAddTraits(.isHeader)
-                Spacer()
-                if !store.medicines.isEmpty {
-                    Text("\(store.medicines.count)")
-                        .font(.title3.bold())
-                        .fontDesign(.rounded)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            if store.medicines.isEmpty {
-                ContentUnavailableView(
-                    "ยังไม่มียา · No medicines yet",
-                    systemImage: "pills",
-                    description: Text("Tap \"ถ่ายรูปซองยา\" above and take a photo of a medicine envelope.")
-                )
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cornerRadius))
-            } else {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 16)], spacing: 16) {
-                    ForEach(store.medicines) { medicine in
-                        MedicineCard(medicine: medicine)
-                    }
-                }
-            }
-        }
-    }
 }
 
-#Preview("With medicines") {
+#Preview("English") {
     ContentView()
         .environment(MedicineStore.preview())
+        .environment(\.language, .english)
+}
+
+#Preview("ภาษาไทย") {
+    ContentView()
+        .environment(MedicineStore.preview())
+        .environment(\.language, .thai)
 }
 
 #Preview("Empty") {
