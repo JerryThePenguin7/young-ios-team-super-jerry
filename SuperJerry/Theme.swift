@@ -19,4 +19,19 @@ enum Theme {
     static let greenFill = Color("JennyGreenFill")
 
     static let cornerRadius: CGFloat = 20
+
+    /// Corner radii, so every card and button matches. Always use `style: .continuous`.
+    enum Radius {
+        /// Buttons, chips and small boxes.
+        static let button: CGFloat = 16
+        /// Cards: Log, Logged, medicines, storage, sheets' rows.
+        static let card: CGFloat = 24
+        /// The big red box and the scan result.
+        static let hero: CGFloat = 28
+    }
+
+    /// Round icon buttons (+, pencil, speaker): one size everywhere, bigger than Apple's 44 pt minimum for older hands.
+    static let iconButton: CGFloat = 48
+    /// Space inside cards.
+    static let cardPadding: CGFloat = 20
 }

@@ -44,7 +44,7 @@ struct DoseLogSheet: View {
                                 .background(Theme.surface, in: Capsule())
                                 .contentShape(Capsule())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable)
                     }
 
                     ForEach(medicines) { medicine in
@@ -70,14 +70,19 @@ struct DoseLogSheet: View {
                         .font(.title3.bold())
                         .frame(maxWidth: .infinity, minHeight: 60)
                         .foregroundStyle(.white)
-                        .background(Theme.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .background(Theme.card, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .frame(maxWidth: 700)
                 .padding(.horizontal)
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)
-                .background(.bar)
+                // The list fades out behind Done: no gray band with a hard edge, and no text peeking under the button.
+                .background {
+                    LinearGradient(colors: [Theme.background.opacity(0), Theme.background],
+                                   startPoint: .top, endPoint: UnitPoint(x: 0.5, y: 0.35))
+                        .ignoresSafeArea()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -145,13 +150,9 @@ struct DoseLogSheet: View {
                 Button {
                     SpeechReader.shared.read(medicine, in: language)
                 } label: {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .font(.title3)
-                        .foregroundStyle(Theme.red)
-                        .frame(width: 50, height: 50)
-                        .background(Theme.fill, in: Circle())
+                    RoundIcon(symbol: "speaker.wave.2.fill")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))
             }
 
@@ -175,9 +176,9 @@ struct DoseLogSheet: View {
                 VStack(spacing: 12) { choiceButtons(medicine, choice: choice) }
             }
         }
-        .padding(20)
+        .padding(Theme.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     }
 
     /// "1 capsule at 3:16 PM" once taken, "Skipped", or how much to take.
@@ -227,10 +228,10 @@ struct DoseLogSheet: View {
                 .frame(maxWidth: .infinity, minHeight: 56)
                 .foregroundStyle(selected ? Color.white : color)
                 .background(selected ? fill : Theme.fill,
-                            in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 

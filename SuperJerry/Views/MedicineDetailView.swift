@@ -73,7 +73,7 @@ struct MedicineDetailView: View {
             } label: {
                 BigButtonLabel(title: language("อ่านออกเสียง", "Read aloud"), symbol: "speaker.wave.2.fill", filled: true)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
 
             if !medicine.scannedText.isEmpty {
                 DisclosureGroup(language("ข้อความที่อ่านได้จากฉลาก", "Text read from the label"), isExpanded: $showingScannedText) {
@@ -84,7 +84,7 @@ struct MedicineDetailView: View {
                         .padding(.top, 8)
                 }
                 .padding(20)
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
                 .tint(Theme.red)
             }
 
@@ -94,9 +94,9 @@ struct MedicineDetailView: View {
                 Label(language("ลบยานี้", "Delete this medicine"), systemImage: "trash")
                     .font(.headline)
                     .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
             .foregroundStyle(.red)
 
             Label(language("ตรวจกับฉลากจริงทุกครั้ง ไม่ใช่คำแนะนำทางการแพทย์",
@@ -118,7 +118,7 @@ struct MedicineDetailView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: 320)
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
                     .accessibilityLabel(language("รูปฉลากยา", "Photo of the label"))
             } else {
                 PillIcon(medicine: medicine, size: 110)
@@ -150,7 +150,7 @@ struct MedicineDetailView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     }
 }
 

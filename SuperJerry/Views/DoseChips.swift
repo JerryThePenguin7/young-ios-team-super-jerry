@@ -28,7 +28,7 @@ struct DoseChips: View {
                         } label: {
                             chip(for: slot, status: status)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable)
                         .accessibilityHint(status.isLogged ? language("แตะเพื่อยกเลิก", "Tap to undo")
                                                            : language("แตะเมื่อทานแล้ว", "Tap when you've taken it"))
                     } else {
@@ -64,9 +64,9 @@ struct DoseChips: View {
             .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
             .foregroundStyle(foreground(style))
             // A rounded rectangle, not a capsule, so a chip that wraps onto 2 lines still looks right.
-            .background(background(style), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(background(style), in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous)
                     .strokeBorder(border(style), lineWidth: 2)
             }
     }

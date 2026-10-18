@@ -65,7 +65,7 @@ struct WeekStrip: View {
             // and let people with very big text press and hold to see the day enlarged.
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .accessibilityShowsLargeContentViewer {
             Label(language.longDay(day), systemImage: "calendar")
         }
