@@ -1,7 +1,7 @@
 # Project status: Jenny (for new AI chats and teammates)
 
 **Read this first in any new chat**, then `AGENTS.md` (rules) and `DESIGN.md` (look).
-Last updated: 2026-10-18 (Day 2), after the stack, Medicine Storage, theme and tutorial changes. Update the "Last updated" line and the lists below whenever something big changes.
+Last updated: 2026-10-18 (Day 2), after the swipeable stacks, the per-medicine "Running low" level, and the no-cut-off-text fixes. Update the "Last updated" line and the lists below whenever something big changes.
 
 ## What we're building
 
@@ -33,8 +33,8 @@ The idea, the pitch plan and the judge Q&A are in `README.md` and `docs/pill-rea
   - The day and a week strip (`WeekStrip`).
   - **Log** cards per pill time, each with a round **+** (`LogTimeCard`). Tapping one opens the log sheet with Taken / Skipped (`DoseLogSheet`).
   - **Logged** (`LoggedCard`).
-  - **Your Medications** as a stack of cards; tap it to spread them out into groups you can fold (`MedicineStack`).
-  - **Medicine Storage**: pills left, counted down by itself when a dose is logged Taken (`MedicineStorageSection`, `StockEditorSheet`).
+  - **Your Medications** as a Smart Stack–style widget stack you swipe up and down; tap it to spread the cards into groups you can fold (`CardStack`).
+  - **Medicine Storage**, also a widget stack: pills left, counted down by itself when a dose is logged Taken, with a "Running low" level set per medicine (`MedicineStorageSection`, `StockEditorSheet`).
   - Top left: the light or dark theme button (`AppearanceMenu`). **Taken** is green everywhere.
 - **First launch:** a 4-page tutorial with Skip (`TutorialView`). Settings can show it again.
   - A disclaimer at the bottom.

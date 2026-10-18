@@ -50,6 +50,11 @@ struct ContentView: View {
     @State private var collapsedGroups: Set<MedicineGroup> = []
     /// "Your Medications" starts as a stack of cards; tap it to spread them out.
     @State private var isStacked = true
+    /// The medicine in front of the stack.
+    @State private var frontMedicine: UUID?
+    @Namespace private var medicinesNamespace
+    /// One card in the stack: grows with the text size so nothing is cut off.
+    @ScaledMetric(relativeTo: .title3) private var medicineCardHeight: CGFloat = 170
     @State private var medicineToDelete: Medicine?
     /// The medicine whose count is being set in Medicine Storage.
     @State private var stockMedicine: Medicine?
@@ -334,26 +339,16 @@ struct ContentView: View {
 
     private var yourMedications: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(language("ยาของคุณ", "Your Medications"))
-                    .font(.title.bold())
-                Spacer()
-                if !store.medicines.isEmpty && !isStacked {
-                    Button(language("ซ้อน", "Stack"), systemImage: "square.stack.3d.down.right") {
-                        withAnimation(reduceMotion ? nil : .snappy) {
-                            isEditing = false
-                            isStacked = true
-                        }
-                    }
-                    .labelStyle(.titleOnly)
-                    .font(.title3)
-                    .tint(Theme.red)
-                    Button(isEditing ? language("เสร็จ", "Done") : language("แก้ไข", "Edit")) {
-                        withAnimation { isEditing.toggle() }
-                    }
-                    .font(.title3)
-                    .tint(Theme.red)
-                    .padding(.leading, 12)
+            // The title and its buttons side by side, or one above the other with very big text.
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline) {
+                    medicinesTitle
+                    Spacer(minLength: 8)
+                    medicinesButtons
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    medicinesTitle
+                    HStack { medicinesButtons }
                 }
             }
 
@@ -364,28 +359,71 @@ struct ContentView: View {
                     description: Text(language("แตะ \"ถ่ายรูป\" ในกล่องสีแดง แล้วถ่ายรูปซองยา",
                                                "Tap \"Take photo\" in the red box and take a photo of a medicine envelope."))
                 )
-            } else if isStacked {
-                MedicineStack(medicines: store.medicines) {
-                    withAnimation(reduceMotion ? nil : .snappy) { isStacked = false }
+            } else if isStacked && store.medicines.count > 1 {
+                CardStack(items: store.medicines, cardHeight: medicineCardHeight, current: $frontMedicine,
+                          namespace: medicinesNamespace,
+                          title: language("ยาของคุณ \(store.medicines.count) ตัว", "Your \(store.medicines.count) medicines"),
+                          itemName: { $0.displayName(language) }) { medicine in
+                    MedicineCard(medicine: medicine, height: medicineCardHeight)
+                } open: {
+                    withAnimation(stackAnimation) { isStacked = false }
                 }
                 .transition(.opacity)
             } else {
-                ForEach(sections) { section in
-                    let isOpen = !collapsedGroups.contains(section.group)
-                    VStack(alignment: .leading, spacing: 12) {
-                        sectionHeader(section, isOpen: isOpen)
-                        if isOpen {
-                            ForEach(section.medicines) { medicine in
-                                MedicineCard(medicine: medicine, isEditing: isEditing) {
-                                    medicineToDelete = medicine
+                VStack(alignment: .leading, spacing: 16) {
+                    ForEach(sections) { section in
+                        let isOpen = !collapsedGroups.contains(section.group)
+                        VStack(alignment: .leading, spacing: 12) {
+                            sectionHeader(section, isOpen: isOpen)
+                            if isOpen {
+                                ForEach(section.medicines) { medicine in
+                                    MedicineCard(medicine: medicine, isEditing: isEditing) {
+                                        medicineToDelete = medicine
+                                    }
+                                    .matchedGeometryEffect(id: medicine.id, in: medicinesNamespace)
                                 }
                             }
                         }
                     }
                 }
+                // The cards drop down out of the stack.
+                .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity), removal: .opacity))
             }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+
+    private var medicinesTitle: some View {
+        Text(language("ยาของคุณ", "Your Medications"))
+            .font(.title.bold())
+    }
+
+    /// "Stack" and "Edit", once the stack is spread out.
+    @ViewBuilder
+    private var medicinesButtons: some View {
+        if !store.medicines.isEmpty && (!isStacked || store.medicines.count == 1) {
+            if store.medicines.count > 1 {
+                Button(language("ซ้อน", "Stack")) {
+                    withAnimation(stackAnimation) {
+                        isEditing = false
+                        isStacked = true
+                    }
+                }
+                .font(.title3)
+                .tint(Theme.red)
+                .padding(.trailing, 12)
+            }
+            Button(isEditing ? language("เสร็จ", "Done") : language("แก้ไข", "Edit")) {
+                withAnimation { isEditing.toggle() }
+            }
+            .font(.title3)
+            .tint(Theme.red)
+        }
+    }
+
+    /// A springy "drop down", like Apple's. A plain fade for people who turned on Reduce Motion.
+    private var stackAnimation: Animation {
+        reduceMotion ? .easeInOut(duration: 0.2) : .spring(duration: 0.5, bounce: 0.25)
     }
 
     /// A group's header ("❤️ Heart & blood pressure  2  ⌄"). Tap it to fold the group open or closed.

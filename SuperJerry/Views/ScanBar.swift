@@ -46,8 +46,8 @@ struct ScanBar: View {
     private var mainLabel: some View {
         Label(language("ถ่ายรูปซองยา", "Scan a medicine label"), systemImage: "camera.fill")
             .font(.title3.bold())
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)   // wraps onto a second line with big text instead of cutting words off
             .frame(maxWidth: .infinity, minHeight: 44)
     }
 }

@@ -158,18 +158,10 @@ struct DoseLogSheet: View {
                 }
             }
 
-            HStack(spacing: 12) {
-                if kind != .asNeeded {
-                    choiceButton(language("ข้าม", "Skipped"), symbol: "xmark.circle", selected: choice == .skipped,
-                                 color: Theme.red, fill: Theme.card) {
-                        choices[medicine.id] = choice == .skipped ? nil : .skipped
-                    }
-                }
-                // Green, so Taken is easy to tell apart from Skipped.
-                choiceButton(language("ทานแล้ว", "Taken"), symbol: "checkmark.circle", selected: choice?.isTaken == true,
-                             color: Theme.green, fill: Theme.greenFill) {
-                    choices[medicine.id] = choice?.isTaken == true ? nil : .taken(at: takenTime)
-                }
+            // Side by side, or one above the other when the text is very big.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { choiceButtons(medicine, choice: choice) }
+                VStack(spacing: 12) { choiceButtons(medicine, choice: choice) }
             }
         }
         .padding(20)
@@ -188,6 +180,21 @@ struct DoseLogSheet: View {
             return language("ข้ามยานี้", "Skipped")
         case nil:
             return medicine.amountLine(language)
+        }
+    }
+
+    @ViewBuilder
+    private func choiceButtons(_ medicine: Medicine, choice: DoseLog?) -> some View {
+        if kind != .asNeeded {
+            choiceButton(language("ข้าม", "Skipped"), symbol: "xmark.circle", selected: choice == .skipped,
+                         color: Theme.red, fill: Theme.card) {
+                choices[medicine.id] = choice == .skipped ? nil : .skipped
+            }
+        }
+        // Green, so Taken is easy to tell apart from Skipped.
+        choiceButton(language("ทานแล้ว", "Taken"), symbol: "checkmark.circle", selected: choice?.isTaken == true,
+                     color: Theme.green, fill: Theme.greenFill) {
+            choices[medicine.id] = choice?.isTaken == true ? nil : .taken(at: takenTime)
         }
     }
 

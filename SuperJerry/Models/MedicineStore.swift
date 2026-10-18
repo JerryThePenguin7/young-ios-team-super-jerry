@@ -38,6 +38,7 @@ final class MedicineStore {
         // The editor doesn't change the count; keep the latest one (doses may have been logged meanwhile).
         updated.stock = medicines[index].stock
         updated.stockFull = medicines[index].stockFull
+        updated.lowAt = medicines[index].lowAt
         medicines[index] = updated
         medicinesChanged()
     }
@@ -144,6 +145,13 @@ final class MedicineStore {
         guard let index = medicines.firstIndex(where: { $0.id == medicineID }) else { return }
         medicines[index].stock = count.map { max($0, 0) }
         medicines[index].stockFull = medicines[index].stock
+        save()
+    }
+
+    /// "Running low" at this many left. nil goes back to Jenny's suggestion (about a week's worth).
+    func setLowAt(_ level: Double?, for medicineID: UUID) {
+        guard let index = medicines.firstIndex(where: { $0.id == medicineID }) else { return }
+        medicines[index].lowAt = level.map { max($0, 0) }
         save()
     }
 
