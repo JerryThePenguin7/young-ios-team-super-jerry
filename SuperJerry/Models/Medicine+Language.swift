@@ -38,6 +38,26 @@ nonisolated extension Medicine {
         return amountLine(language)
     }
 
+    /// Jenny's summary as short bullet points, for lists (the Log checklist and Your Medications):
+    /// • ครั้งละ 1 เม็ด  • วันละ 2 ครั้ง: เช้า เย็น  • หลังอาหาร
+    /// The label's own words are kept too (`directions`) and shown in full on the medicine's own screen.
+    /// `includeTimes: false` leaves out when to take it (the Log checklist already shows the time).
+    func summaryBullets(_ language: AppLanguage, includeTimes: Bool = true) -> [String] {
+        var bullets = [amountLine(language)]
+        if includeTimes {
+            if asNeeded {
+                bullets.append(language("เมื่อมีอาการ", "When needed"))
+            } else if !orderedSlots.isEmpty {
+                let count = orderedSlots.count
+                let names = orderedSlots.map { $0.name(language) }.joined(separator: language == .thai ? " " : ", ")
+                bullets.append(language("วันละ \(count) ครั้ง: \(names)",
+                                        count == 1 ? "Once a day: \(names)" : "\(count) times a day: \(names)"))
+            }
+        }
+        if !meal.isEmpty { bullets.append(Self.mealName(meal, language)) }
+        return bullets
+    }
+
     /// "1 เม็ด", "ข้างละ 2 ที" or "1 tablet", for "1 tablet at 8:00 AM".
     func doseText(_ language: AppLanguage) -> String {
         guard !unit.isEmpty else { return language("ใช้ยา", "Used") }
