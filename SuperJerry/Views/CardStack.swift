@@ -25,15 +25,17 @@ struct CardStack<Item: Identifiable, Card: View>: View {
     private let peek: CGFloat = 12
 
     var body: some View {
-        HStack(spacing: 8) {
-            ZStack(alignment: .top) {
-                behindCards
-                pages
-                    .padding(.top, CGFloat(peekCount) * peek)
-            }
-            if items.count > 1 {
-                pageDots
-            }
+        ZStack(alignment: .top) {
+            behindCards
+            pages
+                // The dots sit in the page margin, so the stack is as wide as every other card.
+                .overlay(alignment: .trailing) {
+                    if items.count > 1 {
+                        pageDots
+                            .offset(x: 11)
+                    }
+                }
+                .padding(.top, CGFloat(peekCount) * peek)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
@@ -78,22 +80,22 @@ struct CardStack<Item: Identifiable, Card: View>: View {
         .scrollPosition(id: $current)
         .scrollIndicators(.hidden)
         .frame(height: cardHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     }
 
-    /// The next cards, peeking out above the front one: smaller and a little darker the further back.
+    /// The next cards, peeking out above the front one: plain cards, smaller and a little darker the further back.
+    /// Plain, so half-cut photos and text don't show along their top edge.
     private var behindCards: some View {
         ForEach(Array(peekItems.indices.reversed()), id: \.self) { depth in
             // depth 0 is the next card (just behind the front one), lower down and bigger than the one behind it.
             let level = CGFloat(peekCount - depth)
-            card(peekItems[depth])
-                .frame(height: cardHeight)
-                .allowsHitTesting(false)
+            RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
+                .fill(Theme.surface)
                 .overlay {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                         .fill(Color.black.opacity(0.06 * Double(depth + 1)))
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .frame(height: cardHeight)
                 .scaleEffect(1 - 0.06 * CGFloat(depth + 1), anchor: .top)
                 .offset(y: (level - 1) * peek)
                 .accessibilityHidden(true)
@@ -101,24 +103,18 @@ struct CardStack<Item: Identifiable, Card: View>: View {
     }
 
     /// Dots on the side, like a Smart Stack: the filled one is the card in front.
-    @ViewBuilder
+    /// At most 8 dots (each one stands for a few cards when there are more), so they always fit in the margin.
     private var pageDots: some View {
-        if items.count <= 8 {
-            VStack(spacing: 6) {
-                ForEach(items.indices, id: \.self) { index in
-                    Circle()
-                        .fill(index == currentIndex ? Color.primary : Color.secondary.opacity(0.35))
-                        .frame(width: 7, height: 7)
-                }
+        let count = min(items.count, 8)
+        let active = currentIndex * count / max(items.count, 1)
+        return VStack(spacing: 6) {
+            ForEach(0..<count, id: \.self) { index in
+                Circle()
+                    .fill(index == active ? Color.primary : Color.secondary.opacity(0.35))
+                    .frame(width: 7, height: 7)
             }
-            .padding(.top, CGFloat(peekCount) * peek)
-            .animation(.snappy, value: currentIndex)
-        } else {
-            Text("\(currentIndex + 1)/\(items.count)")
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-                .padding(.top, CGFloat(peekCount) * peek)
         }
+        .animation(.snappy, value: active)
     }
 
     // MARK: Which card is where

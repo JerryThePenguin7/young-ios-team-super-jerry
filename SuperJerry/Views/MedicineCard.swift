@@ -22,7 +22,7 @@ struct MedicineCard: View {
                 }
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
             .disabled(isEditing)
 
             if isEditing {
@@ -32,37 +32,36 @@ struct MedicineCard: View {
                         .foregroundStyle(.white, .red)
                         .frame(width: 60, height: 60)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .accessibilityLabel(language("ลบยานี้", "Delete this medicine"))
             } else {
                 VStack(spacing: 8) {
                     Button {
                         SpeechReader.shared.read(medicine, in: language)
                     } label: {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .font(.title3)
-                            .foregroundStyle(Theme.red)
-                            .frame(width: 48, height: 48)
-                            .background(Theme.fill, in: Circle())
+                        RoundIcon(symbol: "speaker.wave.2.fill")
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .accessibilityLabel(language("อ่านออกเสียง", "Read aloud"))
 
                     NavigationLink(value: medicine.id) {
                         Image(systemName: "chevron.right")
                             .font(.headline)
                             .foregroundStyle(.tertiary)
-                            .frame(width: 48, height: 40)
+                            .frame(width: Theme.iconButton, height: 40)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .accessibilityHidden(true)
                 }
                 .padding(.trailing, 12)
             }
         }
         .frame(height: height, alignment: .top)
+        // Without a fixed height, the row is as tall as its text, and the photo stretches to match,
+        // so there's no gap at the card's corners.
+        .fixedSize(horizontal: false, vertical: height == nil)
         .background(Theme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     }
 
     /// The label photo, or a big pill icon on red if there's no photo.
@@ -80,7 +79,8 @@ struct MedicineCard: View {
                     .background(Theme.card.gradient)
             }
         }
-        .frame(width: 120, height: height ?? 150)
+        .frame(width: 120)
+        .frame(minHeight: height ?? 150, maxHeight: .infinity)
         .clipped()
         .accessibilityHidden(true)
     }

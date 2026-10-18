@@ -38,7 +38,7 @@ struct CameraCard: View {
         .foregroundStyle(.white)
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.card.gradient, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(Theme.card.gradient, in: RoundedRectangle(cornerRadius: Theme.Radius.hero, style: .continuous))
     }
 
     @ViewBuilder
@@ -48,13 +48,13 @@ struct CameraCard: View {
             Button(action: takePhoto) {
                 boxButton(title: language("ถ่ายรูป", "Take photo"), symbol: "camera.fill", main: true)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
         }
         PhotosPicker(selection: $photoItem, matching: .images) {
             boxButton(title: language("เลือกจากคลังภาพ", "Choose from Photos"), symbol: "photo.on.rectangle",
                       main: !CameraPicker.isAvailable)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 
     /// White button for the main action, white-outlined for the other one.
@@ -68,12 +68,12 @@ struct CameraCard: View {
             .padding(.horizontal, 12)
             .foregroundStyle(main ? Theme.card : Color.white)
             .background(main ? Color.white : Color.white.opacity(0.15),
-                        in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous)
                     .strokeBorder(Color.white.opacity(main ? 0 : 0.85), lineWidth: 2)
             }
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
     }
 }
 

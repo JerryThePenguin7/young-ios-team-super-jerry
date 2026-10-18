@@ -40,7 +40,7 @@ struct MedicineStorageSection: View {
                           title: language("คลังยา \(medicines.count) ตัว", "Medicine Storage, \(medicines.count) medicines"),
                           itemName: { $0.displayName(language) }) { medicine in
                     StorageRow(medicine: medicine)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, Theme.cardPadding)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                         .background(Theme.surface)
                 } open: {
@@ -82,13 +82,13 @@ struct MedicineStorageSection: View {
                     StorageRow(medicine: medicine)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .matchedGeometryEffect(id: medicine.id, in: namespace)
                 .accessibilityHint(language("แตะเพื่อใส่หรือเติมจำนวนยา", "Tap to set or refill the count"))
             }
         }
-        .padding(.horizontal, 20)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .padding(.horizontal, Theme.cardPadding)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     }
 
     /// A springy "drop down", like Apple's. A plain fade for people who turned on Reduce Motion.
@@ -114,7 +114,8 @@ private struct StorageRow: View {
     let medicine: Medicine
 
     var body: some View {
-        HStack(spacing: 14) {
+        // Icons line up with the medicine's name at the top, like the Log cards.
+        HStack(alignment: .top, spacing: 14) {
             PillIcon(medicine: medicine)
             VStack(alignment: .leading, spacing: 6) {
                 Text(medicine.displayName(language))
@@ -147,11 +148,7 @@ private struct StorageRow: View {
                 }
             }
             Spacer(minLength: 8)
-            Image(systemName: medicine.stock == nil ? "plus" : "pencil")
-                .font(.title3.bold())
-                .foregroundStyle(Theme.red)
-                .frame(width: 44, height: 44)
-                .background(Theme.fill, in: Circle())
+            RoundIcon(symbol: medicine.stock == nil ? "plus" : "pencil")
                 .accessibilityHidden(true)
         }
         .padding(.vertical, 14)
@@ -162,18 +159,8 @@ private struct StorageRow: View {
             .font(.headline)
     }
 
-    /// Dark words on a light orange tint with an orange icon: orange text is too hard to read.
     private var lowBadge: some View {
-        Label {
-            Text(language("ใกล้หมด", "Running low"))
-        } icon: {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
-        }
-        .font(.subheadline.bold())
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(Color.orange.opacity(0.18), in: Capsule())
+        StatusBadge(title: language("ใกล้หมด", "Running low"), symbol: "exclamationmark.triangle.fill", color: .orange)
     }
 }
 

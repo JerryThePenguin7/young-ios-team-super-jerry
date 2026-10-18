@@ -273,17 +273,14 @@ struct ContentView: View {
                 Text(language("ยาเมื่อมีอาการ", "As Needed Medications"))
                     .font(.title3)
                 Spacer(minLength: 8)
-                Image(systemName: "plus")
-                    .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
-                    .frame(width: 44, height: 44)
-                    .background(Theme.fill, in: Circle())
+                RoundIcon(symbol: "plus")
+                    .accessibilityHidden(true)
             }
-            .padding(20)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(Theme.cardPadding)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 
     private var remindersCard: some View {
@@ -296,11 +293,8 @@ struct ContentView: View {
                 ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
                 : AnyLayout(HStackLayout(spacing: 16))
             layout {
-                Image(systemName: "checklist")
-                    .font(.title2)
-                    .foregroundStyle(Theme.red)
-                    .frame(width: 48, height: 48)
-                    .background(Theme.fill, in: Circle())
+                RoundIcon(symbol: "checklist")
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(language("เตือนในแอปเตือนความจำ", "Remind me in Reminders"))
                         .font(.headline)
@@ -310,17 +304,14 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
-                Image(systemName: "plus")
-                    .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
-                    .frame(width: 44, height: 44)
-                    .background(Theme.fill, in: Circle())
+                RoundIcon(symbol: "plus")
+                    .accessibilityHidden(true)
             }
-            .padding(20)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(Theme.cardPadding)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 
     // MARK: Your medications
@@ -453,7 +444,7 @@ struct ContentView: View {
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .accessibilityAddTraits(.isHeader)
         .accessibilityValue(isOpen ? language("แสดงอยู่", "Expanded") : language("ซ่อนอยู่", "Collapsed"))
         .accessibilityHint(language("แตะเพื่อแสดงหรือซ่อนยากลุ่มนี้", "Tap to show or hide these medicines"))

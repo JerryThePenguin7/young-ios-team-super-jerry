@@ -46,7 +46,7 @@ struct TutorialView: View {
                 BigButtonLabel(title: page < pageCount - 1 ? language("ถัดไป", "Next") : language("เริ่มใช้งาน", "Get started"),
                                symbol: page < pageCount - 1 ? "arrow.right" : "checkmark", filled: true)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
             .padding()
             .frame(maxWidth: 560)
         }
@@ -83,10 +83,10 @@ struct TutorialView: View {
                         .frame(maxWidth: .infinity, minHeight: 60)
                         .foregroundStyle(option == appLanguage ? Color.white : Theme.red)
                         .background(option == appLanguage ? Theme.card : Theme.surface,
-                                    in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
+                        .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .accessibilityAddTraits(option == appLanguage ? .isSelected : [])
                 }
             }
@@ -112,11 +112,11 @@ struct TutorialView: View {
                 Label(language("ข้าม", "Skipped"), systemImage: "xmark.circle")
                     .foregroundStyle(Theme.red)
                     .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
                 Label(language("ทานแล้ว", "Taken"), systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(Theme.greenFill, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background(Theme.greenFill, in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             }
             .font(.title3.bold())
             .accessibilityHidden(true)

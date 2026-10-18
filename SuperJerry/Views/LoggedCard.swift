@@ -21,12 +21,14 @@ struct LoggedCard: View {
                 } label: {
                     row(group)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
             }
         }
-        .padding(20)
+        // The last row already has 14 pt below it, so the card's bottom matches its top (20 pt).
+        .padding([.horizontal, .top], Theme.cardPadding)
+        .padding(.bottom, Theme.cardPadding - 14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
     }
 
     private func row(_ group: LoggedTime) -> some View {

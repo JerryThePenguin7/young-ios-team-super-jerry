@@ -34,7 +34,7 @@ struct ScanResultView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxHeight: 300)
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
                         .accessibilityLabel(language("รูปฉลากยาของคุณ", "Your photo of the label"))
 
                     switch phase {
@@ -170,7 +170,7 @@ struct ScanResultView: View {
                     }
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressable)
 
             scannedTextBox(medicine.scannedText)
 
@@ -182,7 +182,7 @@ struct ScanResultView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.hero, style: .continuous))
     }
 
     // MARK: Nothing found
@@ -213,10 +213,10 @@ struct ScanResultView: View {
                 scannedTextBox(scannedText)
             }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.hero, style: .continuous))
     }
 
     /// "Group: Heart & blood pressure" and who grouped it (the name list, how it's used, or the AI).

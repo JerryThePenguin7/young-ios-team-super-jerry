@@ -37,16 +37,16 @@ struct LogTimeCard: View {
                     }
                 }
             }
-            .padding(20)
+            .padding(Theme.cardPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous)
                     .strokeBorder(Theme.red, lineWidth: status == .dueNow ? 2 : 0)
             }
-            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .disabled(!canLog)
         .accessibilityHint(language("แตะเพื่อบันทึกว่าทานแล้ว", "Tap to log these medicines"))
     }
@@ -60,11 +60,7 @@ struct LogTimeCard: View {
     @ViewBuilder
     private var logPill: some View {
         if canLog {
-            Image(systemName: "plus")
-                .font(.title3.bold())
-                .foregroundStyle(Theme.red)
-                .frame(width: 44, height: 44)
-                .background(Theme.fill, in: Circle())
+            RoundIcon(symbol: "plus")
                 .accessibilityHidden(true)
         }
     }
@@ -73,28 +69,14 @@ struct LogTimeCard: View {
     private var badge: some View {
         switch status {
         case .dueNow:
-            badgeLabel(language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.red)
+            StatusBadge(title: language("ถึงเวลาแล้ว", "Time to take"), symbol: "bell.fill", color: Theme.red)
         case .missed:
-            badgeLabel(language("เลยเวลาแล้ว", "Late"), symbol: "exclamationmark.circle.fill", color: .orange)
+            StatusBadge(title: language("เลยเวลาแล้ว", "Late"), symbol: "exclamationmark.circle.fill", color: .orange)
         default:
             EmptyView()
         }
     }
 
-    /// Dark text on a light tint, with a colored icon: white on orange is too hard to read.
-    private func badgeLabel(_ title: String, symbol: String, color: Color) -> some View {
-        Label {
-            Text(title)
-                .foregroundStyle(.primary)
-        } icon: {
-            Image(systemName: symbol)
-                .foregroundStyle(color)
-        }
-        .font(.subheadline.bold())
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(color.opacity(0.18), in: Capsule())
-    }
 }
 
 #Preview {
