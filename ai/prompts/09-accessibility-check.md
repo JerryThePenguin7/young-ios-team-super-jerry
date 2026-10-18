@@ -17,7 +17,7 @@ For each item, answer Pass / Fail / Needs iPad test, with the file:line for ever
 6. Dark Interface: do all colors come from Theme / Assets with a dark version?
 7. Voice Control: does every button have a visible name you could say ("Tap Read aloud")?
 8. Touch targets: is anything you can tap smaller than 44 × 44 pt? (We aim for 52 pt or more.)
-9. Both languages: switch the globe menu to ภาษาไทย and to English. Is any text left in the other language?
+9. Both languages: switch Settings ▸ Language to ภาษาไทย and to English. Is any text left in the other language?
 
 Then list the fixes from most to least important for older users. Wait for my approval.
 ```

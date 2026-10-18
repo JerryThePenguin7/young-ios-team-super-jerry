@@ -21,7 +21,7 @@ def seconds(date):
     return (date - REFERENCE_DATE).total_seconds()
 
 
-def medicine(name, strength, amount, slots, meal, added, warnings=()):
+def medicine(name, strength, amount, slots, meal, added, warnings=(), stock=None, stock_full=None):
     return {
         "id": str(uuid.uuid4()).upper(),
         "name": name,
@@ -35,6 +35,9 @@ def medicine(name, strength, amount, slots, meal, added, warnings=()):
         "scannedText": f"(ตัวอย่าง) {name} {strength}",
         "photoFile": None,
         "addedAt": added,
+        # Medicine Storage: how many are left (None = not counted yet).
+        "stock": stock,
+        "stockFull": stock_full,
     }
 
 
@@ -52,8 +55,8 @@ def main():
     added = seconds(today - datetime.timedelta(days=3))
 
     medicines = [
-        medicine("Metformin", "500 mg", 1, ["morning", "evening"], "หลังอาหาร", added),
-        medicine("Amlodipine", "5 mg", 1, ["morning"], "หลังอาหาร", added),
+        medicine("Metformin", "500 mg", 1, ["morning", "evening"], "หลังอาหาร", added, stock=42, stock_full=60),
+        medicine("Amlodipine", "5 mg", 1, ["morning"], "หลังอาหาร", added, stock=5, stock_full=30),
         medicine("Simvastatin", "20 mg", 0.5, ["bedtime"], "", added, ["ห้ามทานกับน้ำเกรพฟรุต"]),
     ]
     # Amlodipine was taken this morning, so the Log shows a mix of states.
@@ -69,7 +72,12 @@ def main():
     documents.mkdir(parents=True, exist_ok=True)
     saved = {"medicines": medicines, "records": records, "remindersEnabled": False}
     (documents / "jenny-medicines.json").write_text(json.dumps(saved, ensure_ascii=False))
-    print(f"Added {len(medicines)} made-up medicines. Relaunch the app to see them.")
+    # Skip the first-launch tutorial, so screenshots show the home screen.
+    subprocess.run(
+        ["xcrun", "simctl", "spawn", udid, "defaults", "write", bundle_id, "hasSeenTutorial", "-bool", "YES"],
+        check=True,
+    )
+    print(f"Added {len(medicines)} made-up medicines and skipped the tutorial. Relaunch the app to see them.")
 
 
 if __name__ == "__main__":

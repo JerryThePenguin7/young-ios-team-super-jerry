@@ -36,9 +36,9 @@ struct DoseLogSheet: View {
                         Button {
                             for medicine in medicines { choices[medicine.id] = .taken(at: takenTime) }
                         } label: {
-                            Text(language("ทานครบทุกตัวแล้ว", "Log All as Taken"))
+                            Label(language("ทานครบทุกตัวแล้ว", "Log All as Taken"), systemImage: "checkmark.circle")
                                 .font(.title3.weight(.semibold))
-                                .foregroundStyle(Theme.red)
+                                .foregroundStyle(Theme.green)
                                 .padding(.horizontal, 24)
                                 .padding(.vertical, 12)
                                 .background(Theme.surface, in: Capsule())
@@ -123,7 +123,12 @@ struct DoseLogSheet: View {
                         .foregroundStyle(.secondary)
                     Text(doseLine(medicine, choice: choice))
                         .font(.headline)
-                        .foregroundStyle(choice == .skipped ? Color.secondary : Theme.red)
+                        .foregroundStyle(doseLineColor(choice))
+                    if medicine.stock != nil && medicine.canCountStock {
+                        Label(medicine.stockText(language), systemImage: "shippingbox")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Spacer(minLength: 0)
                 Button {
@@ -155,11 +160,14 @@ struct DoseLogSheet: View {
 
             HStack(spacing: 12) {
                 if kind != .asNeeded {
-                    choiceButton(language("ข้าม", "Skipped"), symbol: "xmark.circle", selected: choice == .skipped) {
+                    choiceButton(language("ข้าม", "Skipped"), symbol: "xmark.circle", selected: choice == .skipped,
+                                 color: Theme.red, fill: Theme.card) {
                         choices[medicine.id] = choice == .skipped ? nil : .skipped
                     }
                 }
-                choiceButton(language("ทานแล้ว", "Taken"), symbol: "checkmark.circle", selected: choice?.isTaken == true) {
+                // Green, so Taken is easy to tell apart from Skipped.
+                choiceButton(language("ทานแล้ว", "Taken"), symbol: "checkmark.circle", selected: choice?.isTaken == true,
+                             color: Theme.green, fill: Theme.greenFill) {
                     choices[medicine.id] = choice?.isTaken == true ? nil : .taken(at: takenTime)
                 }
             }
@@ -183,14 +191,23 @@ struct DoseLogSheet: View {
         }
     }
 
-    private func choiceButton(_ title: String, symbol: String, selected: Bool,
+    private func doseLineColor(_ choice: DoseLog?) -> Color {
+        switch choice {
+        case .taken: Theme.green
+        case .skipped: .secondary
+        case nil: Theme.red
+        }
+    }
+
+    /// Gray with colored words until chosen, then filled with white words.
+    private func choiceButton(_ title: String, symbol: String, selected: Bool, color: Color, fill: Color,
                               action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Label(title, systemImage: selected ? "\(symbol).fill" : symbol)
                 .font(.title3.bold())
                 .frame(maxWidth: .infinity, minHeight: 56)
-                .foregroundStyle(selected ? Color.white : Theme.red)
-                .background(selected ? Theme.card : Theme.fill,
+                .foregroundStyle(selected ? Color.white : color)
+                .background(selected ? fill : Theme.fill,
                             in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }

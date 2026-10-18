@@ -77,7 +77,7 @@ struct DoseChips: View {
 
     private func background(_ style: ChipStyle) -> Color {
         switch style {
-        case .taken: Theme.card
+        case .taken: Theme.greenFill
         case .due: Theme.red.opacity(0.12)
         case .missed: Color.orange.opacity(0.12)
         case .plain: Theme.fill

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Language, Apple Reminders, read-aloud, erase everything, and the disclaimer.
+/// Language, light or dark theme, Apple Reminders, read-aloud, the tutorial, erase everything, and the disclaimer.
 struct SettingsView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -8,6 +8,8 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @AppStorage("autoReadAloud") private var autoReadAloud = true
     @AppStorage(AppLanguage.storageKey) private var appLanguage = AppLanguage.deviceDefault
+    @AppStorage(AppAppearance.storageKey) private var appearance = AppAppearance.automatic
+    @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
 
     @State private var remindersResult: AppleReminders.Result?
     @State private var showingEraseConfirmation = false
@@ -32,6 +34,18 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Picker(language("ธีม", "Theme"), selection: $appearance) {
+                        ForEach(AppAppearance.allCases) { option in
+                            Label(option.name(language), systemImage: option.symbol).tag(option)
+                        }
+                    }
+                } header: {
+                    Text(language("ธีมสว่างหรือมืด", "Light or dark"))
+                } footer: {
+                    Text(language("เปลี่ยนได้จากปุ่มมุมซ้ายบนของหน้าแรกด้วย", "You can also change it with the button at the top left of the home screen."))
+                }
+
+                Section {
                     Toggle(language("เพิ่มในแอปเตือนความจำ", "Add to Apple Reminders"), isOn: $store.remindersEnabled)
                     Button(language("เปิดแอปเตือนความจำ", "Open Reminders"), systemImage: "checklist") {
                         if let url = AppleReminders.appURL { openURL(url) }
@@ -51,6 +65,14 @@ struct SettingsView: View {
                 } footer: {
                     Text(language("ใช้เสียงภาษาไทยที่มีในเครื่อง ถ้าเสียงฟังไม่ชัด ให้เพิ่มเสียงภาษาไทยที่ การตั้งค่า ▸ การช่วยการเข้าถึง ▸ เนื้อหาที่พูด ▸ เสียง",
                                   "Uses the English voice built into this device. To change it, go to Settings ▸ Accessibility ▸ Spoken Content ▸ Voices."))
+                }
+
+                Section {
+                    Button(language("ดูวิธีใช้อีกครั้ง", "Show the tutorial again"), systemImage: "questionmark.circle") {
+                        // The home screen opens it once this sheet has closed.
+                        hasSeenTutorial = false
+                        dismiss()
+                    }
                 }
 
                 Section {

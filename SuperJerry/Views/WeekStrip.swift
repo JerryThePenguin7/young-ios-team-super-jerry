@@ -75,7 +75,7 @@ struct WeekStrip: View {
     }
 }
 
-/// A circle that fills with red from the bottom: empty = nothing taken, full = everything taken.
+/// A circle that fills with green from the bottom: empty = nothing taken, full = everything taken.
 private struct ProgressCircle: View {
     let progress: Double
 
@@ -85,7 +85,7 @@ private struct ProgressCircle: View {
             .overlay {
                 GeometryReader { proxy in
                     Rectangle()
-                        .fill(Theme.red)
+                        .fill(Theme.green)
                         .frame(height: proxy.size.height * min(max(progress, 0), 1))
                         .frame(maxHeight: .infinity, alignment: .bottom)
                 }

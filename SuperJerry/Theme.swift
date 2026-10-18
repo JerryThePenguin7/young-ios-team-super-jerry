@@ -13,6 +13,10 @@ enum Theme {
     static let surface = Color("JennySurface")
     /// Soft gray fill for secondary buttons and icon circles on a card. Red text on it still passes contrast.
     static let fill = Color("JennyFill")
+    /// "Taken": the ✓ marks, green text, and the week circles (brighter in dark mode, so it stays readable).
+    static let green = Color("JennyGreen")
+    /// The filled "Taken" button, with white text on top.
+    static let greenFill = Color("JennyGreenFill")
 
     static let cornerRadius: CGFloat = 20
 }
