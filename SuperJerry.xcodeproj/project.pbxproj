@@ -264,6 +264,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Jenny uses the camera to read the label on your medicine envelope. ใช้กล้องเพื่ออ่านฉลากซองยา";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Jenny adds your medicines to the Reminders app, so it can remind you at each pill time. ใช้เพื่อเพิ่มเวลาทานยาในแอปเตือนความจำ";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -306,6 +307,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Jenny uses the camera to read the label on your medicine envelope. ใช้กล้องเพื่ออ่านฉลากซองยา";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Jenny adds your medicines to the Reminders app, so it can remind you at each pill time. ใช้เพื่อเพิ่มเวลาทานยาในแอปเตือนความจำ";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

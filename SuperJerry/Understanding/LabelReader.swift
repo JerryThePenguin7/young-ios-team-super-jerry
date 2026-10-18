@@ -15,6 +15,8 @@ nonisolated struct LabelReading {
     var nameSource: NameSource
     var unitGuessed: Bool
     var timesGuessed: Bool
+    /// nil when the reader couldn't group it; the AI then tries (see MedicineGrouper).
+    var groupSource: GroupSource?
 }
 
 /// Jenny's label reader. The Thai rules (LabelParser) find the times, meals and warnings.
@@ -77,7 +79,29 @@ nonisolated enum LabelReader {
             route: route,
             amountMax: amount?.max
         )
-        return LabelReading(medicine: medicine, nameSource: nameSource, unitGuessed: unitGuessed, timesGuessed: timesGuessed)
+        var reading = LabelReading(medicine: medicine, nameSource: nameSource, unitGuessed: unitGuessed,
+                                   timesGuessed: timesGuessed)
+        if let group = entry?.group ?? savedMatch?.group {
+            reading.medicine.group = group
+            reading.groupSource = .nameList
+        } else if let group = ruleGroup(route: route, name: name, form: form) {
+            reading.medicine.group = group
+            reading.groupSource = .rules
+        }
+        return reading
+    }
+
+    /// A group from how it's used or how it's named, for medicines that aren't in the name list.
+    static func ruleGroup(route: String?, name: String, form: DosageForm? = nil) -> MedicineGroup? {
+        let route = route ?? form?.route ?? ""
+        if route.contains("หยอดตา") || route.contains("หยอดหู") { return .eyesEars }
+        if route.hasPrefix("ทา") { return .skin }
+        if route == "สูด" || route == "พ่นจมูก" { return .breathing }
+        let thaiName = MedicineNames.thaiKey(name)
+        let herbalWords = ["ยาหอม", "ยาแผนไทย", "สมุนไพร", "ยาธาตุ", "ยาเขียว", "ยาประสะ"]
+        if herbalWords.contains(where: { thaiName.contains($0) }) { return .herbal }
+        if thaiName.contains("แก้ไอ") { return .breathing }
+        return nil
     }
 
     // MARK: Name

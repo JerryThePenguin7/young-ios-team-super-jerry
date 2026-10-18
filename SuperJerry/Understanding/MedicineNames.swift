@@ -10,6 +10,8 @@ nonisolated struct MedicineNameEntry: Codable, Hashable {
     var thai: String?
     /// How it's used, when every product with this name is the same (e.g. eye drops).
     var form: DosageForm?
+    /// What it's for, so the home screen can group it.
+    var group: MedicineGroup?
 
     var allNames: [String] { [name] + (aliases ?? []) }
 }
@@ -40,9 +42,14 @@ nonisolated enum MedicineNames {
     }()
 
     static func friendlyName(for name: String, in entries: [MedicineNameEntry] = all) -> String? {
+        entry(named: name, in: entries)?.thai
+    }
+
+    /// The list entry with exactly this name or spelling.
+    static func entry(named name: String, in entries: [MedicineNameEntry] = all) -> MedicineNameEntry? {
         let key = matchKey(name)
         guard !key.isEmpty else { return nil }
-        return entries.first { entry in entry.allNames.contains { matchKey($0) == key } }?.thai
+        return entries.first { entry in entry.allNames.contains { matchKey($0) == key } }
     }
 
     // MARK: Finding a name on the label

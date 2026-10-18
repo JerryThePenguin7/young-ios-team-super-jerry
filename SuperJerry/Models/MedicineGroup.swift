@@ -1,0 +1,84 @@
+import Foundation
+
+/// What a medicine is for, so the home screen can show medicines in groups an older person understands.
+nonisolated enum MedicineGroup: String, Codable, CaseIterable, Hashable {
+    case heart, diabetes, cholesterol, stomach, pain, infection, breathing, brain
+    case eyesEars, skin, vitamins, hormones, bonesJoints, urinary, herbal, other
+
+    var thai: String {
+        switch self {
+        case .heart: "หัวใจ หลอดเลือด และความดัน"
+        case .diabetes: "เบาหวาน"
+        case .cholesterol: "ไขมันในเลือด"
+        case .stomach: "กระเพาะและลำไส้"
+        case .pain: "แก้ปวด ลดไข้"
+        case .infection: "ฆ่าเชื้อ"
+        case .breathing: "ภูมิแพ้ ไอ หอบหืด"
+        case .brain: "สมอง ประสาท และการนอน"
+        case .eyesEars: "ตาและหู"
+        case .skin: "ผิวหนัง ยาทา"
+        case .vitamins: "วิตามินและแร่ธาตุ"
+        case .hormones: "ไทรอยด์และฮอร์โมน"
+        case .bonesJoints: "กระดูก ข้อ และกล้ามเนื้อ"
+        case .urinary: "ต่อมลูกหมากและปัสสาวะ"
+        case .herbal: "ยาสมุนไพร ยาแผนไทย"
+        case .other: "อื่น ๆ"
+        }
+    }
+
+    var english: String {
+        switch self {
+        case .heart: "Heart & blood pressure"
+        case .diabetes: "Diabetes"
+        case .cholesterol: "Cholesterol"
+        case .stomach: "Stomach & digestion"
+        case .pain: "Pain & fever"
+        case .infection: "Infections"
+        case .breathing: "Allergy, cough & breathing"
+        case .brain: "Brain, nerves & sleep"
+        case .eyesEars: "Eyes & ears"
+        case .skin: "Skin & creams"
+        case .vitamins: "Vitamins & minerals"
+        case .hormones: "Thyroid & hormones"
+        case .bonesJoints: "Bones, joints & muscles"
+        case .urinary: "Bladder & prostate"
+        case .herbal: "Thai herbal medicine"
+        case .other: "Other"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .heart: "heart.fill"
+        case .diabetes: "syringe.fill"
+        case .cholesterol: "chart.line.downtrend.xyaxis"
+        case .stomach: "fork.knife"
+        case .pain: "bandage.fill"
+        case .infection: "cross.case.fill"
+        case .breathing: "lungs.fill"
+        case .brain: "brain.head.profile"
+        case .eyesEars: "eye.fill"
+        case .skin: "hand.raised.fill"
+        case .vitamins: "pills.circle.fill"
+        case .hormones: "staroflife.fill"
+        case .bonesJoints: "figure.walk"
+        case .urinary: "drop.fill"
+        case .herbal: "leaf.fill"
+        case .other: "pills.fill"
+        }
+    }
+}
+
+/// Who put a medicine into its group. Shown on the result screen.
+nonisolated enum GroupSource {
+    case nameList, rules, coreAI, appleIntelligence
+
+    var label: String {
+        switch self {
+        case .nameList: "จากรายชื่อยา · from the medicine list"
+        case .rules: "จากวิธีใช้ · from how it's used"
+        case .coreAI: "จัดโดย Core AI ในเครื่อง · by Core AI on this device"
+        case .appleIntelligence: "จัดโดย Apple Intelligence ในเครื่อง · by Apple Intelligence"
+        }
+    }
+}

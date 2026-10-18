@@ -19,6 +19,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var addedAt = Date()
     var route: String?          // how it's used: "หยอดตา", "ทาบาง ๆ", "สูด"… nil = by mouth
     var amountMax: Double?      // "ครั้งละ 1-2 เม็ด" → amount 1, amountMax 2
+    var group: MedicineGroup?   // what it's for; nil until Jenny (or the AI) has grouped it
 
     static let units = ["เม็ด", "แคปซูล", "หยด", "ช้อนชา", "ช้อนโต๊ะ", "ml", "ซอง", "พัฟ", "ครั้ง", "ยูนิต", ""]
     static let meals = ["", "ก่อนอาหาร", "หลังอาหาร", "พร้อมอาหาร"]

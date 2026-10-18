@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// Reminders, read-aloud, erase everything, and the disclaimer.
+/// Apple Reminders, read-aloud, erase everything, and the disclaimer.
 struct SettingsView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @AppStorage("autoReadAloud") private var autoReadAloud = true
 
-    @State private var showingNotificationsOffAlert = false
+    @State private var remindersResult: AppleReminders.Result?
     @State private var showingEraseConfirmation = false
 
     var body: some View {
@@ -15,11 +16,14 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("เตือนเวลาทานยา · Remind me at pill times", isOn: $store.remindersEnabled)
+                    Toggle("เพิ่มในแอปเตือนความจำ · Add to Apple Reminders", isOn: $store.remindersEnabled)
+                    Button("เปิดแอปเตือนความจำ · Open Reminders", systemImage: "checklist") {
+                        if let url = AppleReminders.appURL { openURL(url) }
+                    }
                 } header: {
                     Text("การเตือน · Reminders")
                 } footer: {
-                    Text(reminderTimes)
+                    Text("Jenny puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert: \(reminderTimes). Tick it off in Reminders when you take it. Turning this off takes Jenny's reminders out again.")
                 }
 
                 Section {
@@ -53,11 +57,7 @@ struct SettingsView: View {
             .onChange(of: store.remindersEnabled) {
                 Task { await applyReminders() }
             }
-            .alert("Notifications are off", isPresented: $showingNotificationsOffAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Turn on notifications for Jenny in the Settings app so it can remind you.")
-            }
+            .remindersAlert(result: $remindersResult)
             .confirmationDialog("ลบยาและรูปทั้งหมด? · Erase all medicines and photos?",
                                 isPresented: $showingEraseConfirmation, titleVisibility: .visible) {
                 Button("ลบทั้งหมด · Erase everything", role: .destructive) {
@@ -73,9 +73,8 @@ struct SettingsView: View {
     }
 
     private func applyReminders() async {
-        let allowed = await store.applyReminderSetting()
-        if !allowed {
-            showingNotificationsOffAlert = true
+        if let result = await store.applyReminderSetting() {
+            remindersResult = result
         }
     }
 }

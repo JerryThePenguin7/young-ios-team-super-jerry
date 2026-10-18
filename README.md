@@ -18,7 +18,8 @@ The theme is AI that runs on Apple devices.
   so they take the wrong pill, at the wrong time, or forget it.
 - **Our solution (one core feature): the camera.** Open Jenny and tap the big **ถ่ายรูปซองยา** button.
   Take a photo of a Thai medicine envelope, and Jenny shows **huge text** (what, how many, when) and **reads it aloud in Thai**.
-  Tap **Save**, and the medicine is kept with its label photo. Jenny reminds you at each pill time, and you tick each dose when you take it.
+  Tap **Save**, and the medicine is kept with its label photo, sorted into a group (heart, diabetes, eyes…).
+  Jenny puts it in **Apple Reminders**, which reminds you at each pill time.
 - **AI we use and why:** Apple's **Vision** reads the label text on the device (a neural network on the Neural Engine),
   then our **Thai label rules** understand it ("ครั้งละ 1 เม็ด วันละ 2 ครั้ง หลังอาหาร"). It all works offline, and health data never leaves the device.
   We tested Apple's on-device language model (Foundation Models): it doesn't support Thai and it blocked medicine text as
@@ -31,12 +32,15 @@ The theme is AI that runs on Apple devices.
 The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](docs/pill-reader/plan.md). It calls the app ยาใจ; the app is named Jenny.
 
 ### How to use it (on the iPad)
-1. **ถ่ายรูปซองยา · Take a photo:** the first time, allow the camera. Fill the photo with the label, in good light.
+1. **The red box:** tap **ถ่ายรูป · Take photo** (the first time, allow the camera), or **เลือกรูปจากคลังภาพ · Choose from Photos**.
+   Fill the photo with the label, in good light.
 2. **Result:** Jenny reads the label aloud (turn this off in Settings). Tap **อ่านออกเสียง** to hear it again.
    Fix anything with **แก้ไข · Edit**, or **ถ่ายใหม่ · Retake**. Then **บันทึกยา · Save medicine**.
-3. **Home ▸ ยาของฉัน · My medicines:** each medicine shows its label photo. Tap a time chip (เช้า, เย็น…) to tick it as taken today.
-   **ถึงเวลาทานยา · Time to take** appears at the top when a dose is due.
-4. **Reminders:** tap **ให้ Jenny เตือนเวลาทานยา**, or use Settings. One notification per pill time: เช้า 08:00, กลางวัน 12:00, เย็น 18:00, ก่อนนอน 21:00.
+3. **Home ▸ ยาของฉัน · My medicines:** medicines are shown in groups (หัวใจ หลอดเลือด และความดัน, เบาหวาน, ตาและหู…), each with its
+   label photo. Tap a time chip (เช้า, เย็น…) to tick it as taken today. **ถึงเวลาทานยา · Time to take** appears when a dose is due.
+4. **Apple Reminders:** tap **เพิ่มในแอปเตือนความจำ · Add to Apple Reminders** (or Settings), and allow Full Access. Jenny makes a list
+   called **ยา · Jenny** with a repeating reminder per medicine per time (เช้า 08:00, กลางวัน 12:00, เย็น 18:00, ก่อนนอน 21:00),
+   each with an alert. Tick them off in Reminders (they also show on an Apple Watch). Jenny sends no notifications of its own.
 5. **Tap a medicine** to see the big photo, the scanned text, edit it, or delete it.
 
 No camera (e.g. the simulator)? The big button picks a photo from the library instead. To test, print the 5 fake envelopes
@@ -51,6 +55,19 @@ and an optional `form` (`eyeDrops`, `topical`, `inhaler`… which sets หยด
   [this.or.th](https://this.or.th/service/tmt/download/), download the latest release zip, unzip it, then run
   `python3 tools/tmt_to_medicine_names.py ~/Downloads/TMTRF…` and build again. Check TMT's license before sharing the data.
 - **Jenny also learns:** a name you saved (or corrected) once is recognised the next time you scan that envelope.
+
+### Groups and Core AI
+Every medicine in the name list has a group, and unknown ones are grouped by how they're used (eye drops → ตาและหู, creams → ผิวหนัง).
+Only medicines Jenny still can't place go to an on-device AI: **Core AI** (iOS 27) if it's set up, otherwise Apple Intelligence
+for English names, otherwise "อื่น ๆ" (you can change the group in Edit). The result screen says who grouped it.
+
+**Turning on Core AI (optional, on the M-chip Mac with Xcode 27, as in handbook workshop 3):**
+1. File ▸ Add Package Dependencies… → `https://github.com/apple/coreai-models.git` → product **CoreAILM** → SuperJerry target.
+   (This is a new package, so the team agrees first. Intel Macs on Xcode 26 still build, because the code is behind `#if canImport`.)
+2. Get the model folder `qwen3_0_6b_mixed_4bit_8bit_static` (~430 MB) from a TA. Drag the **whole folder** into Xcode as a
+   **folder reference** (blue folder), target SuperJerry.
+3. Signing & Capabilities ▸ **+ Capability** ▸ **Increased Memory Limit**. (Untested with a free Personal Team; ask a TA if it fails.)
+4. Run on the iPad (iOS 27). The first grouping is slow while Core AI prepares the model. If the model isn't there, Jenny just skips it.
 
 ## Team
 

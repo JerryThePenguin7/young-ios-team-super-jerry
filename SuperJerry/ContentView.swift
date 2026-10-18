@@ -8,6 +8,13 @@ struct ScanPhoto: Identifiable {
     let image: UIImage
 }
 
+/// One group of medicines on the home screen, e.g. "หัวใจ หลอดเลือด และความดัน (2)".
+struct MedicineSection: Identifiable {
+    let group: MedicineGroup
+    let medicines: [Medicine]
+    var id: MedicineGroup { group }
+}
+
 /// Home. The camera is the main feature: take a photo of a medicine envelope, Jenny reads it, you save it.
 /// Saved medicines are listed below, with their label photo, read aloud, and today's ticks.
 struct ContentView: View {
@@ -20,7 +27,7 @@ struct ContentView: View {
     @State private var scanPhoto: ScanPhoto?
     @State private var retakeRequested = false
     @State private var showingCameraDenied = false
-    @State private var showingNotificationsOff = false
+    @State private var remindersResult: AppleReminders.Result?
     @State private var showingSettings = false
     @State private var showingNewMedicine = false
 
@@ -85,11 +92,7 @@ struct ContentView: View {
             } message: {
                 Text("Jenny needs the camera to read your medicine labels. Turn it on in Settings ▸ Jenny ▸ Camera.")
             }
-            .alert("Notifications are off", isPresented: $showingNotificationsOff) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Turn on notifications for Jenny in the Settings app so it can remind you.")
-            }
+            .remindersAlert(result: $remindersResult)
         }
     }
 
@@ -124,49 +127,64 @@ struct ContentView: View {
 
     // MARK: The camera (main feature)
 
-    @ViewBuilder
+    /// The big red box: take a photo, or choose one from Photos. Both buttons live inside it.
     private var cameraCard: some View {
-        if CameraPicker.isAvailable {
-            VStack(spacing: 12) {
-                Button {
-                    openCamera()
-                } label: {
-                    cameraLabel(subtitle: "Take a photo of your medicine envelope")
-                }
-                .buttonStyle(.plain)
-
-                PhotosPicker(selection: $photoItem, matching: .images) {
-                    BigButtonLabel(title: "เลือกรูปจากคลังภาพ · Choose from Photos", symbol: "photo.on.rectangle")
-                }
-                .buttonStyle(.plain)
-            }
-        } else {
-            // No camera (e.g. the simulator): the big card picks a photo instead.
-            PhotosPicker(selection: $photoItem, matching: .images) {
-                cameraLabel(subtitle: "No camera here. Tap to choose a photo of the label.")
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private func cameraLabel(subtitle: String) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             Image(systemName: "camera.fill")
-                .font(.system(size: 56, weight: .semibold))
+                .font(.system(size: 52, weight: .semibold))
             Text("ถ่ายรูปซองยา")
                 .font(.largeTitle.bold())
-            Text(subtitle)
+            Text("Take a photo of your medicine envelope, or choose one from your photos.")
                 .font(.title3.weight(.medium))
                 .multilineTextAlignment(.center)
                 .opacity(0.9)
+
+            // Side by side on iPad, one above the other on a narrow iPhone.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { cameraButtons }
+                VStack(spacing: 12) { cameraButtons }
+            }
+            .padding(.top, 4)
         }
         .foregroundStyle(.white)
         .padding(24)
-        .frame(maxWidth: .infinity, minHeight: 240)
+        .frame(maxWidth: .infinity)
         .background(Theme.card.gradient, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
-        .contentShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
+    }
+
+    @ViewBuilder
+    private var cameraButtons: some View {
+        // No camera (e.g. the simulator)? Then "Choose from Photos" becomes the main button.
+        if CameraPicker.isAvailable {
+            Button {
+                openCamera()
+            } label: {
+                boxButton(title: "ถ่ายรูป · Take photo", symbol: "camera.fill", main: true)
+            }
+            .buttonStyle(.plain)
+        }
+        PhotosPicker(selection: $photoItem, matching: .images) {
+            boxButton(title: "เลือกรูปจากคลังภาพ · Choose from Photos", symbol: "photo.on.rectangle",
+                      main: !CameraPicker.isAvailable)
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// White button for the main action, white-outlined for the other one.
+    private func boxButton(title: String, symbol: String, main: Bool) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.title3.bold())
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .padding(.horizontal, 12)
+            .foregroundStyle(main ? Theme.card : Color.white)
+            .background(main ? Color.white : Color.white.opacity(0.15),
+                        in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.white.opacity(main ? 0 : 0.85), lineWidth: 2)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private func openCamera() {
@@ -232,13 +250,9 @@ struct ContentView: View {
     private var remindersButton: some View {
         Button {
             store.remindersEnabled = true
-            Task {
-                if await !store.applyReminderSetting() {
-                    showingNotificationsOff = true
-                }
-            }
+            Task { remindersResult = await store.applyReminderSetting() }
         } label: {
-            BigButtonLabel(title: "ให้ Jenny เตือนเวลาทานยา · Remind me at pill times", symbol: "bell.badge.fill")
+            BigButtonLabel(title: "เพิ่มในแอปเตือนความจำ · Add to Apple Reminders", symbol: "checklist")
         }
         .buttonStyle(.plain)
     }
@@ -246,7 +260,7 @@ struct ContentView: View {
     // MARK: My medicines
 
     private func medicinesSection(now: Date) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 20) {
             Text(store.medicines.isEmpty ? "ยาของฉัน · My medicines" : "ยาของฉัน · My medicines (\(store.medicines.count))")
                 .font(.title2.bold())
 
@@ -254,15 +268,31 @@ struct ContentView: View {
                 ContentUnavailableView(
                     "ยังไม่มียา · No medicines yet",
                     systemImage: "pills",
-                    description: Text("Tap \"ถ่ายรูปซองยา\" above and take a photo of a medicine envelope.")
+                    description: Text("Tap \"ถ่ายรูป\" in the red box and take a photo of a medicine envelope.")
                 )
             } else {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 16)], spacing: 16) {
-                    ForEach(store.medicines) { medicine in
-                        MedicineCard(medicine: medicine, now: now)
+                ForEach(sections) { section in
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("\(section.group.thai) · \(section.group.english) (\(section.medicines.count))",
+                              systemImage: section.group.symbol)
+                            .font(.title3.bold())
+                            .foregroundStyle(Theme.red)
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 16)], spacing: 16) {
+                            ForEach(section.medicines) { medicine in
+                                MedicineCard(medicine: medicine, now: now)
+                            }
+                        }
                     }
                 }
             }
+        }
+    }
+
+    /// Medicines grouped by what they're for, in a fixed order. Not grouped yet → "อื่น ๆ · Other".
+    private var sections: [MedicineSection] {
+        MedicineGroup.allCases.compactMap { group -> MedicineSection? in
+            let medicines = store.medicines.filter { ($0.group ?? .other) == group }
+            return medicines.isEmpty ? nil : MedicineSection(group: group, medicines: medicines)
         }
     }
 }

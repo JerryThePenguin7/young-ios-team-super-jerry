@@ -65,6 +65,14 @@ struct MedicineEditorView: View {
                     Text("Jenny reminds you at these times. \"Only when needed\" medicines have no reminders.")
                 }
 
+                Section("กลุ่ม · Group") {
+                    Picker("ยานี้ใช้สำหรับ · What it's for", selection: groupBinding) {
+                        ForEach(MedicineGroup.allCases, id: \.self) { group in
+                            Label(group.thai, systemImage: group.symbol).tag(group)
+                        }
+                    }
+                }
+
                 Section("อาหาร · Meals") {
                     Picker("ก่อน/หลังอาหาร · Meals", selection: $medicine.meal) {
                         ForEach(mealOptions, id: \.self) { meal in
@@ -125,6 +133,10 @@ struct MedicineEditorView: View {
                 }
             }
         )
+    }
+
+    private var groupBinding: Binding<MedicineGroup> {
+        Binding(get: { medicine.group ?? .other }, set: { medicine.group = $0 })
     }
 
     private var mealOptions: [String] {

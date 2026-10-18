@@ -22,6 +22,7 @@ struct ScanResultView: View {
     @State private var editingMedicine: Medicine?
     @State private var savedFromEditor = false
     @State private var showingScannedText = false
+    @State private var isGrouping = false
 
     var body: some View {
         NavigationStack {
@@ -77,12 +78,24 @@ struct ScanResultView: View {
             if let reading = LabelReader.read(lines, saved: store.medicines) {
                 phase = .found(reading)
                 if autoReadAloud { SpeechReader.shared.speak(reading.medicine.spokenThai) }
+                if reading.medicine.group == nil { await groupWithAI(reading) }
             } else {
                 phase = .notFound(scannedText: lines.joined(separator: "\n"))
             }
         } catch {
             phase = .notFound(scannedText: "")
         }
+    }
+
+    /// Jenny doesn't know this medicine: ask Core AI (iOS 27) or Apple Intelligence which group it's in.
+    private func groupWithAI(_ reading: LabelReading) async {
+        isGrouping = true
+        defer { isGrouping = false }
+        guard let result = await MedicineGrouper.group(for: reading.medicine),
+              case .found(var current) = phase else { return }
+        current.medicine.group = result.group
+        current.groupSource = result.source
+        phase = .found(current)
     }
 
     // MARK: Found a medicine
@@ -98,6 +111,7 @@ struct ScanResultView: View {
 
             MedicineInfoView(medicine: medicine)
             DoseChips(medicine: medicine)
+            groupLine(reading)
 
             if reading.nameSource == .guess {
                 checkNote("ชื่อยาเป็นการเดา · โปรดตรวจสอบ (name guessed, please check)")
@@ -186,6 +200,34 @@ struct ScanResultView: View {
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    /// "กลุ่ม: หัวใจ หลอดเลือด และความดัน" and who grouped it (the name list, how it's used, or the AI).
+    @ViewBuilder
+    private func groupLine(_ reading: LabelReading) -> some View {
+        if let group = reading.medicine.group {
+            VStack(alignment: .leading, spacing: 2) {
+                Label("กลุ่ม: \(group.thai) · \(group.english)", systemImage: group.symbol)
+                    .font(.headline)
+                    .foregroundStyle(Theme.red)
+                if let source = reading.groupSource {
+                    Text(source.label)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        } else if isGrouping {
+            HStack(spacing: 8) {
+                ProgressView()
+                Text("กำลังจัดกลุ่มด้วย AI ในเครื่อง… · Grouping with on-device AI…")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        } else {
+            Label("กลุ่ม: อื่น ๆ · Other (change it with Edit)", systemImage: MedicineGroup.other.symbol)
+                .font(.headline)
+                .foregroundStyle(.secondary)
+        }
     }
 
     @ViewBuilder

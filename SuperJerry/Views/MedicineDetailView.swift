@@ -55,6 +55,10 @@ struct MedicineDetailView: View {
 
             VStack(alignment: .leading, spacing: 20) {
                 MedicineInfoView(medicine: medicine)
+                Label("กลุ่ม: \((medicine.group ?? .other).thai) · \((medicine.group ?? .other).english)",
+                      systemImage: (medicine.group ?? .other).symbol)
+                    .font(.headline)
+                    .foregroundStyle(Theme.red)
                 DoseChips(medicine: medicine, now: now)
 
                 Button {
