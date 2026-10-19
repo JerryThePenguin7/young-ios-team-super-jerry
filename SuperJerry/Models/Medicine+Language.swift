@@ -15,30 +15,35 @@ nonisolated extension Medicine {
     }
 
     /// The kind of medicine first, then the name in brackets, so a foreign name makes sense:
-    /// "ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)", "ยาหยอดตา (Poly)", "ยาพ่นจมูก (Otrivin)".
-    /// Thai only. Thai names ("ฟ้าทะลายโจร") already say what they are, so they stay as they are.
+    /// "ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)", "ยาหยอดตา (Poly)", "ยาพ่นจมูก (Otrivin)";
+    /// in English "Antibiotic (Dicloxacillin)", "Eye drops (Poly)", "Nasal spray (Otrivin)".
+    /// In Thai, Thai names ("ฟ้าทะลายโจร") already say what they are, so they stay as they are.
     /// The full description, with its notes ("ทานจนหมด"), is on the medicine's own screen.
     func title(_ language: AppLanguage) -> String {
         let name = displayName(language)
-        guard language == .thai, !self.name.isEmpty, !MedicineNames.containsThai(self.name), let kind = kindName else { return name }
+        guard !self.name.isEmpty, let kind = kindName(language) else { return name }
+        if language == .thai && MedicineNames.containsThai(self.name) { return name }
+        // "Vitamin D3" already says its kind: no "Vitamin D (Vitamin D3)".
+        if name.localizedCaseInsensitiveContains(kind) { return name }
         return "\(kind) (\(name))"
     }
 
-    /// What kind of medicine it is, most exact first: the name list ("ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)" → "ยาฆ่าเชื้อแบคทีเรีย"),
-    /// then how it's used, from the label ("ยาหยอดตา", "ยาพ่นจมูก"), then its group from the rules or the AI ("ยาเบาหวาน").
-    /// nil for a plain tablet or capsule Yao knows nothing else about.
-    private var kindName: String? {
+    /// What kind of medicine it is, most exact first: the name list ("ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)" → "ยาฆ่าเชื้อแบคทีเรีย",
+    /// in English "Antibiotic" from `MedicineKinds`), then how it's used, from the label ("ยาหยอดตา", "ยาพ่นจมูก"),
+    /// then its group from the rules or the AI ("ยาเบาหวาน"). nil for a plain tablet or capsule Yao knows nothing else about.
+    private func kindName(_ language: AppLanguage) -> String? {
         if let friendlyName {
             let short = friendlyName
                 .replacingOccurrences(of: #"\s*\([^)]*\)"#, with: "", options: .regularExpression)
                 .trimmingCharacters(in: .whitespaces)
-            if !short.isEmpty { return short }
+            if !short.isEmpty, let kind = language == .thai ? short : MedicineKinds.english(forThai: short) { return kind }
         }
         let form = formName(.thai)
         let plainForms = ["ยาเม็ด", "แคปซูล", "ยาน้ำ", "ยาผง"]
-        if !plainForms.contains(form) { return form }
-        if let kind = group?.kindName { return kind }
-        return form == "ยาน้ำ" || form == "ยาผง" ? form : nil
+        if !plainForms.contains(form) { return formName(language) }
+        if let kind = group?.kindName(language) { return kind }
+        guard form == "ยาน้ำ" || form == "ยาผง" else { return nil }
+        return language(form, form == "ยาน้ำ" ? "Liquid medicine" : "Powder medicine")
     }
 
     /// "1", "1-2", and a half: "ครึ่ง" or "½".
