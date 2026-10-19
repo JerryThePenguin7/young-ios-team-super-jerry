@@ -31,11 +31,11 @@ struct SettingsView: View {
                 } header: {
                     Text(language("ภาษา", "Language"))
                 } footer: {
-                    Text(language("Jenny จะแสดงและอ่านออกเสียงเป็นภาษาไทยทั้งหมด",
-                                  "Jenny shows and reads everything in English."))
+                    Text(language("Yao จะแสดงและอ่านออกเสียงเป็นภาษาไทยทั้งหมด",
+                                  "Yao shows and reads everything in English."))
                 }
 
-                // Near the top, so it's easy to find: some people don't want Jenny talking every time.
+                // Near the top, so it's easy to find: some people don't want Yao talking every time.
                 Section {
                     Toggle(isOn: $autoReadAloud) {
                         Label(language("อ่านออกเสียงอัตโนมัติ", "Read aloud automatically"), systemImage: "speaker.wave.2.fill")
@@ -43,8 +43,8 @@ struct SettingsView: View {
                 } header: {
                     Text(language("เสียงอ่าน", "Voice"))
                 } footer: {
-                    Text(language("เปิดอยู่: ถ่ายรูปซองยาเสร็จ Jenny จะอ่านฉลากออกเสียงทันที ปิดอยู่: Jenny จะเงียบ แต่ยังแตะปุ่มลำโพงเพื่อฟังได้ทุกเมื่อ ใช้เสียงภาษาไทยที่มีในเครื่อง ถ้าฟังไม่ชัด เพิ่มเสียงได้ที่ การตั้งค่า ▸ การช่วยการเข้าถึง ▸ เนื้อหาที่พูด ▸ เสียง",
-                                  "On: after each photo, Jenny reads the label aloud straight away. Off: Jenny stays quiet, and you can still tap a speaker button to listen any time. Uses the English voice built into this device (Settings ▸ Accessibility ▸ Spoken Content ▸ Voices)."))
+                    Text(language("เปิดอยู่: ถ่ายรูปซองยาเสร็จ Yao จะอ่านฉลากออกเสียงทันที ปิดอยู่: Yao จะเงียบ แต่ยังแตะปุ่มลำโพงเพื่อฟังได้ทุกเมื่อ ใช้เสียงภาษาไทยที่มีในเครื่อง ถ้าฟังไม่ชัด เพิ่มเสียงได้ที่ การตั้งค่า ▸ การช่วยการเข้าถึง ▸ เนื้อหาที่พูด ▸ เสียง",
+                                  "On: after each photo, Yao reads the label aloud straight away. Off: Yao stays quiet, and you can still tap a speaker button to listen any time. Uses the English voice built into this device (Settings ▸ Accessibility ▸ Spoken Content ▸ Voices)."))
                 }
 
                 Section {
@@ -62,7 +62,7 @@ struct SettingsView: View {
                     Text(language("ขนาดตัวอักษร", "Text size"))
                 } footer: {
                     Text(language("ตัวอักษรทั้งแอปเปลี่ยนทันที \"ตามเครื่อง\" ใช้ขนาดจาก การตั้งค่า ▸ จอภาพและความสว่าง ▸ ขนาดข้อความ",
-                                  "All of Jenny's text changes right away. \"Same as iPad\" uses Settings ▸ Display & Brightness ▸ Text Size."))
+                                  "All of YaoYao's text changes right away. \"Same as iPad\" uses Settings ▸ Display & Brightness ▸ Text Size."))
                 }
 
                 Section {
@@ -95,8 +95,8 @@ struct SettingsView: View {
                     Text(language("การเตือน", "Reminders"))
                 } footer: {
                     Text(language(
-                        "Jenny ใส่ยาแต่ละตัวไว้ในรายการ \"\(AppleReminders.listTitle)\" ของแอปเตือนความจำ เตือนทุกวันตามมื้ออาหาร (\(reminderTimes)) ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว ถ้าปิดตัวเลือกนี้ Jenny จะลบการเตือนออก",
-                        "Jenny puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert around your meals (\(reminderTimes)). Tick it off in Reminders when you take it. Turning this off takes Jenny's reminders out again."))
+                        "Yao ใส่ยาแต่ละตัวไว้ในรายการ \"\(AppleReminders.listTitle)\" ของแอปเตือนความจำ เตือนทุกวันตามมื้ออาหาร (\(reminderTimes)) ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว ถ้าปิดตัวเลือกนี้ Yao จะลบการเตือนออก",
+                        "Yao puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert around your meals (\(reminderTimes)). Tick it off in Reminders when you take it. Turning this off takes Yao's reminders out again."))
                 }
 
                 Section {
@@ -117,8 +117,8 @@ struct SettingsView: View {
                 }
 
                 Section(language("เกี่ยวกับ", "About")) {
-                    Text(language("Jenny โดยทีม Super Jerry (YIDH26) ช่วยอ่านฉลากยาเพื่อให้คุณจำยาได้ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามแพทย์หรือเภสัชกรเมื่อไม่แน่ใจ",
-                                  "Jenny by Team Super Jerry (YIDH26). Jenny reads medicine labels to help you remember them. It is not medical advice: always check the real label, and ask your doctor or pharmacist if unsure."))
+                    Text(language("YaoYao โดยทีม Super Jerry (YIDH26) ช่วยอ่านฉลากยาเพื่อให้คุณจำยาได้ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามแพทย์หรือเภสัชกรเมื่อไม่แน่ใจ",
+                                  "YaoYao by Team Super Jerry (YIDH26). Yao reads medicine labels to help you remember them. It is not medical advice: always check the real label, and ask your doctor or pharmacist if unsure."))
                         .font(.callout)
                 }
             }

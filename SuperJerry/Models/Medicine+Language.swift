@@ -26,7 +26,7 @@ nonisolated extension Medicine {
 
     /// What kind of medicine it is, most exact first: the name list ("ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)" → "ยาฆ่าเชื้อแบคทีเรีย"),
     /// then how it's used, from the label ("ยาหยอดตา", "ยาพ่นจมูก"), then its group from the rules or the AI ("ยาเบาหวาน").
-    /// nil for a plain tablet or capsule Jenny knows nothing else about.
+    /// nil for a plain tablet or capsule Yao knows nothing else about.
     private var kindName: String? {
         if let friendlyName {
             let short = friendlyName
@@ -49,7 +49,7 @@ nonisolated extension Medicine {
         return first
     }
 
-    /// Jenny's summary: "ครั้งละ 1 เม็ด" or "1 tablet each time"; with how it's used: "Both nostrils: 2 sprays in each".
+    /// Yao's summary: "ครั้งละ 1 เม็ด" or "1 tablet each time"; with how it's used: "Both nostrils: 2 sprays in each".
     /// Where the label's own words are known, show `directions` too: this summary can't hold everything.
     func amountLine(_ language: AppLanguage) -> String {
         guard language == .english else { return amountLine }
@@ -59,13 +59,13 @@ nonisolated extension Medicine {
         return route.map { "\(Self.routeName($0, .english)): \(each)" } ?? each
     }
 
-    /// The main instruction to show: the label's own words in Thai, or Jenny's English summary.
+    /// The main instruction to show: the label's own words in Thai, or Yao's English summary.
     func instruction(_ language: AppLanguage) -> String {
         if language == .thai, let directions { return directions }
         return amountLine(language)
     }
 
-    /// Jenny's summary as short bullet points, for lists (the Log checklist and Your Medications):
+    /// Yao's summary as short bullet points, for lists (the Log checklist and Your Medications):
     /// • ครั้งละ 1 เม็ด  • วันละ 2 ครั้ง: เช้า เย็น  • หลังอาหาร
     /// "หลังอาหาร" is for meals, never bedtime: • วันละ 4 ครั้ง  • หลังอาหาร เช้า กลางวัน เย็น  • ก่อนนอน
     /// The label's own words are kept too (`directions`) and shown in full on the medicine's own screen.
@@ -194,7 +194,7 @@ nonisolated extension Medicine {
         return language("ทุกวัน · \(slots)", "Every day · \(slots)")
     }
 
-    /// Label warnings in the chosen language. In English, Jenny translates the warnings it knows;
+    /// Label warnings in the chosen language. In English, Yao translates the warnings it knows;
     /// any other line stays as printed on the label.
     /// `includeNotes: false` leaves out the envelope's "หมายเหตุ" (Note) lines, for the Log: they stay on the medicine's screen.
     func warningLines(_ language: AppLanguage, includeNotes: Bool = true) -> [String] {
@@ -262,7 +262,7 @@ nonisolated extension Medicine {
             parts.append(times.prefix(1).uppercased() + String(times.dropFirst()))
         }
         if !meal.isEmpty { parts.append(Self.mealName(meal, .english)) }
-        // Only the warnings Jenny could translate: an English voice can't read Thai.
+        // Only the warnings Yao could translate: an English voice can't read Thai.
         parts += warnings.compactMap(Self.englishWarning)
         if directions != nil { parts.append("Please check the exact words on the label") }
         if let expiry = expiryText(.english) { parts.append(expiry) }
@@ -349,7 +349,7 @@ nonisolated extension Medicine {
         }
     }
 
-    /// English for the warnings printed on Thai labels. nil if Jenny doesn't know this one.
+    /// English for the warnings printed on Thai labels. nil if Yao doesn't know this one.
     static func englishWarning(_ thai: String) -> String? {
         let text = MedicineNames.thaiKey(thai)
         let known: [(words: [String], english: String)] = [

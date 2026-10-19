@@ -2,14 +2,14 @@ import Foundation
 
 /// Where the medicine's name came from, so the result screen can ask the user to check guesses.
 nonisolated enum NameSource {
-    case nameList     // found in Jenny's medicine name list
+    case nameList     // found in Yao's medicine name list
     case saved        // a name the user saved before
     case label        // read by the rules ("Amlodipine 5 mg")
     case guess        // a likely name, but not certain
     case none
 }
 
-/// Everything Jenny read from one label.
+/// Everything Yao read from one label.
 nonisolated struct LabelReading {
     var medicine: Medicine
     var nameSource: NameSource
@@ -19,7 +19,7 @@ nonisolated struct LabelReading {
     var groupSource: GroupSource?
 }
 
-/// Jenny's label reader. The Thai rules (LabelParser) find the times, meals and warnings.
+/// Yao's label reader. The Thai rules (LabelParser) find the times, meals and warnings.
 /// This adds what they miss: the name (from the name list, saved medicines, or a careful guess),
 /// how it's used (eye drops, cream, inhaler…), the right unit (หยด, พัฟ, ช้อนชา…), and ranges like "1-2".
 nonisolated enum LabelReader {

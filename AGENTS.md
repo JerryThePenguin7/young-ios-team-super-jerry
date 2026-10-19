@@ -1,12 +1,12 @@
 # AGENTS.md
 
 Rules for any coding agent (Xcode agents, OpenCode, Claude, Codex, or others) working in this project.
-Based on the YIDH26 handbook template. **New chat? Read `ai/project-status.md` first**: what Jenny is, what's done, decisions already made, and what's left.
+Based on the YIDH26 handbook template. **New chat? Read `ai/project-status.md` first**: what YaoYao is, what's done, decisions already made, and what's left.
 Read `ai/what-we-are-building.md` before suggesting features.
 
 ## About this app
 Team **Super Jerry**'s SwiftUI app for iPad/iPhone, built at the Young iOS Developer Hackathon 2026 (YIDH26) at Srinakharinwirot University.
-**Jenny** helps older Thai adults take their medicines correctly. You photograph a Thai medicine envelope, Jenny reads it on the device
+**YaoYao** (formerly Jenny; its assistant is called **Yao**) helps older Thai adults take their medicines correctly. You photograph a Thai medicine envelope, Yao reads it on the device
 (Vision + our Thai label rules), reads it aloud, and keeps a Health-style daily log. Everything works offline.
 
 ## Our team uses TWO Xcode versions. Code must build in BOTH.
@@ -61,7 +61,7 @@ The 3 options are a **menu, not a checklist**. Use the one that fits the problem
 - Finish by listing what you changed and how the user can test it (Preview, Simulator, or iPad).
 
 ## Design
-- **Read `DESIGN.md` before any UI work.** It defines Jenny's Apple Health–style look, the colors in `Theme`, the button styles, and who we design for.
+- **Read `DESIGN.md` before any UI work.** It defines YaoYao's Apple Health–style look, the colors in `Theme`, the button styles, and who we design for.
 - The research behind it (older users, Apple Health, sources) is in `docs/design/research.md`.
 - Skills in `.claude/skills/`:
   - `jenny-design-review` (ours): use it to review or critique any screen.

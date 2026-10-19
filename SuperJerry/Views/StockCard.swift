@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// How many are left, on the medicine's own screen (this used to be the separate "Medicine Storage" list):
-/// the count, a bar, about how many days that lasts, and when Jenny says "Running low".
-/// Jenny counts down by itself every time the medicine is logged as Taken. The button sets or refills the count.
+/// the count, a bar, about how many days that lasts, and when Yao says "Running low".
+/// Yao counts down by itself every time the medicine is logged as Taken. The button sets or refills the count.
 struct StockCard: View {
     @Environment(\.language) private var language
     let medicine: Medicine
@@ -31,8 +31,8 @@ struct StockCard: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } else {
-                Text(language("ยังไม่ได้นับ ใส่จำนวนยาที่มี แล้ว Jenny จะนับลดลงให้ทุกครั้งที่ทาน",
-                              "Not counted yet. Add how many you have, and Jenny counts down each time you take one."))
+                Text(language("ยังไม่ได้นับ ใส่จำนวนยาที่มี แล้ว Yao จะนับลดลงให้ทุกครั้งที่ทาน",
+                              "Not counted yet. Add how many you have, and Yao counts down each time you take one."))
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

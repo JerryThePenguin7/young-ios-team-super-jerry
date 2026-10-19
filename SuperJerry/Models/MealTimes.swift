@@ -1,6 +1,6 @@
 import Foundation
 
-/// When the user eats. Jenny's pill times follow the meals instead of fixed clock times, because nobody eats
+/// When the user eats. Yao's pill times follow the meals instead of fixed clock times, because nobody eats
 /// at the same time: ก่อนอาหาร is 30 minutes before the meal, หลังอาหาร 15 minutes after, ก่อนนอน at bedtime.
 /// Set in the tutorial and in Settings, and saved on this device.
 nonisolated struct MealTimes: Hashable {
@@ -35,7 +35,7 @@ nonisolated struct MealTimes: Hashable {
     // MARK: Saving
 
     /// The user's meal times, or the defaults (07:00, 12:00, 17:30, 21:00) until they set them.
-    /// Kept as plain numbers (minutes after midnight), so reading them is quick: Jenny reads them often.
+    /// Kept as plain numbers (minutes after midnight), so reading them is quick: Yao reads them often.
     static var current: MealTimes {
         get {
             var meals = MealTimes()

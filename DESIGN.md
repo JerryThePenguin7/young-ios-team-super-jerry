@@ -1,8 +1,8 @@
 ---
 version: alpha
-name: Jenny
+name: YaoYao
 description: >-
-  Jenny's look, modeled on the Medications page of the Apple Health app. A calm light gray-blue canvas with
+  YaoYao's look, modeled on the Medications page of the Apple Health app. A calm light gray-blue canvas with
   white cards, a deep green accent (with red and yellow as small accents) and green for "Taken", Health-style Log cards for each meal (before eating, the meal, after eating), white medicine
   cards in groups you can fold, pill counts that go down by themselves, and a floating Liquid Glass scan button at the bottom. Built for older Thai adults who take several
   medicines a day, and for the family members who help them, without looking like a "special" app.
@@ -129,11 +129,11 @@ components:
     rounded: "{rounded.full}"
 ---
 
-# Jenny design system
+# YaoYao design system
 
 ## Overview
 
-Jenny follows the **Medications page of the Apple Health app**, so it should feel just as calm and trustworthy.
+YaoYao follows the **Medications page of the Apple Health app**, so it should feel just as calm and trustworthy.
 The home screen ("ยาของฉัน · Medications") reads top to bottom:
 
 0. **Two big buttons at the top** switch the page: **บันทึกการทานยา · Log** and **ยาของคุณ · Your Medications** (the chosen one filled green). They stay pinned under the navigation bar.
@@ -142,7 +142,7 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 3. **Log ▸ checklist by meal:** one white card per meal: **มื้อเช้า · มื้อกลางวัน · มื้อเย็น · ก่อนนอน**, at the times the user eats
    (`MealTimes`, set in the tutorial and Settings; defaults 07:00, 12:00, 17:30, 21:00). Inside: **ก่อนอาหาร · 06:30 น.** (30 minutes
    before), then a **meal block** in the middle ("🍴 ทานอาหารเช้า · 07:00 น."), then **พร้อมอาหาร** and **หลังอาหาร · 07:15 น.**
-   (15 minutes after). Bedtime has no meal block and never says "หลังอาหาร". Each medicine has a big tick box (and Jenny's summary
+   (15 minutes after). Bedtime has no meal block and never says "หลังอาหาร". Each medicine has a big tick box (and YaoYao's summary
    as bullets under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold
    a medicine to mark it skipped; the round **…** opens the full log sheet, where **tapping a medicine's name** opens it in
    Your Medications. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
@@ -158,21 +158,21 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 5. **Your Medications ▸ the medicines:** white cards in groups by what they're for ("Heart & blood pressure", "Diabetes"…), always shown as a plain list (the swipe stack was removed: people preferred seeing every card). Each card has a read-aloud speaker next to the name. Tap a group's header to fold it. **Edit** deletes medicines.
 6. **How many are left** (this used to be a separate Medicine Storage list): each medicine card shows "เหลือ 24 เม็ด", and the medicine's own screen has a
    **จำนวนยาที่เหลือ · How many are left** card: the count, a bar, about how many days that lasts, the warning level, and a button to set or refill it.
-   Jenny takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets
+   YaoYao takes one dose off each time a dose is logged **Taken** (and puts it back if it's changed). **"Running low"** shows at the level the user sets
    for each medicine (e.g. 10 or 5 left); until they set one, it's about a week's worth.
 7. The disclaimer.
 8. **The scan bar** floats at the bottom in Liquid Glass from the very first launch, where a thumb can reach it: one big green **ถ่ายรูปซองยา · Scan a medicine label** button. Tapping it asks **ถ่ายรูป · Take photo** or **เลือกจากคลังภาพ · Choose from Photos** (with no camera, it goes straight to Photos).
 
 The page is one column on iPhone and iPad (at most 800 pt wide), since the two buttons switch between Log and Your Medications.
 
-**The first time** Jenny opens, a short tutorial (`TutorialView`) explains it in 5 big pages: choose the language, scan, **your meal times** (`MealTimesEditor`), log Taken or Skipped, Reminders and pill counts. It has **Skip**, and Settings can show it again.
+**The first time** YaoYao opens, a short tutorial (`TutorialView`) explains it in 5 big pages: choose the language, scan, **your meal times** (`MealTimesEditor`), log Taken or Skipped, Reminders and pill counts. It has **Skip**, and Settings can show it again.
 **Top left** is the light or dark theme button (`AppearanceMenu`): Automatic, Light (white) or Dark (black). The language is chosen on the first tutorial page or in Settings.
 
 **Who it's for.** Our main users are **older Thai adults (60+)** who take several medicines a day, plus the **family members** who set the app up and check on them.
-We design for them **quietly**: Jenny looks like a normal Apple app, but every detail works for weaker eyes, shakier hands and less confidence with technology:
+We design for them **quietly**: YaoYao looks like a normal Apple app, but every detail works for weaker eyes, shakier hands and less confidence with technology:
 
 - Text is big and grows with the iPhone/iPad text-size setting (Dynamic Type), up to the accessibility sizes.
-  **Settings ▸ ขนาดตัวอักษร** (`TextSize`) sets it for Jenny only: ตามเครื่อง (follows the device, up to AX3), ปกติ, ใหญ่, ใหญ่มาก,
+  **Settings ▸ ขนาดตัวอักษร** (`TextSize`) sets it for YaoYao only: ตามเครื่อง (follows the device, up to AX3), ปกติ, ใหญ่, ใหญ่มาก,
   ใหญ่พิเศษ (AX1) or ใหญ่ที่สุด (AX2), applied with `.dynamicTypeSize` at the root. Things pinned to the screen stop growing
   so the content stays visible: the Log / Your Medications buttons at AX1, the scan bar at AX2, day circles at xxLarge.
 - Main tap targets are **60 pt** tall, and nothing you tap is smaller than **44 pt** (Apple's minimum). Aim for 52 pt or more.
@@ -187,7 +187,7 @@ It never feels babyish or "for old people". Family members use it too, and nobod
 - A review of 74 studies on health apps for older adults recommends large sans-serif text, high contrast, simple taps, labeled buttons, a flat structure with the main functions on the home screen, and audio alongside text.
 - Studies on iPads with people aged 62–84 point to about 18 pt text. Our rows use `.title3` (20 pt) and grow with Dynamic Type.
 - In a study of 1,100 Thai adults aged 45+, people with a chronic disease were *less* likely to want a health app. Fear of mistakes and privacy worries held people back.
-  So Jenny makes every log easy to change, and it says that photos stay on the device.
+  So YaoYao makes every log easy to change, and it says that photos stay on the device.
 - Thai trials found pictograms on medicine labels helped elderly patients take their medicine correctly.
   So every medicine kind and meal instruction gets an SF Symbol, not just words.
 - Apple Health's Medications page is our model: Log cards, "Taken / Skipped", and a Logged list you can change.
@@ -200,7 +200,7 @@ It never feels babyish or "for old people". Family members use it too, and nobod
   - small fills inside cards (`fill`, soft gray-blue)
 
   Never use green tints as card or button backgrounds. They look washed out next to the green accent.
-- **Green** is Jenny's brand (`Theme.accent`, `Theme.accentFill`): the scan button, the chosen home button, pill icons, icons and group headers.
+- **Green** is YaoYao's brand (`Theme.accent`, `Theme.accentFill`): the scan button, the chosen home button, pill icons, icons and group headers.
   Use only **one big filled call to action per screen**: the scan bar on home, and **Taken** or **Done** in the log sheet.
   Green also means taken: the filled **Taken** button (`Theme.greenFill`), ✓ marks and the week-strip circles (`Theme.green`).
 - **Red** (`Theme.red`, `Theme.redFill`) is only for things that need care: **Skipped**, expired, delete. Taken (green) and Skipped (red) are easy to tell apart.
@@ -244,7 +244,7 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken. Under it: "ใช้ยาแล้ว 3 จาก 4 ครั้ง" ("ใช้ยา", not "ทาน": drops and creams aren't eaten). The date on top (with a green ⌄) opens the month calendar |
 | Month calendar | `Views/MonthCalendarSheet.swift` | A popover on iPad, a sheet on iPhone. One white card per month ("ตุลาคม 2569"), scroll up for earlier months (up to a year, from the first medicine). Each day has its ring (`DayRing`); tap a day to see it. Days to come are dimmed |
 | Text size | `Models/TextSize.swift`, `SettingsView.swift` | An inline list in Settings; each choice is drawn at its own size |
-| Read aloud automatically | `SettingsView.swift` (2nd section), `ScanResultView.swift` | `@AppStorage("autoReadAloud")`, on by default: Jenny reads the label aloud right after each photo. The switch is near the top of Settings and under the scan result's "อ่านออกเสียง" button. The speaker buttons always work |
+| Read aloud automatically | `SettingsView.swift` (2nd section), `ScanResultView.swift` | `@AppStorage("autoReadAloud")`, on by default: YaoYao reads the label aloud right after each photo. The switch is near the top of Settings and under the scan result's "อ่านออกเสียง" button. The speaker buttons always work |
 | Meal card (Log) | `Views/MealCard.swift` | A white card per meal: meal name + badge + round **…** (full sheet), then parts in order: ก่อนอาหาร, the meal block (`Theme.fill`, fork and knife), พร้อมอาหาร / at the meal, หลังอาหาร, each with its time. One row per medicine: a 44 pt tick box (green ring), the name, the amount as bullets (`BulletList`, no meal word: the part says it), and alerts (`MedicineAlerts`). Tap = taken; press and hold = Taken / Skipped menu |
 | Meal times | `Views/MealTimesEditor.swift`, `Models/MealTimes.swift` | One time picker per meal and bedtime (24-hour in Thai). In the tutorial and Settings. Changing a time moves every tick with its meal |
 | When needed | `Views/AsNeededCard.swift`, `Views/DoseTimeline.swift` | At the top of Log, or below the meals (a labeled move button; `asNeededAtBottom`). A white card: "ยาเมื่อมีอาการ", then per medicine the name, bullets (incl. "ห่างกันอย่างน้อย 6 ชั่วโมง"), alerts, a timeline on `fill` (doses → now → next allowed), and a full-width green **Taken** button. Too soon → an alert first |
@@ -252,11 +252,11 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 | Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green, grouped by meal ("มื้อเช้า"; "when needed" doses by time). ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a meal for its sheet |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |
 | How many are left | `Views/StockCard.swift`, `Views/StockEditorSheet.swift` | On the medicine's screen. Count left, a green bar (orange when low), days left, the warning level, "Running low" badge, and a set / refill button. The sheet sets or refills the count and the warning level (quick 5 / 10 / 20) |
-| Directions | `Views/DirectionsView.swift` | The label's own words, big and green, under "วิธีใช้ตามฉลาก (ทุกคำ)". English adds Jenny's summary, marked "check it against the label" |
+| Directions | `Views/DirectionsView.swift` | The label's own words, big and green, under "วิธีใช้ตามฉลาก (ทุกคำ)". English adds YaoYao's summary, marked "check it against the label" |
 | Expiry | `Views/ExpiryLabel.swift` | "หมดอายุ 31 ธ.ค. 2570" (Buddhist year in Thai). Expired: red icon and tint; within 30 days: orange. Shown on the card and log sheet only when expired or soon |
 | Same medicine twice | `Views/DuplicateMedicineAlert.swift` | Before saving a medicine that's already saved: "You already have this medicine", with **Add anyway** or **Cancel**. Mentions different strengths |
 | Tutorial | `Views/TutorialView.swift` | First launch only (`hasSeenTutorial`). Big icon, title and words per page, **Next** at the bottom, **Skip** at the top |
-| Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on green), the name with a plain green speaker right next to it (read aloud, no circle), kind and strength, Jenny's summary as bullets (how much, when, meals), alerts (`MedicineAlerts`), and the › arrow centered on the right. The card is split into several links so the speaker can sit inside it |
+| Medicine card | `Views/MedicineCard.swift` | Label photo (or a pill icon on green), the name with a plain green speaker right next to it (read aloud, no circle), kind and strength, YaoYao's summary as bullets (how much, when, meals), alerts (`MedicineAlerts`), and the › arrow centered on the right. The card is split into several links so the speaker can sit inside it |
 | Pill icon | `Views/PillIcon.swift` | SF Symbol for the medicine's kind (tablet, eye drops, inhaler…) on a green circle |
 | Big button | `Views/BigButtonLabel.swift` | 60 pt, full width. `filled: true` for the main action |
 | Theme menu | `Views/AppearanceMenu.swift` | Top left: Automatic, Light (white), Dark (black). Also in Settings |
@@ -265,7 +265,7 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 ## Do's and Don'ts
 
 - **Keep the label's directions word for word** (`Medicine.labelDirections`): the scan result and the medicine's own screen show them in full
-  (`DirectionsView`), and the voice reads them as printed. Short lists (the Log checklist, Your Medications) show Jenny's summary
+  (`DirectionsView`), and the voice reads them as printed. Short lists (the Log checklist, Your Medications) show YaoYao's summary
   as bullet points instead (`summaryBullets`, `BulletList`), e.g. "• พ่นจมูกทั้ง 2 ข้าง ข้างละ 2 ที • วันละ 2 ครั้ง: เช้า เย็น".
   The summary must never drop a detail: "พ่นจมูก 2 ข้าง ข้างละ 2 ที" must never become "พ่นจมูก 2 ครั้ง".
 - **Show what matters before the tick:** expired or expiring soon, running low, and the label's warnings appear under the medicine's
@@ -274,7 +274,7 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
   from the name list ("ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)"), else how it's used ("ยาหยอดตา (Poly)", "ยาพ่นจมูก (Otrivin)"),
   else its group from the rules or the AI ("ยาเบาหวาน (Xyz)"). Thai names like "ฟ้าทะลายโจร" stay as they are.
 - **The envelope's "หมายเหตุ" notes stay out of the Log** (checklist, When needed, log sheet). They're on the medicine's own screen and card.
-- **"When needed" medicines keep their gap:** "ห่างกันอย่างน้อย 6 ชั่วโมง" is always one of their bullets, and Jenny never lets
+- **"When needed" medicines keep their gap:** "ห่างกันอย่างน้อย 6 ชั่วโมง" is always one of their bullets, and YaoYao never lets
   a second dose be logged before the gap without asking.
 - **Bullets are in the main text color** (black, or white in dark mode), not gray, so they're easy to read. The envelope's
   "หมายเหตุ" heading is left out of warnings (`cleanWarnings`); the note itself is kept.

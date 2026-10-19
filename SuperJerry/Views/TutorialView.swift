@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A short welcome the first time Jenny opens: pick a language, then one page each on scanning,
+/// A short welcome the first time Yao opens: pick a language, then one page each on scanning,
 /// your meal times (pill times follow them), logging, and reminders with counting what's left.
 /// Skip it any time, or replay it from Settings.
 struct TutorialView: View {
@@ -64,9 +64,10 @@ struct TutorialView: View {
 
     private var welcomePage: some View {
         TutorialPage(symbol: "pills.fill", color: Theme.accentFill,
-                     title: language("ยินดีต้อนรับสู่ Jenny", "Welcome to Jenny"),
-                     text: language("Jenny อ่านซองยาของคุณ อ่านออกเสียง และช่วยให้คุณทานยาได้ถูกต้อง เลือกภาษาที่ต้องการ",
-                                    "Jenny reads your medicine envelopes, reads them aloud, and helps you take them on time. Choose your language.")) {
+                     title: language("ยินดีต้อนรับสู่ YaoYao", "Welcome to YaoYao"),
+                     logo: "YaoYaoLogo",
+                     text: language("Yao อ่านซองยาของคุณ อ่านออกเสียง และช่วยให้คุณทานยาได้ถูกต้อง เลือกภาษาที่ต้องการ",
+                                    "Yao reads your medicine envelopes, reads them aloud, and helps you take them on time. Choose your language.")) {
             VStack(spacing: 12) {
                 ForEach(AppLanguage.allCases) { option in
                     Button {
@@ -98,18 +99,18 @@ struct TutorialView: View {
     private var scanPage: some View {
         TutorialPage(symbol: "camera.fill", color: Theme.accentFill,
                      title: language("1. ถ่ายรูปซองยา", "1. Scan a medicine envelope"),
-                     text: language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง แล้วเลือก ถ่ายรูป หรือ เลือกจากคลังภาพ ถ่ายฉลากให้เต็มรูปในที่สว่าง Jenny จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
-                                    "Tap the green \"Scan a medicine label\" button at the bottom, then Take photo (or Choose from Photos). Take the photo in good light. Jenny reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
+                     text: language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง แล้วเลือก ถ่ายรูป หรือ เลือกจากคลังภาพ ถ่ายฉลากให้เต็มรูปในที่สว่าง Yao จะอ่านฉลากในเครื่องนี้และอ่านออกเสียง ตรวจดูแล้วแตะ บันทึกยา",
+                                    "Tap the green \"Scan a medicine label\" button at the bottom, then Take photo (or Choose from Photos). Take the photo in good light. Yao reads it on this device and reads it aloud. Check it, then tap Save medicine.")) {
             EmptyView()
         }
     }
 
-    /// When do you eat? Jenny's pill times follow the meals, so nobody has to eat at 8:00 sharp.
+    /// When do you eat? Yao's pill times follow the meals, so nobody has to eat at 8:00 sharp.
     private var mealsPage: some View {
         TutorialPage(symbol: "fork.knife", color: Theme.accentFill,
                      title: language("2. เวลาอาหารของคุณ", "2. When do you eat?"),
-                     text: language("ตั้งเวลาที่คุณทานอาหารแต่ละมื้อและเวลาเข้านอน Jenny จะจัดยาตามมื้อ ยาก่อนอาหารก่อน 30 นาที ยาหลังอาหารหลัง 15 นาที เปลี่ยนได้ทุกเมื่อในการตั้งค่า",
-                                    "Set when you usually eat each meal and go to bed. Jenny puts your medicines around your meals: before-meal ones 30 minutes before, after-meal ones 15 minutes after. Change it any time in Settings.")) {
+                     text: language("ตั้งเวลาที่คุณทานอาหารแต่ละมื้อและเวลาเข้านอน Yao จะจัดยาตามมื้อ ยาก่อนอาหารก่อน 30 นาที ยาหลังอาหารหลัง 15 นาที เปลี่ยนได้ทุกเมื่อในการตั้งค่า",
+                                    "Set when you usually eat each meal and go to bed. Yao puts your medicines around your meals: before-meal ones 30 minutes before, after-meal ones 15 minutes after. Change it any time in Settings.")) {
             VStack(spacing: 8) {
                 MealTimesEditor()
             }
@@ -154,10 +155,10 @@ struct TutorialView: View {
     private var remindersPage: some View {
         TutorialPage(symbol: "bell.fill", color: Theme.accentFill,
                      title: language("4. เตือนและนับยา", "4. Reminders and pill counts"),
-                     text: language("Jenny ใส่เวลาทานยาไว้ในแอปเตือนความจำได้ ในหน้าของยาแต่ละตัว ใส่จำนวนยาที่มี แล้ว Jenny จะนับลดลงทุกครั้งที่ทานและเตือนเมื่อยาใกล้หมด",
-                                    "Jenny can add your pill times to the Reminders app. On each medicine's page, type how many you have: Jenny counts down each time you take one and tells you when it's running low.")) {
-            Label(language("Jenny ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง",
-                           "Jenny is not medical advice. Always check the real label."),
+                     text: language("Yao ใส่เวลาทานยาไว้ในแอปเตือนความจำได้ ในหน้าของยาแต่ละตัว ใส่จำนวนยาที่มี แล้ว Yao จะนับลดลงทุกครั้งที่ทานและเตือนเมื่อยาใกล้หมด",
+                                    "Yao can add your pill times to the Reminders app. On each medicine's page, type how many you have: Yao counts down each time you take one and tells you when it's running low.")) {
+            Label(language("Yao ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง",
+                           "Yao is not medical advice. Always check the real label."),
                   systemImage: "info.circle")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -170,18 +171,29 @@ private struct TutorialPage<Extra: View>: View {
     let symbol: String
     let color: Color
     let title: String
+    /// The app's logo (an image in Assets) instead of the round icon: the welcome page.
+    var logo: String? = nil
     let text: String
     @ViewBuilder let extra: () -> Extra
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                Image(systemName: symbol)
-                    .font(.system(size: 56, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 120, height: 120)
-                    .background(color.gradient, in: Circle())
-                    .accessibilityHidden(true)
+                if let logo {
+                    Image(logo)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
+                        .accessibilityHidden(true)
+                } else {
+                    Image(systemName: symbol)
+                        .font(.system(size: 56, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 120, height: 120)
+                        .background(color.gradient, in: Circle())
+                        .accessibilityHidden(true)
+                }
                 Text(title)
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)

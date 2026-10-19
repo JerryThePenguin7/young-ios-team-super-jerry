@@ -41,8 +41,8 @@ struct MedicineEditorView: View {
                 } header: {
                     Text(language("วิธีใช้ตามฉลาก (ทุกคำ)", "Directions, word for word from the label"))
                 } footer: {
-                    Text(language("Jenny แสดงและอ่านออกเสียงตามนี้ทุกคำ ไม่ย่อ แก้ให้ตรงกับฉลากถ้าอ่านผิด",
-                                  "Jenny shows and reads these exact words, never shortened. Fix them if the camera misread the label."))
+                    Text(language("Yao แสดงและอ่านออกเสียงตามนี้ทุกคำ ไม่ย่อ แก้ให้ตรงกับฉลากถ้าอ่านผิด",
+                                  "Yao shows and reads these exact words, never shortened. Fix them if the camera misread the label."))
                 }
 
                 Section(language("ครั้งละ (ใช้นับยาและเตือน)", "Each time (for counting and reminders)")) {
@@ -70,7 +70,7 @@ struct MedicineEditorView: View {
                 Section {
                     Toggle(language("ใช้เมื่อมีอาการเท่านั้น", "Only when needed"), isOn: $medicine.asNeeded)
                     if medicine.asNeeded {
-                        // "ห่างกันอย่างน้อย 6 ชม.": Jenny shows when the next dose is allowed.
+                        // "ห่างกันอย่างน้อย 6 ชม.": Yao shows when the next dose is allowed.
                         Picker(language("ทานห่างกันอย่างน้อย", "At least this long apart"), selection: $medicine.hoursApart) {
                             Text(language("ไม่ระบุ", "Not set")).tag(Double?.none)
                             ForEach(hourOptions, id: \.self) { hours in
@@ -88,8 +88,8 @@ struct MedicineEditorView: View {
                 } header: {
                     Text(language("เวลาทานยา", "When"))
                 } footer: {
-                    Text(language("Jenny เตือนตามเวลาเหล่านี้ ยาที่ใช้เมื่อมีอาการจะไม่มีการเตือน",
-                                  "Jenny reminds you at these times. \"Only when needed\" medicines have no reminders."))
+                    Text(language("Yao เตือนตามเวลาเหล่านี้ ยาที่ใช้เมื่อมีอาการจะไม่มีการเตือน",
+                                  "Yao reminds you at these times. \"Only when needed\" medicines have no reminders."))
                 }
 
                 Section(language("กลุ่มยา", "Group")) {

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Medicine Storage: how many are left. Jenny takes one dose off each time the user logs Taken,
+/// Medicine Storage: how many are left. Yao takes one dose off each time the user logs Taken,
 /// and puts it back if they change their mind.
 nonisolated extension Medicine {
     /// Creams and other medicines with no count can't be counted.

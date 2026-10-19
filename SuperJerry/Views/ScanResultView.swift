@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// After the camera: Vision reads the label on this device, the Thai rules understand it,
-/// and Jenny shows it big and reads it aloud. Then save it, edit it, or retake the photo.
+/// and Yao shows it big and reads it aloud. Then save it, edit it, or retake the photo.
 struct ScanResultView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -93,7 +93,7 @@ struct ScanResultView: View {
         }
     }
 
-    /// Jenny doesn't know this medicine: ask Core AI (iOS 27) or Apple Intelligence which group it's in.
+    /// Yao doesn't know this medicine: ask Core AI (iOS 27) or Apple Intelligence which group it's in.
     private func groupWithAI(_ reading: LabelReading) async {
         isGrouping = true
         defer { isGrouping = false }
@@ -131,7 +131,7 @@ struct ScanResultView: View {
             }
             if reading.unitGuessed {
                 checkNote(language("ไม่พบหน่วยยา จึงใช้ \"\(medicine.unit)\" ไว้ก่อน โปรดตรวจสอบ",
-                                   "No unit on the label, so Jenny used \"\(Medicine.unitName(medicine.unit, .english))\". Please check it."))
+                                   "No unit on the label, so Yao used \"\(Medicine.unitName(medicine.unit, .english))\". Please check it."))
             }
             if reading.timesGuessed {
                 checkNote(language("เดาเวลาจาก \"วันละ … ครั้ง\" โปรดตรวจสอบ",
@@ -198,7 +198,7 @@ struct ScanResultView: View {
 
     private func notFoundCard(_ scannedText: String) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(language("ไม่พบข้อมูลยาในรูปนี้", "Jenny couldn't find a medicine label"), systemImage: "exclamationmark.triangle.fill")
+            Label(language("ไม่พบข้อมูลยาในรูปนี้", "Yao couldn't find a medicine label"), systemImage: "exclamationmark.triangle.fill")
                 .font(.title3.bold())
                 .foregroundStyle(.orange)
             Text(language("ลองถ่ายใหม่ในที่สว่าง ให้ฉลากเต็มรูป และเอียงเล็กน้อยไม่ให้แสงสะท้อน",
