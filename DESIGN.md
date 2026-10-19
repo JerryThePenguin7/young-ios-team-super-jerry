@@ -274,6 +274,8 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 - **Say what a foreign name is.** In Thai, lists show what the medicine is first, then its name in brackets (`Medicine.title`):
   from the name list ("ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)"), else how it's used ("ยาหยอดตา (Poly)", "ยาพ่นจมูก (Otrivin)"),
   else its group from the rules or the AI ("ยาเบาหวาน (Xyz)"). Thai names like "ฟ้าทะลายโจร" stay as they are.
+  English does the same: "Antibiotic (Dicloxacillin)", "Eye drops (Poly)", "Diabetes medicine (Xyz)"; the name list's kinds
+  are translated in `MedicineKinds`, and a Thai name gets one too ("Sore throat and cold relief (ฟ้าทะลายโจร)").
 - **The envelope's "หมายเหตุ" notes stay out of the Log** (checklist, When needed, log sheet). They're on the medicine's own screen and card.
 - **"When needed" medicines keep their gap:** "ห่างกันอย่างน้อย 6 ชั่วโมง" is always one of their bullets, and YaoYao never lets
   a second dose be logged before the gap without asking.
