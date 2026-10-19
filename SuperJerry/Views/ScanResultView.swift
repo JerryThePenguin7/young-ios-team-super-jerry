@@ -144,6 +144,15 @@ struct ScanResultView: View {
                 } label: {
                     BigButtonLabel(title: language("อ่านออกเสียง", "Read aloud"), symbol: "speaker.wave.2.fill")
                 }
+                // Turn off reading aloud after each photo, right where it happens (also in Settings).
+                Toggle(isOn: $autoReadAloud) {
+                    Label(language("อ่านออกเสียงอัตโนมัติทุกครั้งที่ถ่ายรูป", "Read aloud automatically after each photo"),
+                          systemImage: "speaker.wave.2")
+                        .font(.callout)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .tint(Theme.accent)
+                .padding(.horizontal, 4)
                 if medicine.name.isEmpty {
                     Button {
                         editingMedicine = medicine
