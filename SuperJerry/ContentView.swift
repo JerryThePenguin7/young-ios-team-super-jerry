@@ -28,7 +28,7 @@ struct LogRequest: Identifiable {
     let day: Date
 }
 
-/// A dose ticked before its time (e.g. a dinner medicine at 10:00): Jenny asks before logging it.
+/// A dose ticked before its time (e.g. a dinner medicine at 10:00): Yao asks before logging it.
 struct EarlyTick: Identifiable {
     let id = UUID()
     let medicine: Medicine
@@ -39,7 +39,7 @@ struct EarlyTick: Identifiable {
 /// Home, laid out like the Health app's Medications page. Two big buttons at the top switch between
 /// **Log** (the day and week, then a checklist for each pill time and what's been taken) and
 /// **Your Medications** (every medicine, by group). The red scan button floats at the bottom:
-/// Jenny's main feature, photo → read the label → read aloud → save.
+/// Yao's main feature, photo → read the label → read aloud → save.
 struct ContentView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -145,8 +145,8 @@ struct ContentView: View {
                 }
                 Button(language("ยกเลิก", "Cancel"), role: .cancel) {}
             } message: {
-                Text(language("Jenny ต้องใช้กล้องเพื่ออ่านฉลากยา เปิดได้ที่ การตั้งค่า ▸ Jenny ▸ กล้อง",
-                              "Jenny needs the camera to read your medicine labels. Turn it on in Settings ▸ Jenny ▸ Camera."))
+                Text(language("Yao ต้องใช้กล้องเพื่ออ่านฉลากยา เปิดได้ที่ การตั้งค่า ▸ YaoYao ▸ กล้อง",
+                              "Yao needs the camera to read your medicine labels. Turn it on in Settings ▸ YaoYao ▸ Camera."))
             }
             .confirmationDialog(language("ลบยานี้?", "Delete this medicine?"),
                                 isPresented: deleteDialogShown, titleVisibility: .visible,
@@ -178,8 +178,8 @@ struct ContentView: View {
                     yourMedications
                 }
 
-                Label(language("Jenny ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
-                               "Jenny helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device."),
+                Label(language("Yao ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
+                               "Yao helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device."),
                       systemImage: "info.circle")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -388,8 +388,8 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(language("เตือนในแอปเตือนความจำ", "Remind me in Reminders"))
                         .font(.headline)
-                    Text(language("Jenny จะใส่เวลาทานยาทุกเวลาไว้ในแอปเตือนความจำของ Apple",
-                                  "Jenny adds each pill time to Apple's Reminders app."))
+                    Text(language("Yao จะใส่เวลาทานยาทุกเวลาไว้ในแอปเตือนความจำของ Apple",
+                                  "Yao adds each pill time to Apple's Reminders app."))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

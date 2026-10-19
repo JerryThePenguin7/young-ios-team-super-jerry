@@ -77,7 +77,7 @@ nonisolated enum TimeSlot: String, CaseIterable, Codable, Hashable {
         }
     }
 
-    /// Older versions of Jenny used fixed times (8:00, 12:00, 18:00, 21:00). Which slot was this hour?
+    /// Older versions of Yao used fixed times (8:00, 12:00, 18:00, 21:00). Which slot was this hour?
     static func legacy(hour: Int) -> TimeSlot? {
         switch hour {
         case 8: .morning

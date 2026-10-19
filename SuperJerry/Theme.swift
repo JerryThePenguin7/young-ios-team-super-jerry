@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Jenny's colors. Each has a light and a dark version in Assets.xcassets, so the app still looks right in dark mode.
+/// Yao's colors. Each has a light and a dark version in Assets.xcassets, so the app still looks right in dark mode.
 /// Green first, with red and yellow as small accents (the team's reference: a Thai public-health app's green, red and yellow).
 /// Neutral gray-blue and white carry the layout (see DESIGN.md). Every text color passes WCAG AA (4.5:1) on its background.
 enum Theme {

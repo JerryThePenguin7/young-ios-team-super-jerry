@@ -1,6 +1,6 @@
 import Foundation
 
-/// One medicine in Jenny's name list (medicine-names.json).
+/// One medicine in Yao's name list (medicine-names.json).
 nonisolated struct MedicineNameEntry: Codable, Hashable {
     /// Shown in the app, e.g. "MAWANG" or "Amlodipine".
     var name: String
@@ -23,7 +23,7 @@ nonisolated struct NameMatch {
     var distance: Int
 }
 
-/// Jenny's medicine name list: common medicines in Thai hospitals, Thai herbal medicines from the national list,
+/// Yao's medicine name list: common medicines in Thai hospitals, Thai herbal medicines from the national list,
 /// and eye drops, creams and inhalers. Matching it against the label finds names the rules can't
 /// (e.g. "MAWANG", no "mg" printed) and fixes OCR spelling mistakes. Grow it with tools/tmt_to_medicine_names.py.
 nonisolated enum MedicineNames {

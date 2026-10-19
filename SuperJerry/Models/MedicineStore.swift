@@ -6,7 +6,7 @@ import Observation
 final class MedicineStore {
     private(set) var medicines: [Medicine] = []
     private(set) var records: [DoseRecord] = []
-    /// Keep Jenny's medicines in Apple's Reminders app.
+    /// Keep Yao's medicines in Apple's Reminders app.
     var remindersEnabled = false
     /// When the user eats. Pill times follow these (`Medicine.doseTime(for:)`). Change them with `setMealTimes`.
     private(set) var mealTimes = MealTimes.current
@@ -30,7 +30,7 @@ final class MedicineStore {
     // MARK: Editing medicines
 
     /// A saved medicine that's the same as this one: the same name (ignoring capitals, spaces and the
-    /// Thai name in brackets), or two names for the same medicine in Jenny's list (e.g. a brand and its generic).
+    /// Thai name in brackets), or two names for the same medicine in Yao's list (e.g. a brand and its generic).
     func duplicate(of medicine: Medicine) -> Medicine? {
         let key = MedicineNames.matchKey(medicine.displayName(.english))
         guard !medicine.name.isEmpty, !key.isEmpty else { return nil }
@@ -119,7 +119,7 @@ final class MedicineStore {
         rekeyRecords()
     }
 
-    /// Rewrites Jenny's reminders, e.g. after the user switches between Thai and English.
+    /// Rewrites Yao's reminders, e.g. after the user switches between Thai and English.
     func refreshReminders() {
         guard remindersEnabled else { return }
         let current = medicines
@@ -143,7 +143,7 @@ final class MedicineStore {
 
         let ungrouped = medicines.filter { $0.group == nil }
         guard !ungrouped.isEmpty else { return }
-        // If no AI could group it, it stays ungrouped (shown under "อื่น ๆ") and Jenny tries again next launch.
+        // If no AI could group it, it stays ungrouped (shown under "อื่น ๆ") and Yao tries again next launch.
         Task {
             for medicine in ungrouped {
                 if let result = await MedicineGrouper.group(for: medicine) {
@@ -232,7 +232,7 @@ final class MedicineStore {
         save()
     }
 
-    /// "Running low" at this many left. nil goes back to Jenny's suggestion (about a week's worth).
+    /// "Running low" at this many left. nil goes back to Yao's suggestion (about a week's worth).
     func setLowAt(_ level: Double?, for medicineID: UUID) {
         guard let index = medicines.firstIndex(where: { $0.id == medicineID }) else { return }
         medicines[index].lowAt = level.map { max($0, 0) }
@@ -339,7 +339,7 @@ final class MedicineStore {
 
     // MARK: Reminders
 
-    /// Applies `remindersEnabled`: adds Jenny's medicines to Apple Reminders, or takes them out.
+    /// Applies `remindersEnabled`: adds Yao's medicines to Apple Reminders, or takes them out.
     /// nil when reminders were turned off.
     func applyReminderSetting() async -> AppleReminders.Result? {
         defer { save() }
@@ -370,7 +370,7 @@ final class MedicineStore {
         // Keep 60 days of ticks so the file stays small.
         let cutoff = Date().addingTimeInterval(-60 * 24 * 60 * 60)
         records = saved.records.filter { $0.day > cutoff }
-        // Turned on in an older version (Jenny's own notifications)? Ask again for Apple Reminders.
+        // Turned on in an older version (Yao's own notifications)? Ask again for Apple Reminders.
         remindersEnabled = saved.remindersEnabled && AppleReminders.hasAccess
         upgradeOldRecords()
     }
@@ -382,7 +382,7 @@ final class MedicineStore {
             let data = try JSONEncoder().encode(saved)
             try data.write(to: fileURL, options: .atomic)
         } catch {
-            print("Jenny couldn't save: \(error)")
+            print("YaoYao couldn't save: \(error)")
         }
     }
 }

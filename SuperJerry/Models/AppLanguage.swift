@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The app's language. Jenny shows one language at a time: all Thai or all English, never both mixed.
+/// The app's language. Yao shows one language at a time: all Thai or all English, never both mixed.
 /// Pick it in the globe menu on the home screen or in Settings.
 nonisolated enum AppLanguage: String, CaseIterable, Identifiable {
     case thai = "th"

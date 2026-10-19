@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// How big Jenny's text is, for older eyes. Picked in Settings. "ตามเครื่อง" follows the iPad's own
-/// text size (Settings ▸ Display & Brightness ▸ Text Size); the others set it for Jenny only.
-/// The biggest sizes are capped where Jenny's screens still fit (wrapping, never cut off).
+/// How big Yao's text is, for older eyes. Picked in Settings. "ตามเครื่อง" follows the iPad's own
+/// text size (Settings ▸ Display & Brightness ▸ Text Size); the others set it for Yao only.
+/// The biggest sizes are capped where Yao's screens still fit (wrapping, never cut off).
 nonisolated enum TextSize: String, CaseIterable, Identifiable {
     case system, normal, large, larger, extraLarge, largest
 
@@ -10,7 +10,7 @@ nonisolated enum TextSize: String, CaseIterable, Identifiable {
 
     static let storageKey = "textSize"
 
-    /// The sizes the app may use. One size sets it; `system` follows the device, up to the biggest Jenny supports.
+    /// The sizes the app may use. One size sets it; `system` follows the device, up to the biggest Yao supports.
     var range: ClosedRange<DynamicTypeSize> {
         switch self {
         case .system: .xSmall ... .accessibility3

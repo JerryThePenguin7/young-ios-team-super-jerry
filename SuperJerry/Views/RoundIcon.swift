@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The round gray button look used across Jenny: a red symbol (+, pencil, speaker…) on a soft gray circle.
+/// The round gray button look used across Yao: a red symbol (+, pencil, speaker…) on a soft gray circle.
 /// One size everywhere (`Theme.iconButton`), so every round button lines up.
 /// Use it as a button's label, or on its own inside a card that is itself the button.
 struct RoundIcon: View {

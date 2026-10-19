@@ -138,7 +138,7 @@ struct DoseLogSheet: View {
                         .font(.headline)
                         .foregroundStyle(doseLineColor(choice))
                         .fixedSize(horizontal: false, vertical: true)
-                    // In English the line above is Jenny's summary, so show the label's own words too.
+                    // In English the line above is Yao's summary, so show the label's own words too.
                     if language == .english, choice == nil, let directions = medicine.directions {
                         Text(directions)
                             .font(.callout)
@@ -236,7 +236,7 @@ struct DoseLogSheet: View {
         case .skipped:
             return language("ข้ามยานี้", "Skipped")
         case nil:
-            // Thai: the label's own words. English: Jenny's summary (the label's words are shown below it).
+            // Thai: the label's own words. English: Yao's summary (the label's words are shown below it).
             return medicine.instruction(language)
         }
     }

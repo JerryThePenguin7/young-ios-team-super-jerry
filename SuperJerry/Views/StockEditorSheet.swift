@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// Set how many of a medicine are left (e.g. after picking up a refill at the pharmacy),
-/// and at how many left Jenny should say "Running low".
+/// and at how many left Yao should say "Running low".
 struct StockEditorSheet: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -46,8 +46,8 @@ struct StockEditorSheet: View {
                 } header: {
                     Text(language("ตอนนี้มียาเหลือเท่าไร", "How many do you have now?"))
                 } footer: {
-                    Text(language("ทุกครั้งที่บันทึกว่า ทานแล้ว Jenny จะลดจำนวนลงตามขนาดยา (\(medicine.doseText(.thai)))",
-                                  "Each time you log Taken, Jenny takes off one dose (\(medicine.doseText(.english)))."))
+                    Text(language("ทุกครั้งที่บันทึกว่า ทานแล้ว Yao จะลดจำนวนลงตามขนาดยา (\(medicine.doseText(.thai)))",
+                                  "Each time you log Taken, Yao takes off one dose (\(medicine.doseText(.english)))."))
                 }
 
                 Section {
@@ -59,8 +59,8 @@ struct StockEditorSheet: View {
                 } header: {
                     Text(language("เตือนเมื่อยาใกล้หมด", "Warn me when it's running low"))
                 } footer: {
-                    Text(language("Jenny จะขึ้นว่า \"ใกล้หมด\" เมื่อเหลือเท่านี้หรือน้อยกว่า ตั้งให้ยาแต่ละตัวต่างกันได้",
-                                  "Jenny shows \"Running low\" when this many or fewer are left. Each medicine can have its own number."))
+                    Text(language("Yao จะขึ้นว่า \"ใกล้หมด\" เมื่อเหลือเท่านี้หรือน้อยกว่า ตั้งให้ยาแต่ละตัวต่างกันได้",
+                                  "Yao shows \"Running low\" when this many or fewer are left. Each medicine can have its own number."))
                 }
 
                 if medicine.stock != nil {

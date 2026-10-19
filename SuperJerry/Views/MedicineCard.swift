@@ -107,7 +107,7 @@ struct MedicineCard: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(medicine.formLine(language))
                 .foregroundStyle(.secondary)
-            // Jenny's summary as bullets: how much, when, meals. The label's exact words are on the detail screen.
+            // Yao's summary as bullets: how much, when, meals. The label's exact words are on the detail screen.
             BulletList(items: medicine.summaryBullets(language))
             if medicine.stock != nil && medicine.canCountStock {
                 Label(medicine.stockText(language), systemImage: "shippingbox")

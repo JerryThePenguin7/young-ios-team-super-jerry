@@ -19,12 +19,12 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
     var addedAt = Date()
     var route: String?          // how it's used: "หยอดตา", "ทาบาง ๆ", "สูด"… nil = by mouth
     var amountMax: Double?      // "ครั้งละ 1-2 เม็ด" → amount 1, amountMax 2
-    var group: MedicineGroup?   // what it's for; nil until Jenny (or the AI) has grouped it
+    var group: MedicineGroup?   // what it's for; nil until Yao (or the AI) has grouped it
     var stock: Double?          // how many are left (shown on the medicine's screen); nil = not counted
     var stockFull: Double?      // how many there were at the last refill, for the bar
     var lowAt: Double?          // "Running low" at this many left, set by the user; nil = about a week's worth
     /// How to use it, word for word as printed on the label ("พ่นจมูก 2 ข้าง ข้างละ 2 ที").
-    /// Shown and read aloud instead of Jenny's own summary, because a summary can drop something important.
+    /// Shown and read aloud instead of Yao's own summary, because a summary can drop something important.
     var labelDirections: String?
     var perSide: Bool?          // "ข้างละ 2 ที": the amount is for each side (each eye, ear or nostril)
     var expiresOn: Date?        // the expiry date printed on the label
@@ -42,7 +42,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
                  asNeeded: false, warnings: [], scannedText: "", photoFile: nil)
     }
 
-    /// The clock times Jenny reminds at, from the user's meal times. "When needed" medicines have none.
+    /// The clock times Yao reminds at, from the user's meal times. "When needed" medicines have none.
     var times: [DoseTime] { times(meals: .current) }
 
     func times(meals: MealTimes) -> [DoseTime] {
@@ -76,7 +76,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
         return first
     }
 
-    /// Jenny's short summary: "ครั้งละ 1 เม็ด", "พ่นจมูกทั้ง 2 ข้าง ข้างละ 2 ที", or "ทาบาง ๆ" for creams (no count).
+    /// Yao's short summary: "ครั้งละ 1 เม็ด", "พ่นจมูกทั้ง 2 ข้าง ข้างละ 2 ที", or "ทาบาง ๆ" for creams (no count).
     /// When the label's own words are known (`labelDirections`), show those instead.
     var amountLine: String {
         guard !unit.isEmpty else { return route ?? "ใช้ตามแพทย์สั่ง" }
@@ -89,7 +89,7 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
         amount * (perSide == true ? 2 : 1)
     }
 
-    /// The label's own words, if Jenny read them.
+    /// The label's own words, if Yao read them.
     var directions: String? {
         guard let labelDirections, !labelDirections.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
         return labelDirections
@@ -220,7 +220,7 @@ nonisolated enum DoseStatus: Hashable {
         return .upcoming
     }
 
-    /// Before "Time to take" (e.g. a dinner medicine ticked at 10:00): probably a slip of the finger, so Jenny asks first.
+    /// Before "Time to take" (e.g. a dinner medicine ticked at 10:00): probably a slip of the finger, so Yao asks first.
     static func isTooEarly(time: DoseTime, day: Date, now: Date) -> Bool {
         now.timeIntervalSince(time.date(on: day)) / 60 < -Double(dueMinutesBefore)
     }
