@@ -344,6 +344,8 @@ struct ContentView: View {
     private func asNeededCard(_ medicines: [Medicine], day: Date, now: Date, scroll: ScrollViewProxy) -> some View {
         AsNeededCard(medicines: medicines, now: now, isAtBottom: asNeededAtBottom) { medicine in
             withAnimation(.snappy) { store.logAsNeeded(medicine) }
+        } undo: { medicine in
+            withAnimation(.snappy) { store.undoLastDose(of: medicine.id, since: Calendar.current.startOfDay(for: now)) }
         } move: {
             withAnimation(.snappy) { asNeededAtBottom.toggle() }
             Task {

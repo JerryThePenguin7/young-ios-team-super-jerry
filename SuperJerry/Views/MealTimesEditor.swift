@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// "When do you eat?": one time picker per meal and for bedtime. Yao's pill times follow these:
-/// ก่อนอาหาร 30 minutes before, หลังอาหาร 15 minutes after. Used in the tutorial and in Settings.
+/// ก่อนอาหาร 30 minutes before (Settings can change it), หลังอาหาร 15 minutes after. Used in the tutorial and in Settings.
 /// Rows only, so it fits in a Settings `Section` or in a card.
 struct MealTimesEditor: View {
     @Environment(MedicineStore.self) private var store
