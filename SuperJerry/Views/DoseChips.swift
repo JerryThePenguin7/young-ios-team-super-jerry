@@ -8,6 +8,8 @@ struct DoseChips: View {
     let medicine: Medicine
     /// nil for a medicine that isn't saved yet: the chips only show the times.
     var now: Date?
+    /// A chip tapped before its time (e.g. dinner at 10:00), waiting for "yes, I took it".
+    @State private var earlySlot: TimeSlot?
 
     var body: some View {
         if medicine.asNeeded {
@@ -25,7 +27,12 @@ struct DoseChips: View {
                     if let now {
                         let status = store.status(of: medicine, at: medicine.doseTime(for: slot), now: now)
                         Button {
-                            store.toggleTaken(medicine, at: slot, now: now)
+                            // Not time yet? Ask first: it may be a slip of the finger.
+                            if !status.isLogged && store.isTooEarly(medicine, at: slot, on: now, now: now) {
+                                earlySlot = slot
+                            } else {
+                                store.toggleTaken(medicine, at: slot, now: now)
+                            }
                         } label: {
                             chip(for: slot, status: status)
                         }
@@ -38,7 +45,19 @@ struct DoseChips: View {
                     }
                 }
             }
+            .alert(language("ยังไม่ถึงเวลา", "It's not time yet"), isPresented: earlySlotShown, presenting: earlySlot) { slot in
+                Button(language("ยังไม่ได้\(medicine.thaiVerb)", "Not yet"), role: .cancel) {}
+                Button(language("\(medicine.thaiVerb)แล้ว", "Yes, I took it")) {
+                    store.toggleTaken(medicine, at: slot, now: Date())
+                }
+            } message: { slot in
+                Text(medicine.earlyTickMessage(at: slot, now: Date(), language))
+            }
         }
+    }
+
+    private var earlySlotShown: Binding<Bool> {
+        Binding(get: { earlySlot != nil }, set: { if !$0 { earlySlot = nil } })
     }
 
     /// The narrowest a chip gets. Grows with the text size, so big text gets fewer chips per row.

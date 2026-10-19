@@ -49,10 +49,10 @@ The full plan (facts, pitch script, judge Q&A) is in [docs/pill-reader/plan.md](
      Tap the date itself for a **calendar by month** to look further back.
    - **Log ▸ by meal:** one card per meal (Breakfast, Lunch, Dinner, Bedtime) at the times you eat (set in the tutorial or Settings).
      Before-meal medicines sit above the meal (30 minutes before), after-meal ones below it (15 minutes after).
-     **Tick the box** next to a medicine when you've taken it. Press and hold to skip it; **…** opens the full sheet
+     **Tick the box** next to a medicine when you've taken it (ticking long before its time asks "Did you really take it?" first). Press and hold to skip it; **…** opens the full sheet
      (Log All as Taken, Skipped), where tapping a medicine's name opens it in Your Medications.
      A card says **Time to take** when it's due and **Late** if it was missed.
-   - **When needed (ยาเมื่อมีอาการ)**, at the top: medicines with no set time, like Paracetamol. Tap **Taken** when you take one. Jenny shows
+   - **When needed (ยาเมื่อมีอาการ)**, at the top (move it below the meals with its button): medicines with no set time, like Paracetamol. Tap **Taken** when you take one. Jenny shows
      how many times today and, from the label ("ห่างกันอย่างน้อย 6 ชม."), when the next dose is allowed. Too soon? It asks first.
    - **Taken:** what you took (✓) or skipped, and how long ago. Tap a medicine to undo it.
    - **Your Medications ▸** each medicine with its label photo, kind and strength, and schedule, in groups (Heart,

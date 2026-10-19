@@ -146,7 +146,10 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
    as bullets under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold
    a medicine to mark it skipped; the round **…** opens the full log sheet, where **tapping a medicine's name** opens it in
    Your Medications. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
-   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, at the top, above breakfast: medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
+   - **Ticking before the time** (more than 30 minutes early, e.g. a dinner medicine at 10:00) asks first: "ยังไม่ถึงเวลา ·
+     Amlodipine ต้องทานหลังอาหารเย็น เวลา 17:45 น. ตอนนี้ 10:00 น. ทานแล้วจริงหรือไม่" (**ยังไม่ได้ทาน** / **ทานแล้ว**). Same on the medicine page chips.
+   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, at the top, above breakfast. Its **ย้ายไปไว้ใต้มื้ออาหาร / ย้ายขึ้นไว้บนสุด** button moves it
+     below the meals and back (remembered, and the page scrolls to follow it): medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
      Each has a **timeline** (`DoseTimeline`): ✓ each dose in the last 24 hours ("10:15 น. ทานแล้ว · 3 ชม. ที่แล้ว"), then
      🕒 "ตอนนี้ 13:15 น. · รออีก 3 ชม.", then ⏳ "16:15 น. ทานได้อีกครั้ง" (green line between doses, orange while waiting).
      Below it, a big green **ทานแล้ว · Taken** button. Logging it too soon asks first ("ยังไม่ครบเวลา").
@@ -241,9 +244,10 @@ Pill icons use a soft green gradient (`Theme.accentFill.gradient`).
 | Week strip | `Views/WeekStrip.swift` | 4 weeks you can page through. Each day's circle fills with the share of doses taken. Under it: "ใช้ยาแล้ว 3 จาก 4 ครั้ง" ("ใช้ยา", not "ทาน": drops and creams aren't eaten). The date on top (with a green ⌄) opens the month calendar |
 | Month calendar | `Views/MonthCalendarSheet.swift` | A popover on iPad, a sheet on iPhone. One white card per month ("ตุลาคม 2569"), scroll up for earlier months (up to a year, from the first medicine). Each day has its ring (`DayRing`); tap a day to see it. Days to come are dimmed |
 | Text size | `Models/TextSize.swift`, `SettingsView.swift` | An inline list in Settings; each choice is drawn at its own size |
+| Read aloud automatically | `SettingsView.swift` (2nd section), `ScanResultView.swift` | `@AppStorage("autoReadAloud")`, on by default: Jenny reads the label aloud right after each photo. The switch is near the top of Settings and under the scan result's "อ่านออกเสียง" button. The speaker buttons always work |
 | Meal card (Log) | `Views/MealCard.swift` | A white card per meal: meal name + badge + round **…** (full sheet), then parts in order: ก่อนอาหาร, the meal block (`Theme.fill`, fork and knife), พร้อมอาหาร / at the meal, หลังอาหาร, each with its time. One row per medicine: a 44 pt tick box (green ring), the name, the amount as bullets (`BulletList`, no meal word: the part says it), and alerts (`MedicineAlerts`). Tap = taken; press and hold = Taken / Skipped menu |
 | Meal times | `Views/MealTimesEditor.swift`, `Models/MealTimes.swift` | One time picker per meal and bedtime (24-hour in Thai). In the tutorial and Settings. Changing a time moves every tick with its meal |
-| When needed | `Views/AsNeededCard.swift`, `Views/DoseTimeline.swift` | A white card in Log: "ยาเมื่อมีอาการ", then per medicine the name, bullets (incl. "ห่างกันอย่างน้อย 6 ชั่วโมง"), alerts, a timeline on `fill` (doses → now → next allowed), and a full-width green **Taken** button. Too soon → an alert first |
+| When needed | `Views/AsNeededCard.swift`, `Views/DoseTimeline.swift` | At the top of Log, or below the meals (a labeled move button; `asNeededAtBottom`). A white card: "ยาเมื่อมีอาการ", then per medicine the name, bullets (incl. "ห่างกันอย่างน้อย 6 ชั่วโมง"), alerts, a timeline on `fill` (doses → now → next allowed), and a full-width green **Taken** button. Too soon → an alert first |
 | Log sheet | `Views/DoseLogSheet.swift` | "ยามื้อเช้า": "Log All as Taken", then per medicine "หลังอาหารเช้า · 07:15 น." and **Skipped / Taken**, then **Done**. The name (with a green ›) saves the choices, closes the sheet and opens the medicine in Your Medications |
 | Taken card | `Views/LoggedCard.swift` | "ทานแล้ว · Taken" in green, grouped by meal ("มื้อเช้า"; "when needed" doses by time). ✓ (green) or ⊖ (struck through) per medicine, "3 hr. ago". Tap a row to undo, tap a meal for its sheet |
 | Medicine groups | `ContentView.swift` (`sectionHeader`) | Tap the header to fold or unfold. Shows the count and a chevron (⌄ open, › closed) |

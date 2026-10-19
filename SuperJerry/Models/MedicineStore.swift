@@ -187,6 +187,11 @@ final class MedicineStore {
             .sorted()
     }
 
+    /// Ticking this dose now would be before its time (more than 30 minutes early): ask first.
+    func isTooEarly(_ medicine: Medicine, at slot: TimeSlot, on day: Date, now: Date) -> Bool {
+        DoseStatus.isTooEarly(time: medicine.doseTime(for: slot, meals: mealTimes), day: day, now: now)
+    }
+
     /// One meal's dose of a medicine, on one day.
     func record(for medicine: Medicine, at slot: TimeSlot, on day: Date) -> DoseRecord? {
         record(for: medicine.id, at: medicine.doseTime(for: slot), on: day)

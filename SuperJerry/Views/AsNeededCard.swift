@@ -4,12 +4,20 @@ import SwiftUI
 /// They have no set time, so each one has its own big **Taken** button instead of a tick box.
 /// A timeline (`DoseTimeline`) shows when it was taken and, if the label gives a gap, when it can be taken again.
 /// Logging it again before the gap is over asks first, so nobody takes too much by mistake.
+/// It sits at the top of the Log; a button moves it below the meals (and back), for people who'd rather see meals first.
 struct AsNeededCard: View {
+    /// For scrolling to the card after it moves.
+    static let scrollID = "asNeededCard"
+
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
     let medicines: [Medicine]
     let now: Date
+    /// true when the user moved it below the meals.
+    var isAtBottom = false
     let take: (Medicine) -> Void
+    /// Moves the card to the top of the Log or below the meals. nil: no button.
+    var move: (() -> Void)? = nil
     /// "…": the full log sheet for these medicines.
     let more: () -> Void
 
@@ -30,6 +38,7 @@ struct AsNeededCard: View {
                 Spacer(minLength: 8)
                 moreButton
             }
+            if let move { moveButton(move) }
             ForEach(medicines) { medicine in
                 if medicine.id != medicines.first?.id { Divider() }
                 row(medicine)
@@ -101,6 +110,22 @@ struct AsNeededCard: View {
 
     private var tooSoonShown: Binding<Bool> {
         Binding(get: { tooSoon != nil }, set: { if !$0 { tooSoon = nil } })
+    }
+
+    /// "ย้ายไปไว้ใต้มื้ออาหาร" or "ย้ายขึ้นไว้บนสุด": words, not just an arrow, so it's clear what it does.
+    private func moveButton(_ move: @escaping () -> Void) -> some View {
+        Button(action: move) {
+            Label(isAtBottom ? language("ย้ายขึ้นไว้บนสุด", "Move to the top") : language("ย้ายไปไว้ใต้มื้ออาหาร", "Move below the meals"),
+                  systemImage: isAtBottom ? "arrow.up.to.line" : "arrow.down.to.line")
+                .font(.subheadline.bold())
+                .foregroundStyle(Theme.accent)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 44)
+                .background(Theme.fill, in: Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.pressable)
+        .accessibilityHint(language("ย้ายการ์ดยาเมื่อมีอาการในหน้านี้", "Moves this card on the page"))
     }
 
     private var moreButton: some View {

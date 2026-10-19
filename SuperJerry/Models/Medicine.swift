@@ -208,13 +208,21 @@ nonisolated enum DoseStatus: Hashable {
         }
     }
 
+    /// "Time to take" starts this many minutes before the dose.
+    static let dueMinutesBefore = 30
+
     /// Due from 30 minutes before the time; missed once it's more than 60 minutes late.
     static func make(time: DoseTime, record: DoseRecord?, day: Date, now: Date) -> DoseStatus {
         if let record { return record.isSkipped ? .skipped : .taken(at: record.takenAt) }
         let minutesLate = now.timeIntervalSince(time.date(on: day)) / 60
         if minutesLate > 60 { return .missed }
-        if minutesLate >= -30 { return .dueNow }
+        if minutesLate >= -Double(dueMinutesBefore) { return .dueNow }
         return .upcoming
+    }
+
+    /// Before "Time to take" (e.g. a dinner medicine ticked at 10:00): probably a slip of the finger, so Jenny asks first.
+    static func isTooEarly(time: DoseTime, day: Date, now: Date) -> Bool {
+        now.timeIntervalSince(time.date(on: day)) / 60 < -Double(dueMinutesBefore)
     }
 }
 

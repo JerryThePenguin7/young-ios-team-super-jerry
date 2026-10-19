@@ -28,6 +28,14 @@ struct LogRequest: Identifiable {
     let day: Date
 }
 
+/// A dose ticked before its time (e.g. a dinner medicine at 10:00): Jenny asks before logging it.
+struct EarlyTick: Identifiable {
+    let id = UUID()
+    let medicine: Medicine
+    let slot: TimeSlot
+    let day: Date
+}
+
 /// Home, laid out like the Health app's Medications page. Two big buttons at the top switch between
 /// **Log** (the day and week, then a checklist for each pill time and what's been taken) and
 /// **Your Medications** (every medicine, by group). The red scan button floats at the bottom:
@@ -60,6 +68,10 @@ struct ContentView: View {
     /// A name tapped in the "…" sheet: opened in Your Medications once the sheet has closed.
     @State private var medicineToOpen: UUID?
     @State private var medicineToDelete: Medicine?
+    /// "When needed" below the meals instead of at the top. The user moves it with the card's button.
+    @AppStorage("asNeededAtBottom") private var asNeededAtBottom = false
+    /// A tick before its time, waiting for "yes, I took it".
+    @State private var earlyTick: EarlyTick?
     @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
     @State private var showingTutorial = false
 
@@ -152,12 +164,13 @@ struct ContentView: View {
     private func content(now: Date) -> some View {
         let day = selectedDay ?? Calendar.current.startOfDay(for: now)
 
-        return ScrollView {
+        return ScrollViewReader { scroll in
+            ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 switch tab {
                 case .log:
                     WeekStrip(selectedDay: dayBinding(now: now), now: now)
-                    logSection(day: day, now: now)
+                    logSection(day: day, now: now, scroll: scroll)
                     if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
                         remindersCard
                     }
@@ -174,16 +187,17 @@ struct ContentView: View {
             .padding()
             .frame(maxWidth: 800)
             .frame(maxWidth: .infinity)
+            }
+            // The two big buttons stay at the top while the page scrolls.
+            .safeAreaInset(edge: .top) {
+                tabButtons
+            }
+            // The camera, from the very first launch.
+            .safeAreaInset(edge: .bottom) {
+                ScanBar(photoItem: $photoItem, takePhoto: openCamera)
+            }
+            .sensoryFeedback(.success, trigger: store.records.count)
         }
-        // The two big buttons stay at the top while the page scrolls.
-        .safeAreaInset(edge: .top) {
-            tabButtons
-        }
-        // The camera, from the very first launch.
-        .safeAreaInset(edge: .bottom) {
-            ScanBar(photoItem: $photoItem, takePhoto: openCamera)
-        }
-        .sensoryFeedback(.success, trigger: store.records.count)
     }
 
     /// "Log" and "Your Medications": two big buttons that switch the page, the chosen one filled red.
@@ -244,7 +258,7 @@ struct ContentView: View {
 
     // MARK: The camera and the log
 
-    private func logSection(day: Date, now: Date) -> some View {
+    private func logSection(day: Date, now: Date, scroll: ScrollViewProxy) -> some View {
         let calendar = Calendar.current
         let isToday = calendar.isDate(day, inSameDayAs: now)
         let isFuture = !isToday && day > now
@@ -277,17 +291,19 @@ struct ContentView: View {
             }
 
             // Medicines with no set time, like paracetamol, come first: they can be needed at any moment.
-            if isToday && !asNeeded.isEmpty {
-                AsNeededCard(medicines: asNeeded, now: now) { medicine in
-                    withAnimation(.snappy) { store.logAsNeeded(medicine) }
-                } more: {
-                    logRequest = LogRequest(kind: .asNeeded, day: day)
-                }
+            // The user can move them below the meals.
+            if isToday && !asNeeded.isEmpty && !asNeededAtBottom {
+                asNeededCard(asNeeded, day: day, now: now, scroll: scroll)
             }
 
             ForEach(toLog) { meal in
                 MealCard(meal: meal, status: isToday ? status(of: meal, now: now) : .upcoming,
                          canLog: !isFuture) { medicine in
+                    // Not time yet (a dinner medicine at 10:00)? Ask first: it may be a slip of the finger.
+                    if store.isTooEarly(medicine, at: meal.slot, on: day, now: now) {
+                        earlyTick = EarlyTick(medicine: medicine, slot: meal.slot, day: day)
+                        return
+                    }
                     // Today: taken now. An earlier day: taken at the time it was due.
                     let takenAt = isToday ? now : medicine.doseTime(for: meal.slot).date(on: day)
                     withAnimation(.snappy) { store.setLog(.taken(at: takenAt), for: medicine, at: meal.slot, on: day) }
@@ -296,6 +312,10 @@ struct ContentView: View {
                 } more: {
                     logRequest = LogRequest(kind: .meal(meal.slot), day: day)
                 }
+            }
+
+            if isToday && !asNeeded.isEmpty && asNeededAtBottom {
+                asNeededCard(asNeeded, day: day, now: now, scroll: scroll)
             }
 
             if !logged.isEmpty {
@@ -309,6 +329,35 @@ struct ContentView: View {
                 }
             }
         }
+        // A tick before its time: "Amlodipine ต้องทานหลังอาหารเย็น เวลา 17:45 น. ตอนนี้ 10:00 น. ทานแล้วจริงหรือไม่"
+        .alert(language("ยังไม่ถึงเวลา", "It's not time yet"), isPresented: earlyTickShown, presenting: earlyTick) { tick in
+            Button(language("ยังไม่ได้\(tick.medicine.thaiVerb)", "Not yet"), role: .cancel) {}
+            Button(language("\(tick.medicine.thaiVerb)แล้ว", "Yes, I took it")) {
+                withAnimation(.snappy) { store.setLog(.taken(at: Date()), for: tick.medicine, at: tick.slot, on: tick.day) }
+            }
+        } message: { tick in
+            Text(tick.medicine.earlyTickMessage(at: tick.slot, now: Date(), language))
+        }
+    }
+
+    /// "When needed", at the top of the Log or below the meals. Moving it scrolls along, so it doesn't seem to vanish.
+    private func asNeededCard(_ medicines: [Medicine], day: Date, now: Date, scroll: ScrollViewProxy) -> some View {
+        AsNeededCard(medicines: medicines, now: now, isAtBottom: asNeededAtBottom) { medicine in
+            withAnimation(.snappy) { store.logAsNeeded(medicine) }
+        } move: {
+            withAnimation(.snappy) { asNeededAtBottom.toggle() }
+            Task {
+                try? await Task.sleep(for: .milliseconds(350))
+                withAnimation(.snappy) { scroll.scrollTo(AsNeededCard.scrollID, anchor: .center) }
+            }
+        } more: {
+            logRequest = LogRequest(kind: .asNeeded, day: day)
+        }
+        .id(AsNeededCard.scrollID)
+    }
+
+    private var earlyTickShown: Binding<Bool> {
+        Binding(get: { earlyTick != nil }, set: { if !$0 { earlyTick = nil } })
     }
 
     /// "Time to take" if any medicine in this meal is due now, "Late" if one was missed.

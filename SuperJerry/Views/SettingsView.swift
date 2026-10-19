@@ -35,6 +35,18 @@ struct SettingsView: View {
                                   "Jenny shows and reads everything in English."))
                 }
 
+                // Near the top, so it's easy to find: some people don't want Jenny talking every time.
+                Section {
+                    Toggle(isOn: $autoReadAloud) {
+                        Label(language("อ่านออกเสียงอัตโนมัติ", "Read aloud automatically"), systemImage: "speaker.wave.2.fill")
+                    }
+                } header: {
+                    Text(language("เสียงอ่าน", "Voice"))
+                } footer: {
+                    Text(language("เปิดอยู่: ถ่ายรูปซองยาเสร็จ Jenny จะอ่านฉลากออกเสียงทันที ปิดอยู่: Jenny จะเงียบ แต่ยังแตะปุ่มลำโพงเพื่อฟังได้ทุกเมื่อ ใช้เสียงภาษาไทยที่มีในเครื่อง ถ้าฟังไม่ชัด เพิ่มเสียงได้ที่ การตั้งค่า ▸ การช่วยการเข้าถึง ▸ เนื้อหาที่พูด ▸ เสียง",
+                                  "On: after each photo, Jenny reads the label aloud straight away. Off: Jenny stays quiet, and you can still tap a speaker button to listen any time. Uses the English voice built into this device (Settings ▸ Accessibility ▸ Spoken Content ▸ Voices)."))
+                }
+
                 Section {
                     // Each choice is shown at its own size, so it's easy to pick one you can read.
                     Picker(language("ขนาดตัวอักษร", "Text size"), selection: $textSize) {
@@ -85,15 +97,6 @@ struct SettingsView: View {
                     Text(language(
                         "Jenny ใส่ยาแต่ละตัวไว้ในรายการ \"\(AppleReminders.listTitle)\" ของแอปเตือนความจำ เตือนทุกวันตามมื้ออาหาร (\(reminderTimes)) ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว ถ้าปิดตัวเลือกนี้ Jenny จะลบการเตือนออก",
                         "Jenny puts each medicine in a list called \"\(AppleReminders.listTitle)\" in the Reminders app, repeating every day with an alert around your meals (\(reminderTimes)). Tick it off in Reminders when you take it. Turning this off takes Jenny's reminders out again."))
-                }
-
-                Section {
-                    Toggle(language("อ่านออกเสียงหลังถ่ายรูป", "Read aloud after each photo"), isOn: $autoReadAloud)
-                } header: {
-                    Text(language("เสียง", "Voice"))
-                } footer: {
-                    Text(language("ใช้เสียงภาษาไทยที่มีในเครื่อง ถ้าเสียงฟังไม่ชัด ให้เพิ่มเสียงภาษาไทยที่ การตั้งค่า ▸ การช่วยการเข้าถึง ▸ เนื้อหาที่พูด ▸ เสียง",
-                                  "Uses the English voice built into this device. To change it, go to Settings ▸ Accessibility ▸ Spoken Content ▸ Voices."))
                 }
 
                 Section {

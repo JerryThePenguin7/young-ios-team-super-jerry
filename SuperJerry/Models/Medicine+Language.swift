@@ -104,6 +104,21 @@ nonisolated extension Medicine {
         slots.map { $0.name(language) }.joined(separator: language == .thai ? " " : ", ")
     }
 
+    /// The question when a dose is ticked before its time:
+    /// "Amlodipine ต้องทานหลังอาหารเย็น เวลา 17:45 น. ตอนนี้ 10:00 น. ทานแล้วจริงหรือไม่"
+    /// or "Amlodipine is due after dinner at 5:45 PM. It's 10:00 AM now. Did you really take it?"
+    /// With no meal word on the label: "ต้องใช้ตอนเย็น" / "is due in the evening".
+    func earlyTickMessage(at slot: TimeSlot, now: Date, _ language: AppLanguage) -> String {
+        let time = doseTime(for: slot).label(language)
+        let clock = language.time(now)
+        let verb = thaiVerb
+        let atMeal = mealPart(at: slot) == .at
+        let thaiWhen = atMeal ? slot.spokenThai : doseLabel(at: slot, .thai)
+        let englishWhen = atMeal ? slot.spoken(.english) : doseLabel(at: slot, .english).lowercased()
+        return language("\(title(.thai)) ต้อง\(verb)\(thaiWhen) เวลา \(time) ตอนนี้ \(clock) \(verb)แล้วจริงหรือไม่",
+                        "\(title(.english)) is due \(englishWhen) at \(time). It's \(clock) now. Did you really take it?")
+    }
+
     /// One dose, by its meal: "ก่อนอาหารเช้า", "หลังอาหารเย็น", "พร้อมอาหารกลางวัน", "มื้อเช้า", "ก่อนนอน"
     /// or "Before breakfast", "After dinner", "With lunch", "Breakfast", "Bedtime".
     func doseLabel(at slot: TimeSlot, _ language: AppLanguage) -> String {
