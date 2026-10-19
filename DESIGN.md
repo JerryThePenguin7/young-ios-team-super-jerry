@@ -141,18 +141,19 @@ The home screen ("ยาของฉัน · Medications") reads top to bottom:
 2. **Log ▸ no medicines yet:** a `ContentUnavailableView` pointing to the green scan button at the bottom (the old red box is gone).
 3. **Log ▸ checklist by meal:** one white card per meal: **มื้อเช้า · มื้อกลางวัน · มื้อเย็น · ก่อนนอน**, at the times the user eats
    (`MealTimes`, set in the tutorial and Settings; defaults 07:00, 12:00, 17:30, 21:00). Inside: **ก่อนอาหาร · 06:30 น.** (30 minutes
-   before), then a **meal block** in the middle ("🍴 ทานอาหารเช้า · 07:00 น."), then **พร้อมอาหาร** and **หลังอาหาร · 07:15 น.**
+   before; Settings ▸ เวลาอาหาร ▸ ยาก่อนอาหาร picks 10–60), then a **meal block** in the middle ("🍴 ทานอาหารเช้า · 07:00 น."), then **พร้อมอาหาร** and **หลังอาหาร · 07:15 น.**
    (15 minutes after). Bedtime has no meal block and never says "หลังอาหาร". Each medicine has a big tick box (and YaoYao's summary
    as bullets under the name). **Tap the box to tick it off**: it moves to Taken, like completing an item in Reminders. Press and hold
    a medicine to mark it skipped; the round **…** opens the full log sheet, where **tapping a medicine's name** opens it in
    Your Medications. A badge shows "ถึงเวลาแล้ว" or "เลยเวลาแล้ว".
    - **Ticking before the time** (more than 30 minutes early, e.g. a dinner medicine at 10:00) asks first: "ยังไม่ถึงเวลา ·
      Amlodipine ต้องทานหลังอาหารเย็น เวลา 17:45 น. ตอนนี้ 10:00 น. ทานแล้วจริงหรือไม่" (**ยังไม่ได้ทาน** / **ทานแล้ว**). Same on the medicine page chips.
-   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, at the top, above breakfast. Its **ย้ายไปไว้ใต้มื้ออาหาร / ย้ายขึ้นไว้บนสุด** button moves it
-     below the meals and back (remembered, and the page scrolls to follow it): medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
+   - **Log ▸ When needed (ยาเมื่อมีอาการ)**, at the top, above breakfast. Its round **…** is a menu: **ดูรายละเอียด** (the log sheet) and
+     **ย้ายไปไว้ใต้มื้ออาหาร / ย้ายขึ้นไว้บนสุด**, which moves it below the meals and back (remembered, and the page scrolls to follow it): medicines with no set time, like paracetamol ("ครั้งละ 1 เม็ด ห่างกันอย่างน้อย 6 ชม. เมื่อมีอาการ").
      Each has a **timeline** (`DoseTimeline`): ✓ each dose in the last 24 hours ("10:15 น. ทานแล้ว · 3 ชม. ที่แล้ว"), then
      🕒 "ตอนนี้ 13:15 น. · รออีก 3 ชม.", then ⏳ "16:15 น. ทานได้อีกครั้ง" (green line between doses, orange while waiting).
-     Below it, a big green **ทานแล้ว · Taken** button. Logging it too soon asks first ("ยังไม่ครบเวลา").
+     Each medicine has the same big **tick box** as the meals (no separate Taken button). It stays ticked for the day; tapping it again
+     asks **ทานอีกครั้งตอนนี้** or **ยกเลิกครั้งล่าสุด** (a tick by mistake). Logging it too soon asks first ("ยังไม่ครบเวลา").
      Drops, sprays and inhalers say **ใช้** instead of **ทาน** (`Medicine.thaiVerb`).
 4. **Log ▸ Taken (ทานแล้ว):** what was taken (green ✓) or skipped (⊖, struck through), by time. Tap a tick to undo it (back to the checklist); tap a time for its log sheet.
 5. **Your Medications ▸ the medicines:** white cards in groups by what they're for ("Heart & blood pressure", "Diabetes"…), always shown as a plain list (the swipe stack was removed: people preferred seeing every card). Each card has a read-aloud speaker next to the name. Tap a group's header to fold it. **Edit** deletes medicines.

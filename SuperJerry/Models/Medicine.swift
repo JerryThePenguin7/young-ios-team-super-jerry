@@ -54,12 +54,12 @@ nonisolated struct Medicine: Identifiable, Codable, Hashable {
         slot == .bedtime ? .at : MealPart(meal: meal)
     }
 
-    /// When to take it at this meal: ก่อนอาหาร 30 minutes before, หลังอาหาร 15 minutes after,
+    /// When to take it at this meal: ก่อนอาหาร 30 minutes before (or what the user picked), หลังอาหาร 15 minutes after,
     /// otherwise at the meal (or at bedtime). Breakfast at 07:00 → 06:30 before, 07:15 after.
     func doseTime(for slot: TimeSlot, meals: MealTimes = .current) -> DoseTime {
         let mealTime = meals.time(of: slot)
         switch mealPart(at: slot) {
-        case .before: return mealTime.adding(minutes: -MealTimes.minutesBefore)
+        case .before: return mealTime.adding(minutes: -meals.minutesBefore)
         case .after: return mealTime.adding(minutes: MealTimes.minutesAfter)
         case .with, .at: return mealTime
         }

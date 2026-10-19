@@ -15,6 +15,8 @@ and `YaoYaoLogo`), and the assistant that talks to the user is **Yao** ("Yao อ
 Internal code names keep "Jenny" on purpose, so saved data and settings keep working: the color assets (`JennyAccent`…),
 the save file `jenny-medicines.json`, the `jenny…` UserDefaults keys, and the `jenny-design-review` skill. Older docs
 (`docs/`, `JERRY-NOTES.md`) still say Jenny.
+The home-screen name and icon are target settings, set once with the team's OK (an exception to AGENTS.md rule 4):
+`INFOPLIST_KEY_CFBundleDisplayName = YaoYao` and `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` (Debug and Release). Keep them.
 
 ## How it works (the AI choices, and why)
 
@@ -43,12 +45,13 @@ the save file `jenny-medicines.json`, the `jenny…` UserDefaults keys, and the 
   - The day and a week strip (`WeekStrip`). Tap the date for a calendar by month (`MonthCalendarSheet`).
   - Two big buttons at the top switch between **Log** and **Your Medications** (`ContentView.tabButtons`).
   - **Log**: a **checklist per meal** (`MealCard`): ก่อนอาหาร, a meal block, then หลังอาหาร, at the user's meal times (`MealTimes`:
-    before = 30 min before, after = 15 min after; bedtime never says "หลังอาหาร"). Tap a tick box to mark it taken (press and hold to skip;
+    before = 30 min before by default, 10–60 in Settings (`MealTimes.minutesBefore`); after = 15 min after; bedtime never says "หลังอาหาร"). Tap a tick box to mark it taken (press and hold to skip;
     **…** opens `DoseLogSheet`, where a medicine's name opens it in Your Medications). Ticks remember their meal (`DoseRecord.slot`),
     so changing a meal time moves them along; old 8/12/18/21 ticks are upgraded on load.
   - Ticking a dose more than 30 minutes before its time asks first (`MedicineStore.isTooEarly`, `Medicine.earlyTickMessage`).
-  - **When needed** (`AsNeededCard`, `DoseTimeline`): at the top, or below the meals with its move button (`@AppStorage("asNeededAtBottom")`). Medicines with no set time (paracetamol). A timeline of the last 24 hours
-    (doses → now → next allowed, from the label's gap `hoursApart`, "ห่างกันอย่างน้อย 6 ชม.") and a Taken button; logging too soon asks first.
+  - **When needed** (`AsNeededCard`, `DoseTimeline`): at the top, or below the meals via its **…** menu (`@AppStorage("asNeededAtBottom")`). Medicines with no set time (paracetamol).
+    A tick box like the meals' (ticked = taken today; tapping it again asks: another one now, or undo the last one, `MedicineStore.undoLastDose`)
+    and a timeline of the last 24 hours (doses → now → next allowed, from the label's gap `hoursApart`, "ห่างกันอย่างน้อย 6 ชม."). Logging too soon asks first.
   - **Taken** (`LoggedCard`): ticked medicines, tap to undo.
   - **Your Medications**: a plain list of medicine cards in groups you can fold (the swipe stack was removed on request).
   - **How many are left** (merged into Your Medications): on each card, and a card on the medicine's screen (`StockCard`, `StockEditorSheet`).

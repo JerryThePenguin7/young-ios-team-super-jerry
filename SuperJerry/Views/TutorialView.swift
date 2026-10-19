@@ -6,6 +6,7 @@ import SwiftUI
 struct TutorialView: View {
     static let seenKey = "hasSeenTutorial"
 
+    @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppLanguage.storageKey) private var appLanguage = AppLanguage.deviceDefault
@@ -109,8 +110,8 @@ struct TutorialView: View {
     private var mealsPage: some View {
         TutorialPage(symbol: "fork.knife", color: Theme.accentFill,
                      title: language("2. เวลาอาหารของคุณ", "2. When do you eat?"),
-                     text: language("ตั้งเวลาที่คุณทานอาหารแต่ละมื้อและเวลาเข้านอน Yao จะจัดยาตามมื้อ ยาก่อนอาหารก่อน 30 นาที ยาหลังอาหารหลัง 15 นาที เปลี่ยนได้ทุกเมื่อในการตั้งค่า",
-                                    "Set when you usually eat each meal and go to bed. Yao puts your medicines around your meals: before-meal ones 30 minutes before, after-meal ones 15 minutes after. Change it any time in Settings.")) {
+                     text: language("ตั้งเวลาที่คุณทานอาหารแต่ละมื้อและเวลาเข้านอน Yao จะจัดยาตามมื้อ ยาก่อนอาหารก่อน \(store.mealTimes.minutesBefore) นาที ยาหลังอาหารหลัง \(MealTimes.minutesAfter) นาที เปลี่ยนได้ทุกเมื่อในการตั้งค่า",
+                                    "Set when you usually eat each meal and go to bed. Yao puts your medicines around your meals: before-meal ones \(store.mealTimes.minutesBefore) minutes before, after-meal ones \(MealTimes.minutesAfter) minutes after. Change it any time in Settings.")) {
             VStack(spacing: 8) {
                 MealTimesEditor()
             }

@@ -1,18 +1,21 @@
 import Foundation
 
 /// When the user eats. Yao's pill times follow the meals instead of fixed clock times, because nobody eats
-/// at the same time: ก่อนอาหาร is 30 minutes before the meal, หลังอาหาร 15 minutes after, ก่อนนอน at bedtime.
-/// Set in the tutorial and in Settings, and saved on this device.
+/// at the same time: ก่อนอาหาร is 30 minutes before the meal (the user can pick 10 to 60), หลังอาหาร 15 minutes after,
+/// ก่อนนอน at bedtime. Set in the tutorial and in Settings, and saved on this device.
 nonisolated struct MealTimes: Hashable {
     var breakfast = DoseTime(hour: 7)
     var lunch = DoseTime(hour: 12)
     var dinner = DoseTime(hour: 17, minute: 30)
     var bedtime = DoseTime(hour: 21)
 
-    /// ก่อนอาหาร: this many minutes before the meal.
-    static let minutesBefore = 30
+    /// ก่อนอาหาร: this many minutes before the meal. Picked in Settings (`beforeChoices`).
+    var minutesBefore = 30
     /// หลังอาหาร: this many minutes after the meal.
     static let minutesAfter = 15
+
+    /// What Settings offers for ก่อนอาหาร. Most labels mean 15 to 30 minutes before eating.
+    static let beforeChoices = [10, 15, 20, 30, 45, 60]
 
     func time(of slot: TimeSlot) -> DoseTime {
         switch slot {
@@ -44,16 +47,21 @@ nonisolated struct MealTimes: Hashable {
                     meals.set(DoseTime(hour: minutes / 60, minute: minutes % 60), for: slot)
                 }
             }
+            if let minutes = UserDefaults.standard.object(forKey: beforeKey) as? Int, minutes > 0 {
+                meals.minutesBefore = minutes
+            }
             return meals
         }
         set {
             for slot in TimeSlot.allCases {
                 UserDefaults.standard.set(newValue.time(of: slot).minutesFromMidnight, forKey: key(for: slot))
             }
+            UserDefaults.standard.set(newValue.minutesBefore, forKey: beforeKey)
         }
     }
 
     private static func key(for slot: TimeSlot) -> String { "mealTime.\(slot.rawValue)" }
+    private static let beforeKey = "mealTime.minutesBefore"
 }
 
 /// Where a dose sits around a meal, in the order the Log shows them:

@@ -79,11 +79,26 @@ struct SettingsView: View {
 
                 Section {
                     MealTimesEditor()
+                    // How early ก่อนอาหาร medicines come (and their reminder): 10 to 60 minutes before the meal.
+                    Picker(selection: minutesBefore) {
+                        ForEach(MealTimes.beforeChoices, id: \.self) { minutes in
+                            Text(language("\(minutes) นาทีก่อนมื้อ", "\(minutes) min before")).tag(minutes)
+                        }
+                    } label: {
+                        Label {
+                            Text(language("ยาก่อนอาหาร", "Before-meal medicines"))
+                        } icon: {
+                            Image(systemName: "timer")
+                                .foregroundStyle(Theme.accent)
+                        }
+                        .font(.title3)
+                    }
+                    .frame(minHeight: 44)
                 } header: {
                     Text(language("เวลาอาหาร", "Meal times"))
                 } footer: {
-                    Text(language("เวลาทานยาจะตามมื้ออาหารของคุณ: ยาก่อนอาหาร 30 นาทีก่อนมื้อ ยาหลังอาหาร 15 นาทีหลังมื้อ",
-                                  "Your pill times follow your meals: before-meal medicines 30 minutes before, after-meal ones 15 minutes after."))
+                    Text(language("เวลาทานยาจะตามมื้ออาหารของคุณ: ยาก่อนอาหาร \(store.mealTimes.minutesBefore) นาทีก่อนมื้อ ยาหลังอาหาร \(MealTimes.minutesAfter) นาทีหลังมื้อ การเตือนก็เปลี่ยนตามด้วย ฉลากส่วนใหญ่หมายถึง 15–30 นาทีก่อนอาหาร ถ้าไม่แน่ใจ ให้ถามเภสัชกร",
+                                  "Your pill times follow your meals: before-meal medicines \(store.mealTimes.minutesBefore) minutes before, after-meal ones \(MealTimes.minutesAfter) minutes after. Reminders follow too. Most labels mean 15 to 30 minutes before eating; if unsure, ask your pharmacist."))
                 }
 
                 Section {
@@ -140,6 +155,18 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    /// Picking a choice saves it right away; the Log, the ticks and the reminders follow (`MedicineStore.setMealTimes`).
+    private var minutesBefore: Binding<Int> {
+        Binding(
+            get: { store.mealTimes.minutesBefore },
+            set: { minutes in
+                var meals = store.mealTimes
+                meals.minutesBefore = minutes
+                store.setMealTimes(meals)
+            }
+        )
     }
 
     /// "มื้อเช้า 07:00 น. · มื้อกลางวัน 12:00 น. · …" or "Breakfast 7:00 AM · Lunch 12:00 PM · …"

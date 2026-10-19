@@ -261,6 +261,13 @@ final class MedicineStore {
         setLog(.taken(at: now), for: medicine.id, at: time, on: now)
     }
 
+    /// Takes back the last "when needed" dose logged since a moment (e.g. today): a tick by mistake.
+    func undoLastDose(of medicineID: UUID, since start: Date) {
+        guard let last = records.filter({ $0.medicineID == medicineID && !$0.isSkipped && $0.takenAt >= start })
+            .max(by: { $0.takenAt < $1.takenAt }) else { return }
+        setLog(nil, for: medicineID, at: last.time, slot: last.slot, on: last.day)
+    }
+
     // MARK: A day's schedule
 
     /// The medicines to take at each time on this day, in time order.
