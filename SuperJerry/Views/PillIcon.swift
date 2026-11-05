@@ -11,7 +11,7 @@ struct PillIcon: View {
             .font(.system(size: size * 0.45, weight: .semibold))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .background(Theme.card.gradient, in: Circle())
+            .background(Theme.accentFill.gradient, in: Circle())
             .accessibilityHidden(true)
     }
 }

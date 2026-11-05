@@ -2,9 +2,11 @@ import SwiftUI
 import UIKit
 
 /// One medicine in "Your Medications" (like the Health app): the label photo on the left, then the name
-/// with a read-aloud speaker next to it, the kind and strength, and when to take it. Tap it for details.
+/// with a read-aloud speaker next to it, the kind and strength, when to take it, and how many are left.
+/// Tap it for details (and to refill the count).
 struct MedicineCard: View {
     @Environment(\.language) private var language
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let medicine: Medicine
     /// Edit mode on the home screen: show a delete button instead.
     var isEditing = false
@@ -18,7 +20,7 @@ struct MedicineCard: View {
                 // The name with the read-aloud button right next to it.
                 HStack(alignment: .center, spacing: 4) {
                     link {
-                        Text(medicine.displayName(language))
+                        Text(medicine.title(language))
                             .font(.title3.bold())
                             .multilineTextAlignment(.leading)
                     }
@@ -33,7 +35,7 @@ struct MedicineCard: View {
                 Button(role: .destructive, action: onDelete) {
                     Image(systemName: "minus.circle.fill")
                         .font(.title)
-                        .foregroundStyle(.white, .red)
+                        .foregroundStyle(.white, Theme.red)
                         .frame(width: 60, height: 60)
                 }
                 .buttonStyle(.plain)
@@ -61,7 +63,7 @@ struct MedicineCard: View {
         } label: {
             Image(systemName: "speaker.wave.2.fill")
                 .font(.title3)
-                .foregroundStyle(Theme.red)
+                .foregroundStyle(Theme.accent)
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
@@ -91,10 +93,11 @@ struct MedicineCard: View {
                     .font(.system(size: 44, weight: .semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Theme.card.gradient)
+                    .background(Theme.accentFill.gradient)
             }
         }
-        .frame(width: 120, height: 150)
+        // Narrower with very big text, so long names like "Dicloxacillin" still fit on a line.
+        .frame(width: dynamicTypeSize.isAccessibilitySize ? 84 : 120, height: dynamicTypeSize.isAccessibilitySize ? 120 : 150)
         .clipped()
         .accessibilityHidden(true)
     }
@@ -104,8 +107,12 @@ struct MedicineCard: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(medicine.formLine(language))
                 .foregroundStyle(.secondary)
-            // Jenny's summary as bullets: how much, when, meals. The label's exact words are on the detail screen.
+            // Yao's summary as bullets: how much, when, meals. The label's exact words are on the detail screen.
             BulletList(items: medicine.summaryBullets(language))
+            if medicine.stock != nil && medicine.canCountStock {
+                Label(medicine.stockText(language), systemImage: "shippingbox")
+                    .font(.callout.weight(.semibold))
+            }
             MedicineAlerts(medicine: medicine)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

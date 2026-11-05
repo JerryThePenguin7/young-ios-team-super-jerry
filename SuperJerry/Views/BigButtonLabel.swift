@@ -12,8 +12,8 @@ struct BigButtonLabel: View {
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity, minHeight: 60)
             .padding(.horizontal, 8)
-            .foregroundStyle(filled ? Color.white : Theme.red)
-            .background(filled ? Theme.card : Theme.fill,
+            .foregroundStyle(filled ? Color.white : Theme.accent)
+            .background(filled ? Theme.accentFill : Theme.fill,
                         in: RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
             .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous))
     }

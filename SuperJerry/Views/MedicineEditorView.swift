@@ -41,8 +41,8 @@ struct MedicineEditorView: View {
                 } header: {
                     Text(language("วิธีใช้ตามฉลาก (ทุกคำ)", "Directions, word for word from the label"))
                 } footer: {
-                    Text(language("Jenny แสดงและอ่านออกเสียงตามนี้ทุกคำ ไม่ย่อ แก้ให้ตรงกับฉลากถ้าอ่านผิด",
-                                  "Jenny shows and reads these exact words, never shortened. Fix them if the camera misread the label."))
+                    Text(language("Yao แสดงและอ่านออกเสียงตามนี้ทุกคำ ไม่ย่อ แก้ให้ตรงกับฉลากถ้าอ่านผิด",
+                                  "Yao shows and reads these exact words, never shortened. Fix them if the camera misread the label."))
                 }
 
                 Section(language("ครั้งละ (ใช้นับยาและเตือน)", "Each time (for counting and reminders)")) {
@@ -54,7 +54,7 @@ struct MedicineEditorView: View {
                     Stepper(value: $medicine.amount, in: 0.5...20, step: 0.5) {
                         Text(medicine.amountLine(language))
                             .font(.title3.bold())
-                            .foregroundStyle(Theme.red)
+                            .foregroundStyle(Theme.accent)
                     }
                     .disabled(medicine.unit.isEmpty)
                     Toggle(language("จำนวนนี้ต่อข้าง (ข้างละ)", "This amount is for each side (each eye, ear or nostril)"),
@@ -69,18 +69,27 @@ struct MedicineEditorView: View {
 
                 Section {
                     Toggle(language("ใช้เมื่อมีอาการเท่านั้น", "Only when needed"), isOn: $medicine.asNeeded)
-                    if !medicine.asNeeded {
+                    if medicine.asNeeded {
+                        // "ห่างกันอย่างน้อย 6 ชม.": Yao shows when the next dose is allowed.
+                        Picker(language("ทานห่างกันอย่างน้อย", "At least this long apart"), selection: $medicine.hoursApart) {
+                            Text(language("ไม่ระบุ", "Not set")).tag(Double?.none)
+                            ForEach(hourOptions, id: \.self) { hours in
+                                Text(language("\(String(format: "%g", hours)) ชั่วโมง", "\(String(format: "%g", hours)) hours"))
+                                    .tag(Double?.some(hours))
+                            }
+                        }
+                    } else {
                         ForEach(TimeSlot.allCases, id: \.self) { slot in
                             Toggle(isOn: slotBinding(slot)) {
-                                Label("\(slot.name(language)) (\(slot.time.label(language)))", systemImage: slot.symbol)
+                                Label("\(slot.mealName(language)) (\(slot.mealTime.label(language)))", systemImage: slot.symbol)
                             }
                         }
                     }
                 } header: {
                     Text(language("เวลาทานยา", "When"))
                 } footer: {
-                    Text(language("Jenny เตือนตามเวลาเหล่านี้ ยาที่ใช้เมื่อมีอาการจะไม่มีการเตือน",
-                                  "Jenny reminds you at these times. \"Only when needed\" medicines have no reminders."))
+                    Text(language("Yao เตือนตามเวลาเหล่านี้ ยาที่ใช้เมื่อมีอาการจะไม่มีการเตือน",
+                                  "Yao reminds you at these times. \"Only when needed\" medicines have no reminders."))
                 }
 
                 Section(language("กลุ่มยา", "Group")) {
@@ -120,7 +129,7 @@ struct MedicineEditorView: View {
                     Text(language("พิมพ์ตามที่เขียนบนฉลาก", "Type them as printed on the label."))
                 }
             }
-            .tint(Theme.red)
+            .tint(Theme.accent)
             .duplicateMedicineAlert(check: $duplicateCheck) { _ in
                 save(evenIfSaved: true)
             }
@@ -135,6 +144,13 @@ struct MedicineEditorView: View {
                 }
             }
         }
+    }
+
+    /// Common gaps between "when needed" doses, plus the label's own number if it's a different one.
+    private var hourOptions: [Double] {
+        var options: [Double] = [4, 6, 8, 12, 24]
+        if let hours = medicine.hoursApart, !options.contains(hours) { options.append(hours) }
+        return options.sorted()
     }
 
     /// The usual units, plus whatever the label said if it's something else.

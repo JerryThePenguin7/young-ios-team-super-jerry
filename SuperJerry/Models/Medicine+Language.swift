@@ -14,6 +14,38 @@ nonisolated extension Medicine {
         return withoutThai.isEmpty ? name : withoutThai
     }
 
+    /// The kind of medicine first, then the name in brackets, so a foreign name makes sense:
+    /// "ยาฆ่าเชื้อแบคทีเรีย (Dicloxacillin)", "ยาหยอดตา (Poly)", "ยาพ่นจมูก (Otrivin)";
+    /// in English "Antibiotic (Dicloxacillin)", "Eye drops (Poly)", "Nasal spray (Otrivin)".
+    /// In Thai, Thai names ("ฟ้าทะลายโจร") already say what they are, so they stay as they are.
+    /// The full description, with its notes ("ทานจนหมด"), is on the medicine's own screen.
+    func title(_ language: AppLanguage) -> String {
+        let name = displayName(language)
+        guard !self.name.isEmpty, let kind = kindName(language) else { return name }
+        if language == .thai && MedicineNames.containsThai(self.name) { return name }
+        // "Vitamin D3" already says its kind: no "Vitamin D (Vitamin D3)".
+        if name.localizedCaseInsensitiveContains(kind) { return name }
+        return "\(kind) (\(name))"
+    }
+
+    /// What kind of medicine it is, most exact first: the name list ("ยาฆ่าเชื้อแบคทีเรีย (ทานจนหมด)" → "ยาฆ่าเชื้อแบคทีเรีย",
+    /// in English "Antibiotic" from `MedicineKinds`), then how it's used, from the label ("ยาหยอดตา", "ยาพ่นจมูก"),
+    /// then its group from the rules or the AI ("ยาเบาหวาน"). nil for a plain tablet or capsule Yao knows nothing else about.
+    private func kindName(_ language: AppLanguage) -> String? {
+        if let friendlyName {
+            let short = friendlyName
+                .replacingOccurrences(of: #"\s*\([^)]*\)"#, with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespaces)
+            if !short.isEmpty, let kind = language == .thai ? short : MedicineKinds.english(forThai: short) { return kind }
+        }
+        let form = formName(.thai)
+        let plainForms = ["ยาเม็ด", "แคปซูล", "ยาน้ำ", "ยาผง"]
+        if !plainForms.contains(form) { return formName(language) }
+        if let kind = group?.kindName(language) { return kind }
+        guard form == "ยาน้ำ" || form == "ยาผง" else { return nil }
+        return language(form, form == "ยาน้ำ" ? "Liquid medicine" : "Powder medicine")
+    }
+
     /// "1", "1-2", and a half: "ครึ่ง" or "½".
     func amountText(_ language: AppLanguage) -> String {
         guard language == .english else { return amountText }
@@ -22,7 +54,7 @@ nonisolated extension Medicine {
         return first
     }
 
-    /// Jenny's summary: "ครั้งละ 1 เม็ด" or "1 tablet each time"; with how it's used: "Both nostrils: 2 sprays in each".
+    /// Yao's summary: "ครั้งละ 1 เม็ด" or "1 tablet each time"; with how it's used: "Both nostrils: 2 sprays in each".
     /// Where the label's own words are known, show `directions` too: this summary can't hold everything.
     func amountLine(_ language: AppLanguage) -> String {
         guard language == .english else { return amountLine }
@@ -32,30 +64,76 @@ nonisolated extension Medicine {
         return route.map { "\(Self.routeName($0, .english)): \(each)" } ?? each
     }
 
-    /// The main instruction to show: the label's own words in Thai, or Jenny's English summary.
+    /// The main instruction to show: the label's own words in Thai, or Yao's English summary.
     func instruction(_ language: AppLanguage) -> String {
         if language == .thai, let directions { return directions }
         return amountLine(language)
     }
 
-    /// Jenny's summary as short bullet points, for lists (the Log checklist and Your Medications):
+    /// Yao's summary as short bullet points, for lists (the Log checklist and Your Medications):
     /// • ครั้งละ 1 เม็ด  • วันละ 2 ครั้ง: เช้า เย็น  • หลังอาหาร
+    /// "หลังอาหาร" is for meals, never bedtime: • วันละ 4 ครั้ง  • หลังอาหาร เช้า กลางวัน เย็น  • ก่อนนอน
     /// The label's own words are kept too (`directions`) and shown in full on the medicine's own screen.
-    /// `includeTimes: false` leaves out when to take it (the Log checklist already shows the time).
-    func summaryBullets(_ language: AppLanguage, includeTimes: Bool = true) -> [String] {
+    /// `includeTimes: false` leaves out when to take it, and `includeMeal: false` leaves out ก่อน/หลังอาหาร
+    /// (the Log's meal cards already show both).
+    func summaryBullets(_ language: AppLanguage, includeTimes: Bool = true, includeMeal: Bool = true) -> [String] {
         var bullets = [amountLine(language)]
+        var mealShown = false
         if includeTimes {
             if asNeeded {
                 bullets.append(language("เมื่อมีอาการ", "When needed"))
             } else if !orderedSlots.isEmpty {
                 let count = orderedSlots.count
-                let names = orderedSlots.map { $0.name(language) }.joined(separator: language == .thai ? " " : ", ")
-                bullets.append(language("วันละ \(count) ครั้ง: \(names)",
-                                        count == 1 ? "Once a day: \(names)" : "\(count) times a day: \(names)"))
+                let mealSlots = orderedSlots.filter { $0 != .bedtime }
+                if includeMeal && !meal.isEmpty && orderedSlots.contains(.bedtime) && !mealSlots.isEmpty {
+                    bullets.append(language("วันละ \(count) ครั้ง", count == 1 ? "Once a day" : "\(count) times a day"))
+                    bullets.append(language("\(meal) \(Self.slotNames(mealSlots, .thai))",
+                                            "\(Self.mealName(meal, .english)): \(Self.slotNames(mealSlots, .english))"))
+                    bullets.append(language("ก่อนนอน", "At bedtime"))
+                    mealShown = true
+                } else {
+                    let names = Self.slotNames(orderedSlots, language)
+                    bullets.append(language("วันละ \(count) ครั้ง: \(names)",
+                                            count == 1 ? "Once a day: \(names)" : "\(count) times a day: \(names)"))
+                }
             }
         }
-        if !meal.isEmpty { bullets.append(Self.mealName(meal, language)) }
+        // The gap between "when needed" doses is a safety rule, so it's shown even without the times.
+        if let apart = apartText(language) { bullets.append(apart) }
+        if includeMeal && !mealShown && !meal.isEmpty { bullets.append(Self.mealName(meal, language)) }
         return bullets
+    }
+
+    /// "เช้า เย็น" or "Morning, Evening"
+    private static func slotNames(_ slots: [TimeSlot], _ language: AppLanguage) -> String {
+        slots.map { $0.name(language) }.joined(separator: language == .thai ? " " : ", ")
+    }
+
+    /// The question when a dose is ticked before its time:
+    /// "Amlodipine ต้องทานหลังอาหารเย็น เวลา 17:45 น. ตอนนี้ 10:00 น. ทานแล้วจริงหรือไม่"
+    /// or "Amlodipine is due after dinner at 5:45 PM. It's 10:00 AM now. Did you really take it?"
+    /// With no meal word on the label: "ต้องใช้ตอนเย็น" / "is due in the evening".
+    func earlyTickMessage(at slot: TimeSlot, now: Date, _ language: AppLanguage) -> String {
+        let time = doseTime(for: slot).label(language)
+        let clock = language.time(now)
+        let verb = thaiVerb
+        let atMeal = mealPart(at: slot) == .at
+        let thaiWhen = atMeal ? slot.spokenThai : doseLabel(at: slot, .thai)
+        let englishWhen = atMeal ? slot.spoken(.english) : doseLabel(at: slot, .english).lowercased()
+        return language("\(title(.thai)) ต้อง\(verb)\(thaiWhen) เวลา \(time) ตอนนี้ \(clock) \(verb)แล้วจริงหรือไม่",
+                        "\(title(.english)) is due \(englishWhen) at \(time). It's \(clock) now. Did you really take it?")
+    }
+
+    /// One dose, by its meal: "ก่อนอาหารเช้า", "หลังอาหารเย็น", "พร้อมอาหารกลางวัน", "มื้อเช้า", "ก่อนนอน"
+    /// or "Before breakfast", "After dinner", "With lunch", "Breakfast", "Bedtime".
+    func doseLabel(at slot: TimeSlot, _ language: AppLanguage) -> String {
+        let food = slot.foodName(language)
+        switch mealPart(at: slot) {
+        case .before: return language("ก่อน\(food)", "Before \(food)")
+        case .with: return language("พร้อม\(food)", "With \(food)")
+        case .after: return language("หลัง\(food)", "After \(food)")
+        case .at: return slot.mealName(language)
+        }
     }
 
     /// "1 เม็ด", "ข้างละ 2 ที" or "1 tablet", for "1 tablet at 8:00 AM".
@@ -121,9 +199,11 @@ nonisolated extension Medicine {
         return language("ทุกวัน · \(slots)", "Every day · \(slots)")
     }
 
-    /// Label warnings in the chosen language. In English, Jenny translates the warnings it knows;
+    /// Label warnings in the chosen language. In English, Yao translates the warnings it knows;
     /// any other line stays as printed on the label.
-    func warningLines(_ language: AppLanguage) -> [String] {
+    /// `includeNotes: false` leaves out the envelope's "หมายเหตุ" (Note) lines, for the Log: they stay on the medicine's screen.
+    func warningLines(_ language: AppLanguage, includeNotes: Bool = true) -> [String] {
+        let warnings = cleanWarnings(includeNotes: includeNotes)
         guard language == .english else { return warnings }
         var lines: [String] = []
         for warning in warnings {
@@ -131,6 +211,44 @@ nonisolated extension Medicine {
             if !lines.contains(line) { lines.append(line) }
         }
         return lines
+    }
+
+    /// The label's warnings without the envelope's "หมายเหตุ" (Note) heading: "หมายเหตุ: ทานยาจนหมด" → "ทานยาจนหมด".
+    /// `includeNotes: false` leaves out those note lines completely.
+    func cleanWarnings(includeNotes: Bool = true) -> [String] {
+        warnings.compactMap { warning in
+            if !includeNotes && Self.isNote(warning) { return nil }
+            let line = warning
+                .replacingOccurrences(of: #"หมาย\s*เหตุ\s*[:：.\-]?\s*"#, with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespaces)
+            return line.isEmpty ? nil : line
+        }
+    }
+
+    /// A line under the envelope's "หมายเหตุ" (Note) heading.
+    static func isNote(_ line: String) -> Bool {
+        MedicineNames.thaiKey(line).contains("หมายเหตุ")
+    }
+
+    // MARK: "When needed" medicines
+
+    /// "ห่างกันอย่างน้อย 6 ชั่วโมง" or "At least 6 hours apart", for "when needed" medicines whose label gives a gap.
+    func apartText(_ language: AppLanguage) -> String? {
+        guard asNeeded, let hoursApart, hoursApart > 0 else { return nil }
+        let hours = String(format: "%g", hoursApart)
+        return language("ห่างกันอย่างน้อย \(hours) ชั่วโมง",
+                        hoursApart == 1 ? "At least 1 hour apart" : "At least \(hours) hours apart")
+    }
+
+    /// "ทาน" (eat) for medicines taken by mouth, "ใช้" (use) for drops, sprays, inhalers and creams: they aren't eaten.
+    var thaiVerb: String {
+        (route ?? "").isEmpty && !unit.isEmpty ? "ทาน" : "ใช้"
+    }
+
+    /// When a "when needed" medicine may be taken again, or nil if the label gives no gap.
+    func nextDose(after lastTaken: Date) -> Date? {
+        guard asNeeded, let hoursApart, hoursApart > 0 else { return nil }
+        return lastTaken.addingTimeInterval(hoursApart * 3600)
     }
 
     /// What the voice reads, all in one language.
@@ -143,12 +261,13 @@ nonisolated extension Medicine {
         parts.append(route == nil && !unit.isEmpty ? "Take \(amountLine(.english))" : amountLine(.english))
         if asNeeded {
             parts.append("When needed")
+            if let apart = apartText(.english) { parts.append(apart) }
         } else if !orderedSlots.isEmpty {
             let times = Self.englishList(orderedSlots.map { $0.spoken(.english) })
             parts.append(times.prefix(1).uppercased() + String(times.dropFirst()))
         }
         if !meal.isEmpty { parts.append(Self.mealName(meal, .english)) }
-        // Only the warnings Jenny could translate: an English voice can't read Thai.
+        // Only the warnings Yao could translate: an English voice can't read Thai.
         parts += warnings.compactMap(Self.englishWarning)
         if directions != nil { parts.append("Please check the exact words on the label") }
         if let expiry = expiryText(.english) { parts.append(expiry) }
@@ -235,7 +354,7 @@ nonisolated extension Medicine {
         }
     }
 
-    /// English for the warnings printed on Thai labels. nil if Jenny doesn't know this one.
+    /// English for the warnings printed on Thai labels. nil if Yao doesn't know this one.
     static func englishWarning(_ thai: String) -> String? {
         let text = MedicineNames.thaiKey(thai)
         let known: [(words: [String], english: String)] = [

@@ -18,20 +18,28 @@ struct MedicineSection: Identifiable {
 /// The two halves of the home screen, switched with the two big buttons at the top.
 enum HomeTab: Hashable {
     case log           // the day's checklist
-    case medicines     // Your Medications and Medicine Storage
+    case medicines     // Your Medications (how many are left is on each medicine's screen)
 }
 
-/// Which log sheet to open: one time's medicines, or the "when needed" ones.
+/// Which log sheet to open: one meal's medicines, or the "when needed" ones.
 struct LogRequest: Identifiable {
     let id = UUID()
     let kind: DoseLogSheet.Kind
     let day: Date
 }
 
+/// A dose ticked before its time (e.g. a dinner medicine at 10:00): Yao asks before logging it.
+struct EarlyTick: Identifiable {
+    let id = UUID()
+    let medicine: Medicine
+    let slot: TimeSlot
+    let day: Date
+}
+
 /// Home, laid out like the Health app's Medications page. Two big buttons at the top switch between
 /// **Log** (the day and week, then a checklist for each pill time and what's been taken) and
-/// **Your Medications** (the medicine stack and Medicine Storage). The red scan button floats at the bottom:
-/// Jenny's main feature, photo → read the label → read aloud → save.
+/// **Your Medications** (every medicine, by group). The red scan button floats at the bottom:
+/// Yao's main feature, photo → read the label → read aloud → save.
 struct ContentView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -55,14 +63,20 @@ struct ContentView: View {
     /// Groups in "Your Medications" that are folded closed.
     @State private var collapsedGroups: Set<MedicineGroup> = []
     @State private var tab = HomeTab.log
+    /// The medicine screens open on top of home (tap a card, or a name in the "…" sheet).
+    @State private var path: [UUID] = []
+    /// A name tapped in the "…" sheet: opened in Your Medications once the sheet has closed.
+    @State private var medicineToOpen: UUID?
     @State private var medicineToDelete: Medicine?
-    /// The medicine whose count is being set in Medicine Storage.
-    @State private var stockMedicine: Medicine?
+    /// "When needed" below the meals instead of at the top. The user moves it with the card's button.
+    @AppStorage("asNeededAtBottom") private var asNeededAtBottom = false
+    /// A tick before its time, waiting for "yes, I took it".
+    @State private var earlyTick: EarlyTick?
     @AppStorage(TutorialView.seenKey) private var hasSeenTutorial = false
     @State private var showingTutorial = false
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             // Redraws every minute so "Time to take" and "1 hr ago" stay up to date.
             TimelineView(.everyMinute) { context in
                 content(now: context.date)
@@ -106,8 +120,10 @@ struct ContentView: View {
                     retakeRequested = true
                 }
             }
-            .sheet(item: $logRequest) { request in
-                DoseLogSheet(kind: request.kind, day: request.day)
+            .sheet(item: $logRequest, onDismiss: openTappedMedicine) { request in
+                DoseLogSheet(kind: request.kind, day: request.day) { id in
+                    medicineToOpen = id
+                }
             }
             .onChange(of: photoItem) { _, item in
                 guard let item else { return }
@@ -115,9 +131,6 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSettings, onDismiss: showTutorialIfNeeded) {
                 SettingsView()
-            }
-            .sheet(item: $stockMedicine) { medicine in
-                StockEditorSheet(medicine: medicine)
             }
             .fullScreenCover(isPresented: $showingTutorial) {
                 TutorialView()
@@ -132,8 +145,8 @@ struct ContentView: View {
                 }
                 Button(language("ยกเลิก", "Cancel"), role: .cancel) {}
             } message: {
-                Text(language("Jenny ต้องใช้กล้องเพื่ออ่านฉลากยา เปิดได้ที่ การตั้งค่า ▸ Jenny ▸ กล้อง",
-                              "Jenny needs the camera to read your medicine labels. Turn it on in Settings ▸ Jenny ▸ Camera."))
+                Text(language("Yao ต้องใช้กล้องเพื่ออ่านฉลากยา เปิดได้ที่ การตั้งค่า ▸ YaoYao ▸ กล้อง",
+                              "Yao needs the camera to read your medicine labels. Turn it on in Settings ▸ YaoYao ▸ Camera."))
             }
             .confirmationDialog(language("ลบยานี้?", "Delete this medicine?"),
                                 isPresented: deleteDialogShown, titleVisibility: .visible,
@@ -151,26 +164,22 @@ struct ContentView: View {
     private func content(now: Date) -> some View {
         let day = selectedDay ?? Calendar.current.startOfDay(for: now)
 
-        return ScrollView {
+        return ScrollViewReader { scroll in
+            ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 switch tab {
                 case .log:
                     WeekStrip(selectedDay: dayBinding(now: now), now: now)
-                    logSection(day: day, now: now)
+                    logSection(day: day, now: now, scroll: scroll)
                     if !store.remindersEnabled && store.medicines.contains(where: { !$0.times.isEmpty }) {
                         remindersCard
                     }
                 case .medicines:
                     yourMedications
-                    if store.medicines.contains(where: \.canCountStock) {
-                        MedicineStorageSection { medicine in
-                            stockMedicine = medicine
-                        }
-                    }
                 }
 
-                Label(language("Jenny ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
-                               "Jenny helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device."),
+                Label(language("Yao ช่วยอ่านและจำยาของคุณ ไม่ใช่คำแนะนำทางการแพทย์ ตรวจกับฉลากจริงทุกครั้ง และถามเภสัชกรเมื่อไม่แน่ใจ รูปถ่ายเก็บไว้ในเครื่องนี้เท่านั้น",
+                               "Yao helps you read and remember your medicines. It is not medical advice: always check the real label, and ask your pharmacist if unsure. Photos stay on this device."),
                       systemImage: "info.circle")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -178,16 +187,17 @@ struct ContentView: View {
             .padding()
             .frame(maxWidth: 800)
             .frame(maxWidth: .infinity)
+            }
+            // The two big buttons stay at the top while the page scrolls.
+            .safeAreaInset(edge: .top) {
+                tabButtons
+            }
+            // The camera, from the very first launch.
+            .safeAreaInset(edge: .bottom) {
+                ScanBar(photoItem: $photoItem, takePhoto: openCamera)
+            }
+            .sensoryFeedback(.success, trigger: store.records.count)
         }
-        // The two big buttons stay at the top while the page scrolls.
-        .safeAreaInset(edge: .top) {
-            tabButtons
-        }
-        // The camera, from the very first launch.
-        .safeAreaInset(edge: .bottom) {
-            ScanBar(photoItem: $photoItem, takePhoto: openCamera)
-        }
-        .sensoryFeedback(.success, trigger: store.records.count)
     }
 
     /// "Log" and "Your Medications": two big buttons that switch the page, the chosen one filled red.
@@ -201,6 +211,8 @@ struct ContentView: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background(.bar)
+        // Pinned at the top: with the very biggest text they'd fill half the screen, so they stop growing here.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
     }
 
     @ViewBuilder
@@ -227,8 +239,8 @@ struct ContentView: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, minHeight: 60)
-                .foregroundStyle(selected ? Color.white : Theme.red)
-                .background(selected ? Theme.card : Theme.fill,
+                .foregroundStyle(selected ? Color.white : Theme.accent)
+                .background(selected ? Theme.accentFill : Theme.fill,
                             in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
@@ -246,88 +258,118 @@ struct ContentView: View {
 
     // MARK: The camera and the log
 
-    private func logSection(day: Date, now: Date) -> some View {
+    private func logSection(day: Date, now: Date, scroll: ScrollViewProxy) -> some View {
         let calendar = Calendar.current
         let isToday = calendar.isDate(day, inSameDayAs: now)
         let isFuture = !isToday && day > now
-        let slots = store.schedule(on: day)
-        // Each time's medicines that haven't been logged yet.
-        let toLog = slots.compactMap { slot -> DoseSlot? in
-            let open = slot.medicines.filter { store.record(for: $0.id, at: slot.time, on: day) == nil }
-            return open.isEmpty ? nil : DoseSlot(time: slot.time, medicines: open)
+        let meals = store.meals(on: day)
+        // Each meal's medicines that haven't been logged yet.
+        let toLog = meals.compactMap { meal -> MealSchedule? in
+            let parts = meal.parts.compactMap { part -> MealPartSchedule? in
+                let open = part.medicines.filter { store.record(for: $0.id, at: part.time, on: day) == nil }
+                return open.isEmpty ? nil : MealPartSchedule(part: part.part, time: part.time, medicines: open)
+            }
+            return parts.isEmpty ? nil : MealSchedule(slot: meal.slot, mealTime: meal.mealTime, parts: parts)
         }
         let logged = store.logged(on: day)
-        let hasAsNeeded = store.medicines.contains { $0.asNeeded }
+        let asNeeded = store.medicines
+            .filter(\.asNeeded)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         return VStack(alignment: .leading, spacing: 14) {
             if store.medicines.isEmpty {
                 ContentUnavailableView {
                     Label(language("ยังไม่มียา", "No medicines yet"), systemImage: "camera.fill")
                 } description: {
-                    Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง เพื่อเพิ่มยาตัวแรก",
-                                  "Tap the red \"Scan a medicine label\" button at the bottom to add your first medicine."))
+                    Text(language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง เพื่อเพิ่มยาตัวแรก",
+                                  "Tap the green \"Scan a medicine label\" button at the bottom to add your first medicine."))
                 }
-            } else if toLog.isEmpty && !slots.isEmpty && !isFuture {
+            } else if toLog.isEmpty && !meals.isEmpty && !isFuture {
                 Label(language("ติ๊กครบทุกตัวแล้ว", "All checked off"), systemImage: "checkmark.seal.fill")
                     .font(.title3.bold())
                     .foregroundStyle(Theme.green)
             }
 
-            ForEach(toLog) { slot in
-                LogTimeCard(time: slot.time, medicines: slot.medicines,
-                            status: isToday ? status(of: slot, now: now) : .upcoming,
-                            canLog: !isFuture) { medicine in
+            // Medicines with no set time, like paracetamol, come first: they can be needed at any moment.
+            // The user can move them below the meals.
+            if isToday && !asNeeded.isEmpty && !asNeededAtBottom {
+                asNeededCard(asNeeded, day: day, now: now, scroll: scroll)
+            }
+
+            ForEach(toLog) { meal in
+                MealCard(meal: meal, status: isToday ? status(of: meal, now: now) : .upcoming,
+                         canLog: !isFuture) { medicine in
+                    // Not time yet (a dinner medicine at 10:00)? Ask first: it may be a slip of the finger.
+                    if store.isTooEarly(medicine, at: meal.slot, on: day, now: now) {
+                        earlyTick = EarlyTick(medicine: medicine, slot: meal.slot, day: day)
+                        return
+                    }
                     // Today: taken now. An earlier day: taken at the time it was due.
-                    let takenAt = isToday ? now : slot.time.date(on: day)
-                    withAnimation(.snappy) { store.setLog(.taken(at: takenAt), for: medicine.id, at: slot.time, on: day) }
+                    let takenAt = isToday ? now : medicine.doseTime(for: meal.slot).date(on: day)
+                    withAnimation(.snappy) { store.setLog(.taken(at: takenAt), for: medicine, at: meal.slot, on: day) }
                 } skip: { medicine in
-                    withAnimation(.snappy) { store.setLog(.skipped, for: medicine.id, at: slot.time, on: day) }
+                    withAnimation(.snappy) { store.setLog(.skipped, for: medicine, at: meal.slot, on: day) }
                 } more: {
-                    logRequest = LogRequest(kind: .time(slot.time), day: day)
+                    logRequest = LogRequest(kind: .meal(meal.slot), day: day)
                 }
             }
 
-            if isToday && hasAsNeeded {
-                asNeededCard(day: day)
+            if isToday && !asNeeded.isEmpty && asNeededAtBottom {
+                asNeededCard(asNeeded, day: day, now: now, scroll: scroll)
             }
 
             if !logged.isEmpty {
                 LoggedCard(logged: logged, now: now) { dose in
-                    withAnimation(.snappy) { store.setLog(nil, for: dose.medicine.id, at: dose.record.time, on: day) }
-                } open: { time in
-                    logRequest = LogRequest(kind: .time(time), day: day)
+                    withAnimation(.snappy) {
+                        store.setLog(nil, for: dose.medicine.id, at: dose.record.time, slot: dose.record.slot, on: day)
+                    }
+                } open: { group in
+                    // A meal opens its sheet; a "when needed" time opens the "when needed" sheet.
+                    logRequest = LogRequest(kind: group.slot.map { DoseLogSheet.Kind.meal($0) } ?? .asNeeded, day: day)
                 }
             }
         }
+        // A tick before its time: "Amlodipine ต้องทานหลังอาหารเย็น เวลา 17:45 น. ตอนนี้ 10:00 น. ทานแล้วจริงหรือไม่"
+        .alert(language("ยังไม่ถึงเวลา", "It's not time yet"), isPresented: earlyTickShown, presenting: earlyTick) { tick in
+            Button(language("ยังไม่ได้\(tick.medicine.thaiVerb)", "Not yet"), role: .cancel) {}
+            Button(language("\(tick.medicine.thaiVerb)แล้ว", "Yes, I took it")) {
+                withAnimation(.snappy) { store.setLog(.taken(at: Date()), for: tick.medicine, at: tick.slot, on: tick.day) }
+            }
+        } message: { tick in
+            Text(tick.medicine.earlyTickMessage(at: tick.slot, now: Date(), language))
+        }
     }
 
-    /// "Time to take" if any medicine at this time is due now, "Late" if one was missed.
-    private func status(of slot: DoseSlot, now: Date) -> DoseStatus {
-        let statuses = slot.medicines.map { store.status(of: $0, at: slot.time, now: now) }
+    /// "When needed", at the top of the Log or below the meals. Moving it scrolls along, so it doesn't seem to vanish.
+    private func asNeededCard(_ medicines: [Medicine], day: Date, now: Date, scroll: ScrollViewProxy) -> some View {
+        AsNeededCard(medicines: medicines, now: now, isAtBottom: asNeededAtBottom) { medicine in
+            withAnimation(.snappy) { store.logAsNeeded(medicine) }
+        } undo: { medicine in
+            withAnimation(.snappy) { store.undoLastDose(of: medicine.id, since: Calendar.current.startOfDay(for: now)) }
+        } move: {
+            withAnimation(.snappy) { asNeededAtBottom.toggle() }
+            Task {
+                try? await Task.sleep(for: .milliseconds(350))
+                withAnimation(.snappy) { scroll.scrollTo(AsNeededCard.scrollID, anchor: .center) }
+            }
+        } more: {
+            logRequest = LogRequest(kind: .asNeeded, day: day)
+        }
+        .id(AsNeededCard.scrollID)
+    }
+
+    private var earlyTickShown: Binding<Bool> {
+        Binding(get: { earlyTick != nil }, set: { if !$0 { earlyTick = nil } })
+    }
+
+    /// "Time to take" if any medicine in this meal is due now, "Late" if one was missed.
+    private func status(of meal: MealSchedule, now: Date) -> DoseStatus {
+        let statuses = meal.parts.flatMap { part in
+            part.medicines.map { store.status(of: $0, at: part.time, now: now) }
+        }
         if statuses.contains(.dueNow) { return .dueNow }
         if statuses.contains(.missed) { return .missed }
         return .upcoming
-    }
-
-    private func asNeededCard(day: Date) -> some View {
-        Button {
-            logRequest = LogRequest(kind: .asNeeded, day: day)
-        } label: {
-            HStack {
-                Text(language("ยาเมื่อมีอาการ", "As Needed Medications"))
-                    .font(.title3)
-                Spacer(minLength: 8)
-                Image(systemName: "plus")
-                    .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
-                    .frame(width: 44, height: 44)
-                    .background(Theme.fill, in: Circle())
-            }
-            .padding(20)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-        }
-        .buttonStyle(.plain)
     }
 
     private var remindersCard: some View {
@@ -342,21 +384,21 @@ struct ContentView: View {
             layout {
                 Image(systemName: "checklist")
                     .font(.title2)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(width: 48, height: 48)
                     .background(Theme.fill, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
                     Text(language("เตือนในแอปเตือนความจำ", "Remind me in Reminders"))
                         .font(.headline)
-                    Text(language("Jenny จะใส่เวลาทานยาทุกเวลาไว้ในแอปเตือนความจำของ Apple",
-                                  "Jenny adds each pill time to Apple's Reminders app."))
+                    Text(language("Yao จะใส่เวลาทานยาทุกเวลาไว้ในแอปเตือนความจำของ Apple",
+                                  "Yao adds each pill time to Apple's Reminders app."))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "plus")
                     .font(.title3.bold())
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(width: 44, height: 44)
                     .background(Theme.fill, in: Circle())
             }
@@ -388,8 +430,8 @@ struct ContentView: View {
                 ContentUnavailableView(
                     language("ยังไม่มียา", "No medicines yet"),
                     systemImage: "pills",
-                    description: Text(language("แตะปุ่มสีแดง \"ถ่ายรูปซองยา\" ด้านล่าง แล้วถ่ายรูปซองยา",
-                                               "Tap the red \"Scan a medicine label\" button at the bottom and take a photo of a medicine envelope."))
+                    description: Text(language("แตะปุ่มสีเขียว \"ถ่ายรูปซองยา\" ด้านล่าง แล้วถ่ายรูปซองยา",
+                                               "Tap the green \"Scan a medicine label\" button at the bottom and take a photo of a medicine envelope."))
                 )
             } else {
                 ForEach(sections) { section in
@@ -423,7 +465,7 @@ struct ContentView: View {
                 withAnimation { isEditing.toggle() }
             }
             .font(.title3)
-            .tint(Theme.red)
+            .tint(Theme.accent)
         }
     }
 
@@ -441,7 +483,7 @@ struct ContentView: View {
             HStack(spacing: 10) {
                 Label(section.group.name(language), systemImage: section.group.symbol)
                     .font(.headline)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                 Spacer(minLength: 8)
                 Text("\(section.medicines.count)")
                     .font(.headline)
@@ -466,6 +508,14 @@ struct ContentView: View {
             let medicines = store.medicines.filter { ($0.group ?? .other) == group }
             return medicines.isEmpty ? nil : MedicineSection(group: group, medicines: medicines)
         }
+    }
+
+    /// A name was tapped in the "…" sheet: switch to Your Medications and open that medicine.
+    private func openTappedMedicine() {
+        guard let id = medicineToOpen else { return }
+        medicineToOpen = nil
+        tab = .medicines
+        path = [id]
     }
 
     /// First launch, or "Show the tutorial again" in Settings. Not in Xcode Previews, so they show the home screen.

@@ -1,12 +1,15 @@
 import SwiftUI
 
-/// A medicine's times as big chips. On a saved medicine, tap a chip to tick that dose as taken today.
+/// A medicine's times as big chips, by meal: "หลังอาหารเช้า · 07:15 น.". On a saved medicine, tap a chip to tick
+/// that dose as taken today.
 struct DoseChips: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
     let medicine: Medicine
     /// nil for a medicine that isn't saved yet: the chips only show the times.
     var now: Date?
+    /// A chip tapped before its time (e.g. dinner at 10:00), waiting for "yes, I took it".
+    @State private var earlySlot: TimeSlot?
 
     var body: some View {
         if medicine.asNeeded {
@@ -22,9 +25,14 @@ struct DoseChips: View {
                       alignment: .leading, spacing: 10) {
                 ForEach(medicine.orderedSlots, id: \.self) { slot in
                     if let now {
-                        let status = store.status(of: medicine, at: slot.time, now: now)
+                        let status = store.status(of: medicine, at: medicine.doseTime(for: slot), now: now)
                         Button {
-                            store.toggleTaken(medicine, at: slot.time, now: now)
+                            // Not time yet? Ask first: it may be a slip of the finger.
+                            if !status.isLogged && store.isTooEarly(medicine, at: slot, on: now, now: now) {
+                                earlySlot = slot
+                            } else {
+                                store.toggleTaken(medicine, at: slot, now: now)
+                            }
                         } label: {
                             chip(for: slot, status: status)
                         }
@@ -32,11 +40,24 @@ struct DoseChips: View {
                         .accessibilityHint(status.isLogged ? language("แตะเพื่อยกเลิก", "Tap to undo")
                                                            : language("แตะเมื่อทานแล้ว", "Tap when you've taken it"))
                     } else {
-                        chip(title: "\(slot.name(language)) · \(slot.time.label(language))", symbol: slot.symbol, style: .plain)
+                        chip(title: "\(medicine.doseLabel(at: slot, language)) · \(medicine.doseTime(for: slot).label(language))",
+                             symbol: slot.symbol, style: .plain)
                     }
                 }
             }
+            .alert(language("ยังไม่ถึงเวลา", "It's not time yet"), isPresented: earlySlotShown, presenting: earlySlot) { slot in
+                Button(language("ยังไม่ได้\(medicine.thaiVerb)", "Not yet"), role: .cancel) {}
+                Button(language("\(medicine.thaiVerb)แล้ว", "Yes, I took it")) {
+                    store.toggleTaken(medicine, at: slot, now: Date())
+                }
+            } message: { slot in
+                Text(medicine.earlyTickMessage(at: slot, now: Date(), language))
+            }
         }
+    }
+
+    private var earlySlotShown: Binding<Bool> {
+        Binding(get: { earlySlot != nil }, set: { if !$0 { earlySlot = nil } })
     }
 
     /// The narrowest a chip gets. Grows with the text size, so big text gets fewer chips per row.
@@ -45,13 +66,13 @@ struct DoseChips: View {
     private enum ChipStyle { case plain, taken, due, missed }
 
     private func chip(for slot: TimeSlot, status: DoseStatus) -> some View {
-        let name = slot.name(language)
+        let name = medicine.doseLabel(at: slot, language)
         return switch status {
         case .taken: chip(title: "\(name) · \(language("ทานแล้ว", "Taken"))", symbol: "checkmark.circle.fill", style: .taken)
         case .skipped: chip(title: "\(name) · \(language("ข้าม", "Skipped"))", symbol: "minus.circle.fill", style: .plain)
         case .dueNow: chip(title: "\(name) · \(language("ถึงเวลา", "Now"))", symbol: "bell.fill", style: .due)
         case .missed: chip(title: "\(name) · \(language("ยังไม่ทาน", "Not taken"))", symbol: "exclamationmark.circle.fill", style: .missed)
-        case .upcoming: chip(title: "\(name) · \(slot.time.label(language))", symbol: slot.symbol, style: .plain)
+        case .upcoming: chip(title: "\(name) · \(medicine.doseTime(for: slot).label(language))", symbol: slot.symbol, style: .plain)
         }
     }
 
@@ -74,7 +95,7 @@ struct DoseChips: View {
     private func foreground(_ style: ChipStyle) -> Color {
         switch style {
         case .taken: .white
-        case .due: Theme.red
+        case .due: .primary
         case .missed: .orange
         case .plain: .primary
         }
@@ -83,7 +104,7 @@ struct DoseChips: View {
     private func background(_ style: ChipStyle) -> Color {
         switch style {
         case .taken: Theme.greenFill
-        case .due: Theme.red.opacity(0.12)
+        case .due: Theme.yellow
         case .missed: Color.orange.opacity(0.12)
         case .plain: Theme.fill
         }
@@ -91,7 +112,7 @@ struct DoseChips: View {
 
     private func border(_ style: ChipStyle) -> Color {
         switch style {
-        case .due: Theme.red
+        case .due: Theme.accent
         case .missed: .orange
         case .taken, .plain: .clear
         }

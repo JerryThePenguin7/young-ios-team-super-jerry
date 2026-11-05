@@ -1,6 +1,6 @@
 # What we're building, and where every fact came from
 
-> **Update (Day 2):** we picked the idea. It's **Jenny**, which reads Thai medicine envelopes for older adults.
+> **Update (Day 2):** we picked the idea. It's **YaoYao**, which reads Thai medicine envelopes for older adults.
 > For what the app does today and what's left, see [project-status.md](project-status.md). This file still holds the rules, judging and sources.
 
 Written 2026-10-17 (Day 1 of the camp). Last verified 2026-10-17 15:00 against every source below. This is the "same page" doc for team **Super Jerry**.

@@ -5,6 +5,29 @@ nonisolated enum MedicineGroup: String, Codable, CaseIterable, Hashable {
     case heart, diabetes, cholesterol, stomach, pain, infection, breathing, brain
     case eyesEars, skin, vitamins, hormones, bonesJoints, urinary, herbal, other
 
+    /// A short name for this kind of medicine, put in front of a foreign name: "ยาฆ่าเชื้อ (Xyz)", "Infection medicine (Xyz)".
+    /// nil for "Other".
+    func kindName(_ language: AppLanguage) -> String? {
+        switch self {
+        case .heart: language("ยาหัวใจและความดัน", "Heart and blood pressure medicine")
+        case .diabetes: language("ยาเบาหวาน", "Diabetes medicine")
+        case .cholesterol: language("ยาลดไขมัน", "Cholesterol medicine")
+        case .stomach: language("ยากระเพาะและลำไส้", "Stomach medicine")
+        case .pain: language("ยาแก้ปวด ลดไข้", "Pain and fever medicine")
+        case .infection: language("ยาฆ่าเชื้อ", "Infection medicine")
+        case .breathing: language("ยาแก้แพ้ แก้ไอ", "Allergy and cough medicine")
+        case .brain: language("ยาระบบประสาท", "Brain and nerve medicine")
+        case .eyesEars: language("ยาตาและหู", "Eye and ear medicine")
+        case .skin: language("ยาผิวหนัง", "Skin medicine")
+        case .vitamins: language("วิตามิน", "Vitamin")
+        case .hormones: language("ยาฮอร์โมน", "Hormone medicine")
+        case .bonesJoints: language("ยากระดูกและข้อ", "Bone and joint medicine")
+        case .urinary: language("ยาทางเดินปัสสาวะ", "Bladder medicine")
+        case .herbal: language("ยาสมุนไพร", "Herbal medicine")
+        case .other: nil
+        }
+    }
+
     var thai: String {
         switch self {
         case .heart: "หัวใจ หลอดเลือด และความดัน"

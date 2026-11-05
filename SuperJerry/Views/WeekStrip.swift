@@ -2,18 +2,41 @@ import SwiftUI
 
 /// "Today, October 18", a week of days, and how the picked day went (like the Health and Fitness apps).
 /// Each day shows its short name ("Mon" / "จ."), its date, and a ring that fills up green as that day's
-/// doses are taken. Tap a day to see its summary and its log. Swipe right for earlier weeks.
+/// doses are taken. Tap a day to see its summary and its log. Swipe right for earlier weeks,
+/// or tap the date on top for a calendar by month (`MonthCalendarSheet`).
 struct WeekStrip: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
     @Binding var selectedDay: Date
     let now: Date
 
+    @State private var showingCalendar = false
+
     var body: some View {
         VStack(spacing: 14) {
-            Text(language.dayTitle(selectedDay, today: now))
-                .font(.title2.bold())
-                .frame(maxWidth: .infinity)
+            // The date drops down a month calendar (a sheet on iPhone).
+            Button {
+                showingCalendar = true
+            } label: {
+                HStack(spacing: 8) {
+                    Text(language.dayTitle(selectedDay, today: now))
+                        .font(.title2.bold())
+                        .multilineTextAlignment(.center)
+                    Image(systemName: "chevron.down.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(Theme.accent)
+                        .accessibilityHidden(true)
+                }
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(language("แตะเพื่อเปิดปฏิทินรายเดือน", "Opens a calendar by month"))
+            .popover(isPresented: $showingCalendar) {
+                MonthCalendarSheet(selectedDay: $selectedDay, now: now)
+                    .frame(minWidth: 360, idealWidth: 440, minHeight: 480, idealHeight: 640)
+                    .presentationCompactAdaptation(.sheet)
+            }
             ScrollView(.horizontal) {
                 LazyHStack(spacing: 0) {
                     ForEach(days, id: \.self) { day in
@@ -51,16 +74,16 @@ struct WeekStrip: View {
             VStack(spacing: 6) {
                 Text(language.weekdayShort(day))
                     .font(.subheadline.bold())
-                    .foregroundStyle(isToday ? Theme.red : Color.secondary)
+                    .foregroundStyle(isToday ? Theme.accent : Color.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 // The date: filled for the picked day (the focus), red text for today.
                 Text(day.formatted(.dateTime.day()))
                     .font(.headline)
                     .monospacedDigit()
-                    .foregroundStyle(isSelected ? Color.white : (isToday ? Theme.red : Color.primary))
+                    .foregroundStyle(isSelected ? Color.white : (isToday ? Theme.accent : Color.primary))
                     .frame(width: 36, height: 36)
-                    .background(isSelected ? Theme.card : Color.clear, in: Circle())
+                    .background(isSelected ? Theme.accentFill : Color.clear, in: Circle())
                 DayRing(progress: progress, isFuture: isFuture)
                     .frame(width: 36, height: 36)
             }
@@ -70,7 +93,7 @@ struct WeekStrip: View {
                 // Today's whole column gets a soft outline, so "which day is it?" is answered at a glance.
                 if isToday {
                     RoundedRectangle(cornerRadius: Theme.Radius.button, style: .continuous)
-                        .strokeBorder(Theme.red.opacity(0.35), lineWidth: 1.5)
+                        .strokeBorder(Theme.accent.opacity(0.35), lineWidth: 1.5)
                         .padding(.horizontal, 2)
                 }
             }
@@ -85,14 +108,14 @@ struct WeekStrip: View {
         }
         .accessibilityLabel(isToday ? language("วันนี้ \(language.longDay(day))", "Today, \(language.longDay(day))")
                                     : language.longDay(day))
-        .accessibilityValue(progress.map { language("ทานแล้ว \(Int($0 * 100))%", "\(Int($0 * 100))% taken") } ?? "")
+        .accessibilityValue(progress.map { language("ใช้ยาแล้ว \(Int($0 * 100))%", "\(Int($0 * 100))% done") } ?? "")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
 /// One day's ring, like the Fitness app's: a gray track that fills green as doses are taken,
 /// a solid green circle with ✓ when everything was taken, and a faint dashed ring for days still to come.
-private struct DayRing: View {
+struct DayRing: View {
     /// 0...1, or nil when nothing was due that day (or it hasn't come yet).
     let progress: Double?
     let isFuture: Bool
@@ -125,7 +148,8 @@ private struct DayRing: View {
     }
 }
 
-/// Under the week: how the picked day went, in words and a bar. "ทานแล้ว 3 จาก 4 · ข้าม 1".
+/// Under the week: how the picked day went, in words and a bar. "ใช้ยาแล้ว 3 จาก 4 ครั้ง · ข้าม 1".
+/// "ใช้ยา" (use), not "ทาน" (eat): eye drops, sprays and creams aren't eaten.
 private struct DaySummary: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -186,9 +210,9 @@ private struct DaySummary: View {
 
     private func headline(_ counts: (total: Int, taken: Int, skipped: Int)) -> String {
         if isFuture { return language("ยังไม่ถึงวันนี้", "This day hasn't come yet") }
-        if counts.total == 0 { return language("ไม่มียาที่ต้องทานวันนี้", "No medicines due this day") }
-        if counts.taken == counts.total { return language("ทานครบทุกตัวแล้ว", "Everything taken") }
-        return language("ทานแล้ว \(counts.taken) จาก \(counts.total)", "\(counts.taken) of \(counts.total) taken")
+        if counts.total == 0 { return language("ไม่มียาที่ต้องใช้วันนี้", "No medicines due this day") }
+        if counts.taken == counts.total { return language("ใช้ยาครบทุกตัวแล้ว", "All doses done") }
+        return language("ใช้ยาแล้ว \(counts.taken) จาก \(counts.total) ครั้ง", "\(counts.taken) of \(counts.total) doses done")
     }
 
     private func symbol(_ counts: (total: Int, taken: Int, skipped: Int)) -> String {

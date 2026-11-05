@@ -9,7 +9,7 @@ func readText(from image: UIImage) async throws -> [String] {
     var request = RecognizeTextRequest()
     request.recognitionLevel = .accurate
     request.recognitionLanguages = supportedLanguages(["th", "en"], in: request)
-    // Jenny: give Vision our medicine names, so it reads drug names like "MAWANG" more accurately.
+    // Yao: give Vision our medicine names, so it reads drug names like "MAWANG" more accurately.
     request.customWords = MedicineNames.ocrWords
 
     // 2. perform กับรูป: บอกทิศของรูปด้วย ไม่อย่างนั้นรูปจากกล้องที่หมุนอยู่จะอ่านไม่ออก

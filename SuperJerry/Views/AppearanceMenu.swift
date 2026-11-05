@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The button at the top left: switch Jenny between a light (white) and a dark (black) look,
+/// The button at the top left: switch Yao between a light (white) and a dark (black) look,
 /// or follow the iPad's own setting.
 struct AppearanceMenu: View {
     @Environment(\.language) private var language
@@ -21,7 +21,7 @@ struct AppearanceMenu: View {
 
 #Preview {
     NavigationStack {
-        Text("Jenny")
+        Text("YaoYao")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) { AppearanceMenu() }
             }

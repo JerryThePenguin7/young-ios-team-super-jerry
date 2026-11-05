@@ -17,7 +17,7 @@ enum PhotoStore {
             cache[name] = small
             return name
         } catch {
-            print("Jenny couldn't save the photo: \(error)")
+            print("YaoYao couldn't save the photo: \(error)")
             return nil
         }
     }

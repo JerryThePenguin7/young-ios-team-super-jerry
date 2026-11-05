@@ -15,7 +15,7 @@ struct MedicinePhoto: View {
             } else {
                 Image(systemName: "pills.fill")
                     .font(.system(size: size * 0.4))
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Theme.fill)
             }

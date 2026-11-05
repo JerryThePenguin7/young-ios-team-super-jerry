@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The app's language. Jenny shows one language at a time: all Thai or all English, never both mixed.
+/// The app's language. Yao shows one language at a time: all Thai or all English, never both mixed.
 /// Pick it in the globe menu on the home screen or in Settings.
 nonisolated enum AppLanguage: String, CaseIterable, Identifiable {
     case thai = "th"
@@ -68,6 +68,13 @@ nonisolated enum AppLanguage: String, CaseIterable, Identifiable {
     func date(_ date: Date) -> String {
         let calendar = Calendar(identifier: self == .thai ? .buddhist : .gregorian)
         return date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale, calendar: calendar))
+    }
+
+    /// "October 2026" or "ตุลาคม 2569" (Buddhist year in Thai), for the month calendar.
+    func month(_ date: Date) -> String {
+        let calendar = Calendar(identifier: self == .thai ? .buddhist : .gregorian)
+        let style = Date.FormatStyle(date: .omitted, time: .omitted, locale: locale, calendar: calendar)
+        return date.formatted(style.month(.wide).year())
     }
 
     /// "Friday, September 23" or "วันศุกร์ที่ 23 กันยายน"

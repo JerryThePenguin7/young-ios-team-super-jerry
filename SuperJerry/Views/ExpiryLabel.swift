@@ -33,7 +33,7 @@ struct ExpiryLabel: View {
     }
 
     private var color: Color {
-        if medicine.isExpired(now: now) { return .red }
+        if medicine.isExpired(now: now) { return Theme.red }
         if medicine.expiresSoon(now: now) { return .orange }
         return .secondary
     }

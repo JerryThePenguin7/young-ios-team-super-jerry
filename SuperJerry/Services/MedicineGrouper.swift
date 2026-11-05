@@ -4,7 +4,7 @@ import FoundationModels
 import CoreAILanguageModels
 #endif
 
-/// Groups medicines Jenny doesn't know (not in the name list, no clue from how they're used).
+/// Groups medicines Yao doesn't know (not in the name list, no clue from how they're used).
 /// 1. Core AI (iOS 27): Qwen3 0.6B running on the iPad, once the team adds it (see README).
 /// 2. Apple Intelligence (Foundation Models) for English names; it can't read Thai.
 /// 3. Otherwise nil, and the medicine shows under "อื่น ๆ · Other" (the user can change it).

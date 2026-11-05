@@ -36,7 +36,7 @@ struct RemindersAlert: ViewModifier {
     private var title: String {
         switch result {
         case .added: language("เพิ่มในแอปเตือนความจำแล้ว", "Added to Reminders")
-        case .denied: language("Jenny ใช้แอปเตือนความจำไม่ได้", "Reminders is off")
+        case .denied: language("Yao ใช้แอปเตือนความจำไม่ได้", "Reminders is off")
         case .notConfigured, .failed, nil: language("เพิ่มการเตือนไม่สำเร็จ", "Couldn't add reminders")
         }
     }
@@ -45,14 +45,14 @@ struct RemindersAlert: ViewModifier {
         let list = AppleReminders.listTitle
         return switch result {
         case .added(let count) where count == 0:
-            language("ยังไม่มียาที่ตั้งเวลาไว้ Jenny จะเพิ่มลงในรายการ \"\(list)\" เมื่อคุณบันทึกยา",
-                     "No medicines with set times yet. Jenny will add them to the \"\(list)\" list when you save one.")
+            language("ยังไม่มียาที่ตั้งเวลาไว้ Yao จะเพิ่มลงในรายการ \"\(list)\" เมื่อคุณบันทึกยา",
+                     "No medicines with set times yet. Yao will add them to the \"\(list)\" list when you save one.")
         case .added(let count):
             language("มีการเตือน \(count) รายการในรายการ \"\(list)\" เตือนทุกเวลาทานยา ติ๊กในแอปเตือนความจำเมื่อทานยาแล้ว",
                      "\(count) reminders are in the \"\(list)\" list, with an alert at each pill time. Tick them off in Reminders when you take your medicine.")
         case .denied:
-            language("เปิดได้ที่ การตั้งค่า ▸ Jenny ▸ การเตือนความจำ ▸ การเข้าถึงทั้งหมด",
-                     "Turn it on in Settings ▸ Jenny ▸ Reminders ▸ Full Access.")
+            language("เปิดได้ที่ การตั้งค่า ▸ YaoYao ▸ การเตือนความจำ ▸ การเข้าถึงทั้งหมด",
+                     "Turn it on in Settings ▸ YaoYao ▸ Reminders ▸ Full Access.")
         case .notConfigured:
             language("ไม่พบข้อความขออนุญาตใช้แอปเตือนความจำ ให้เพิ่ม NSRemindersFullAccessUsageDescription ที่ target ▸ Info",
                      "The Reminders permission text is missing. Add NSRemindersFullAccessUsageDescription in target ▸ Info.")

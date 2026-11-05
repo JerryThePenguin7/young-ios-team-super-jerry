@@ -1,7 +1,7 @@
 import SwiftUI
 import PhotosUI
 
-/// The camera: one big red "Scan a medicine label" button floating at the bottom of the home screen,
+/// The camera: one big green "Scan a medicine label" button floating at the bottom of the home screen,
 /// where a thumb can reach it (Liquid Glass, iOS 26). Tapping it asks how: take a photo, or choose one
 /// from Photos. Shown from the very first launch.
 struct ScanBar: View {
@@ -28,7 +28,7 @@ struct ScanBar: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
         }
         .buttonStyle(.glassProminent)
-        .tint(Theme.card)
+        .tint(Theme.accentFill)
         .controlSize(.large)
         .confirmationDialog(language("เพิ่มยาจากรูปซองยา", "Add a medicine from its label"),
                             isPresented: $showingChoice, titleVisibility: .visible) {
@@ -42,6 +42,8 @@ struct ScanBar: View {
         .padding(.horizontal)
         .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
+        // Pinned at the bottom: with the very biggest text it stops growing, so the list above stays visible.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 }
 

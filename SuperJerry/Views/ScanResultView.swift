@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// After the camera: Vision reads the label on this device, the Thai rules understand it,
-/// and Jenny shows it big and reads it aloud. Then save it, edit it, or retake the photo.
+/// and Yao shows it big and reads it aloud. Then save it, edit it, or retake the photo.
 struct ScanResultView: View {
     @Environment(MedicineStore.self) private var store
     @Environment(\.language) private var language
@@ -93,7 +93,7 @@ struct ScanResultView: View {
         }
     }
 
-    /// Jenny doesn't know this medicine: ask Core AI (iOS 27) or Apple Intelligence which group it's in.
+    /// Yao doesn't know this medicine: ask Core AI (iOS 27) or Apple Intelligence which group it's in.
     private func groupWithAI(_ reading: LabelReading) async {
         isGrouping = true
         defer { isGrouping = false }
@@ -131,7 +131,7 @@ struct ScanResultView: View {
             }
             if reading.unitGuessed {
                 checkNote(language("ไม่พบหน่วยยา จึงใช้ \"\(medicine.unit)\" ไว้ก่อน โปรดตรวจสอบ",
-                                   "No unit on the label, so Jenny used \"\(Medicine.unitName(medicine.unit, .english))\". Please check it."))
+                                   "No unit on the label, so Yao used \"\(Medicine.unitName(medicine.unit, .english))\". Please check it."))
             }
             if reading.timesGuessed {
                 checkNote(language("เดาเวลาจาก \"วันละ … ครั้ง\" โปรดตรวจสอบ",
@@ -144,6 +144,15 @@ struct ScanResultView: View {
                 } label: {
                     BigButtonLabel(title: language("อ่านออกเสียง", "Read aloud"), symbol: "speaker.wave.2.fill")
                 }
+                // Turn off reading aloud after each photo, right where it happens (also in Settings).
+                Toggle(isOn: $autoReadAloud) {
+                    Label(language("อ่านออกเสียงอัตโนมัติทุกครั้งที่ถ่ายรูป", "Read aloud automatically after each photo"),
+                          systemImage: "speaker.wave.2")
+                        .font(.callout)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .tint(Theme.accent)
+                .padding(.horizontal, 4)
                 if medicine.name.isEmpty {
                     Button {
                         editingMedicine = medicine
@@ -189,7 +198,7 @@ struct ScanResultView: View {
 
     private func notFoundCard(_ scannedText: String) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label(language("ไม่พบข้อมูลยาในรูปนี้", "Jenny couldn't find a medicine label"), systemImage: "exclamationmark.triangle.fill")
+            Label(language("ไม่พบข้อมูลยาในรูปนี้", "Yao couldn't find a medicine label"), systemImage: "exclamationmark.triangle.fill")
                 .font(.title3.bold())
                 .foregroundStyle(.orange)
             Text(language("ลองถ่ายใหม่ในที่สว่าง ให้ฉลากเต็มรูป และเอียงเล็กน้อยไม่ให้แสงสะท้อน",
@@ -226,7 +235,7 @@ struct ScanResultView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Label(language("กลุ่ม: \(group.thai)", "Group: \(group.english)"), systemImage: group.symbol)
                     .font(.headline)
-                    .foregroundStyle(Theme.red)
+                    .foregroundStyle(Theme.accent)
                 if let source = reading.groupSource {
                     Text(source.label(language))
                         .font(.subheadline)
@@ -262,7 +271,7 @@ struct ScanResultView: View {
             .font(.subheadline.bold())
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .foregroundStyle(Theme.red)
+            .foregroundStyle(Theme.accent)
             .background(Theme.fill, in: Capsule())
     }
 
@@ -280,7 +289,7 @@ struct ScanResultView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 8)
         }
-        .tint(Theme.red)
+        .tint(Theme.accent)
     }
 
     // MARK: Actions
