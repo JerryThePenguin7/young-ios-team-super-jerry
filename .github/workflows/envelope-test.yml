@@ -1,0 +1,49 @@
+# Builds YaoYao and runs the fake-envelope accuracy test on a GitHub Mac.
+# Lives only on the ci/envelope-test branch. Nothing here is part of the app.
+name: Build and envelope test
+
+on:
+  push:
+    branches: [ci/envelope-test]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Xcode 26.6
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app
+          sw_vers
+          xcodebuild -version
+
+      - name: Build the app (iOS Simulator, no signing)
+        run: |
+          mkdir -p results
+          if xcodebuild -project SuperJerry.xcodeproj -target SuperJerry -sdk iphonesimulator \
+               -configuration Debug build CODE_SIGNING_ALLOWED=NO > results/app-build.log 2>&1; then
+            echo "APP BUILD: SUCCEEDED" | tee results/app-build-result.txt
+          else
+            echo "APP BUILD: FAILED" | tee results/app-build-result.txt
+            grep -E "error:" results/app-build.log | head -40
+            exit 1
+          fi
+
+      - name: Envelope test, 300 envelopes x seeds 1, 2, 3
+        if: always()
+        run: |
+          mkdir -p results
+          for s in 1 2 3; do
+            zsh tools/envelope-test/run.sh 300 $s 2>&1 | tee results/summary-seed$s.txt
+            cp tools/envelope-test/out/report.md results/report-seed$s.md
+          done
+
+      - name: Save the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: envelope-test-results
+          path: results/
