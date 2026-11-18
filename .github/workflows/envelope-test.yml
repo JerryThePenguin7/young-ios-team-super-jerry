@@ -32,12 +32,18 @@ jobs:
             exit 1
           fi
 
-      - name: Envelope test, 300 envelopes x seeds 1, 2, 3
+      - name: Envelope test, 300 envelopes per seed
         if: always()
+        env:
+          SEEDS: "3"   # seeds 1 and 2 already ran in run 44245414562
         run: |
           mkdir -p results
-          for s in 1 2 3; do
+          for s in $SEEDS; do
+            rm -f tools/envelope-test/out/report.md
             zsh tools/envelope-test/run.sh 300 $s 2>&1 | tee results/summary-seed$s.txt
+            if ! grep -q "WHOLE ENVELOPE RIGHT" results/summary-seed$s.txt; then
+              echo "SEED $s DID NOT FINISH"; exit 1
+            fi
             cp tools/envelope-test/out/report.md results/report-seed$s.md
           done
 
