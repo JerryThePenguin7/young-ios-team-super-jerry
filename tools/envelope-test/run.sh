@@ -26,6 +26,9 @@ swiftc -O tools/envelope-test/ScoreEnvelopes/main.swift \
     SuperJerry/Models/MedicineGroup.swift \
     SuperJerry/Models/AppLanguage.swift \
     SuperJerry/Models/MealTimes.swift \
+    SuperJerry/Models/Medicine+Language.swift \
+    SuperJerry/Models/Medicine+Storage.swift \
+    SuperJerry/Understanding/MedicineKinds.swift \
     -o $OUT/bin/score-envelopes
 
 rm -rf $OUT/envelopes
