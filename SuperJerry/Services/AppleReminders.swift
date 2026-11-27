@@ -101,8 +101,12 @@ enum AppleReminders {
         notes.append(language("เพิ่มโดยแอป YaoYao ไม่ใช่คำแนะนำทางการแพทย์", "Added by the YaoYao app. Not medical advice."))
         reminder.notes = notes.joined(separator: "\n")
 
-        reminder.dueDateComponents = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute], from: nextDate(at: time))
+        // Reminders reads these date parts as Gregorian. Calendar.current is Buddhist on many Thai iPhones,
+        // so its year (2569) became the Gregorian year 2569 and the reminders never rang. Build them in Gregorian.
+        let gregorian = Calendar(identifier: .gregorian)
+        var due = gregorian.dateComponents([.year, .month, .day, .hour, .minute], from: nextDate(at: time))
+        due.calendar = gregorian
+        reminder.dueDateComponents = due
         reminder.addAlarm(EKAlarm(relativeOffset: 0))
         reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil))
         return reminder
